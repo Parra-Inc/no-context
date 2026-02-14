@@ -109,7 +109,7 @@ export function MoraleSection() {
               <FadeIn key={i} delay={i * 80}>
                 <button
                   onClick={() => openLightbox(i)}
-                  className={`group relative aspect-square w-full cursor-pointer overflow-hidden rounded-2xl ${rotations[i]} transition-all duration-300 hover:rotate-0 hover:scale-[1.025] hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED]`}
+                  className={`group relative aspect-square w-full cursor-pointer overflow-hidden rounded-xl border-2 border-[#1A1A1A] shadow-[4px_4px_0px_0px_#1A1A1A] ${rotations[i]} transition-all duration-200 hover:rotate-0 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#1A1A1A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED]`}
                 >
                   <Image
                     src={item.image}

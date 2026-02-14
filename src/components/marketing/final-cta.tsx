@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { MarketingButton } from "@/components/marketing/marketing-button";
 import { FadeIn } from "@/components/marketing/fade-in";
 
 export function FinalCTA() {
@@ -12,7 +12,7 @@ export function FinalCTA() {
           <h2 className="font-display text-3xl text-[#1A1A1A] md:text-4xl">
             Your team is already saying funny things.
             <br />
-            Let No Context Bot make them{" "}
+            Turn them into{" "}
             <span className="relative inline-block">
               <span className="relative z-10">art.</span>
               <span className="absolute inset-0 -skew-x-2 rounded-lg bg-[#EDE9FE]" />
@@ -20,7 +20,7 @@ export function FinalCTA() {
           </h2>
           <div className="mt-8">
             <Link href="/api/slack/install">
-              <Button size="xl">Add to Slack — It&apos;s Free</Button>
+              <MarketingButton size="xl">Add to Slack — It&apos;s Free</MarketingButton>
             </Link>
           </div>
           <p className="mt-4 text-sm text-[#4A4A4A]">

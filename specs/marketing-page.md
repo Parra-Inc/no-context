@@ -513,7 +513,7 @@ Accordion-style. Questions answered in a conversational, friendly tone.
 │  Pricing        Support        Terms of Service     │
 │  Gallery        Contact                             │
 │                                                     │
-│  © 2026 No Context. Made with humor and AI.         │
+│  © 2026 No Context. Made with humor and vibes.         │
 │                                                     │
 └─────────────────────────────────────────────────────┘
 ```

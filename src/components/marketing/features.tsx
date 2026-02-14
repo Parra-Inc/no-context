@@ -77,9 +77,9 @@ export function Features() {
         <div className="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           {features.map((feature, i) => (
             <FadeIn key={i} delay={i * 100}>
-              <div className="group rounded-2xl border border-[#E5E5E5] bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+              <div className="group h-full rounded-xl border-2 border-[#1A1A1A] bg-white p-6 shadow-[4px_4px_0px_0px_#1A1A1A] transition-all duration-200 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#1A1A1A]">
                 <div
-                  className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${feature.gradient} transition-transform duration-300 group-hover:scale-[1.025] group-hover:-rotate-6`}
+                  className={`flex h-14 w-14 items-center justify-center rounded-xl border-2 border-[#1A1A1A] bg-gradient-to-br ${feature.gradient} transition-transform duration-300 group-hover:scale-[1.025] group-hover:-rotate-6`}
                 >
                   <feature.icon className={`h-6 w-6 ${feature.iconColor}`} />
                 </div>

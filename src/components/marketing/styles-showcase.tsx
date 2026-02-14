@@ -30,10 +30,10 @@ export function StylesShowcase() {
               <button
                 key={style.id}
                 onClick={() => setSelectedStyle(style)}
-                className={`cursor-pointer rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 ${
+                className={`cursor-pointer rounded-full px-4 py-2 text-sm font-bold transition-all duration-150 ${
                   selectedStyle.id === style.id
-                    ? "bg-[#7C3AED] text-white shadow-md scale-[1.025]"
-                    : "border border-[#E5E5E5] bg-white text-[#4A4A4A] hover:border-[#7C3AED] hover:text-[#7C3AED] hover:scale-[1.025]"
+                    ? "border-2 border-[#1A1A1A] bg-[#7C3AED] text-white shadow-[3px_3px_0px_0px_#1A1A1A]"
+                    : "border-2 border-[#1A1A1A] bg-white text-[#4A4A4A] shadow-[3px_3px_0px_0px_#1A1A1A] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_#1A1A1A] hover:text-[#7C3AED]"
                 }`}
               >
                 {style.displayName}
@@ -44,7 +44,7 @@ export function StylesShowcase() {
 
         <FadeIn delay={200}>
           <div className="mx-auto mt-10 max-w-md">
-            <div className="overflow-hidden rounded-2xl border border-[#E5E5E5] shadow-lg transition-transform duration-300 hover:-rotate-1 hover:scale-[1.02]">
+            <div className="overflow-hidden rounded-xl border-2 border-[#1A1A1A] shadow-[4px_4px_0px_0px_#1A1A1A] transition-all duration-200 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#1A1A1A]">
               <div className="relative aspect-square">
                 <Image
                   key={selectedStyle.id}

@@ -98,7 +98,7 @@ export function ExampleGallery() {
               <FadeIn key={i} delay={i * 80}>
                 <button
                   onClick={() => setLightboxIndex(i)}
-                  className={`group w-full cursor-pointer overflow-hidden rounded-2xl border border-[#E5E5E5] bg-white text-left shadow-sm transition-all duration-300 hover:shadow-xl hover:rotate-0 hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED] ${cardRotations[i]}`}
+                  className={`group w-full cursor-pointer overflow-hidden rounded-xl border-2 border-[#1A1A1A] bg-white text-left shadow-[4px_4px_0px_0px_#1A1A1A] transition-all duration-200 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#1A1A1A] hover:rotate-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED] ${cardRotations[i]}`}
                 >
                   <div className="relative aspect-square overflow-hidden">
                     <Image

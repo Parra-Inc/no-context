@@ -68,7 +68,7 @@ export function HowItWorks() {
           {/* Connecting line — visible on md+ */}
           <div
             aria-hidden
-            className="absolute top-10 hidden h-px bg-[#E5E5E5] md:block"
+            className="absolute top-10 hidden h-0.5 bg-[#1A1A1A] md:block"
             style={{ left: "calc(100% / 6)", right: "calc(100% / 6)" }}
           />
 
@@ -77,7 +77,7 @@ export function HowItWorks() {
               <FadeIn key={i} delay={i * 150}>
                 <div className="relative flex flex-col items-center">
                   {/* Step number circle */}
-                  <div className="relative z-10 flex h-20 w-20 items-center justify-center rounded-full border border-[#E5E5E5] bg-white">
+                  <div className="relative z-10 flex h-20 w-20 items-center justify-center rounded-full border-2 border-[#1A1A1A] bg-white shadow-[3px_3px_0px_0px_#1A1A1A]">
                     <step.icon className="h-8 w-8 text-[#7C3AED]" />
                   </div>
 

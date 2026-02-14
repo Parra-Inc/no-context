@@ -1,16 +1,18 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
+import { MarketingButton } from "@/components/marketing/marketing-button";
 
 export function Hero() {
   return (
     <section className="px-6 pt-32 pb-20">
       <div className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-2">
         <div className="text-center lg:text-left">
-          <h1 className="font-display text-5xl leading-tight tracking-tight text-[#1A1A1A] md:text-6xl lg:text-7xl">
-            Your team&apos;s best quotes
+          <h1 className="font-display text-4xl leading-tight tracking-tight text-[#1A1A1A] md:text-5xl lg:text-6xl">
+            Your team&apos;s best 
             <br />
-            deserve to be{" "}
+            deserve quotes
+            <br />
+            to be{" "}
             <span className="relative inline-block">
               <span className="relative z-10">art.</span>
               <span className="absolute inset-0 -skew-x-2 rounded-lg bg-[#EDE9FE]" />
@@ -23,12 +25,12 @@ export function Hero() {
           </p>
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row lg:items-start">
             <Link href="/api/slack/install">
-              <Button size="xl" className="text-base">
+              <MarketingButton size="xl" className="text-base">
                 Add to Slack — Free to Start
-              </Button>
+              </MarketingButton>
             </Link>
             <Link href="#how-it-works">
-              <Button variant="secondary" size="xl" className="group text-base">
+              <MarketingButton variant="secondary" size="xl" className="group text-base">
                 How it Works
                 <svg
                   className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-y-1"
@@ -39,7 +41,7 @@ export function Hero() {
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                 </svg>
-              </Button>
+              </MarketingButton>
             </Link>
           </div>
         </div>

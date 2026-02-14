@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { MarketingButton } from "@/components/marketing/marketing-button";
 import { Badge } from "@/components/ui/badge";
 import { Check } from "lucide-react";
 import { FadeIn } from "@/components/marketing/fade-in";
@@ -88,7 +88,7 @@ export function Pricing() {
             Pay for what you create, not per seat.
           </p>
 
-          <div className="mt-8 flex items-center justify-center gap-3">
+          <div className="relative mt-8 flex items-center justify-center gap-3">
             <span
               className={`text-sm ${!isAnnual ? "font-medium text-[#1A1A1A]" : "text-[#4A4A4A]"}`}
             >
@@ -108,7 +108,7 @@ export function Pricing() {
               Annual
             </span>
             {isAnnual && (
-              <Badge variant="default" className="ml-1">
+              <Badge variant="default" className="absolute left-1/2 top-1/2 ml-[88px] -translate-y-1/2">
                 Save 17%
               </Badge>
             )}
@@ -119,7 +119,7 @@ export function Pricing() {
           {tiers.map((tier, i) => (
             <FadeIn key={tier.name} delay={i * 100}>
               <div
-                className={`relative flex h-full flex-col rounded-2xl border bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${tier.popular ? "border-[#7C3AED] shadow-lg shadow-violet-100" : "border-[#E5E5E5]"}`}
+                className={`relative flex h-full flex-col rounded-xl border-2 bg-white p-6 transition-all duration-200 hover:translate-x-[2px] hover:translate-y-[2px] ${tier.popular ? "border-[#7C3AED] shadow-[4px_4px_0px_0px_#7C3AED] hover:shadow-[2px_2px_0px_0px_#7C3AED]" : "border-[#1A1A1A] shadow-[4px_4px_0px_0px_#1A1A1A] hover:shadow-[2px_2px_0px_0px_#1A1A1A]"}`}
               >
                 {tier.popular && (
                   <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">
@@ -153,12 +153,12 @@ export function Pricing() {
                   ))}
                 </ul>
                 <Link href="/api/slack/install" className="mt-auto block cursor-pointer pt-8">
-                  <Button
+                  <MarketingButton
                     variant={tier.popular ? "default" : "secondary"}
                     className="w-full"
                   >
                     {tier.cta}
-                  </Button>
+                  </MarketingButton>
                 </Link>
               </div>
             </FadeIn>

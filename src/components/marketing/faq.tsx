@@ -47,6 +47,23 @@ const faqs = [
       "Absolutely. Your quotes and images are only accessible to your workspace. We don't share, sell, or use your quotes for training. You own your content.",
   },
   {
+    question: "Does it support Microsoft Teams or other platforms?",
+    answer: (
+      <>
+        Not yet — No Context Bot is Slack-only for now. If you want Teams,
+        Discord, or another platform, let us know! The more people ask, the
+        faster we&apos;ll build it.{" "}
+        <a
+          href="mailto:hello@nocontextbot.com"
+          className="font-medium text-[#7C3AED] underline hover:text-[#6D28D9]"
+        >
+          Bug us here
+        </a>
+        .
+      </>
+    ),
+  },
+  {
     question: "Does it work in private channels?",
     answer:
       "Currently No Context Bot only works in public channels. Private channel support is on our roadmap.",
@@ -72,7 +89,7 @@ export function FAQ() {
         <div className="mt-12 space-y-2">
           {faqs.map((faq, i) => (
             <FadeIn key={i} delay={i * 50}>
-              <div className="rounded-xl border border-[#E5E5E5] bg-white transition-shadow duration-200 hover:shadow-md">
+              <div className="rounded-xl border-2 border-[#1A1A1A] bg-white shadow-[3px_3px_0px_0px_#1A1A1A] transition-all duration-200 hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_#1A1A1A]">
                 <button
                   onClick={() => setOpenIndex(openIndex === i ? null : i)}
                   className="flex w-full cursor-pointer items-center justify-between p-5 text-left"

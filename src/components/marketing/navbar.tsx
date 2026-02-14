@@ -1,20 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { MarketingButton } from "@/components/marketing/marketing-button";
 import { Logo } from "@/components/logo";
 import { Menu, X } from "lucide-react";
 
 export function Navbar() {
-  const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 400);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   const navLinks = [
     { href: "#how-it-works", label: "How It Works" },
@@ -24,18 +17,18 @@ export function Navbar() {
   ];
 
   return (
-    <nav className="fixed top-0 right-0 left-0 z-50 border-b border-transparent bg-white/80 backdrop-blur-md transition-all duration-300">
+    <nav className="fixed top-0 right-0 left-0 z-50 border-b-2 border-[#1A1A1A] bg-white transition-all duration-300">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         <Link href="/">
           <Logo size="sm" />
         </Link>
 
-        <div className="hidden items-center gap-8 md:flex">
+        <div className="hidden items-center gap-6 md:flex">
           {navLinks.map((link) => (
             <a
               key={link.href}
               href={link.href}
-              className="cursor-pointer text-sm text-[#4A4A4A] transition-colors hover:text-[#1A1A1A]"
+              className="cursor-pointer text-sm font-bold text-[#1A1A1A] transition-colors hover:text-[#7C3AED]"
             >
               {link.label}
             </a>
@@ -44,15 +37,13 @@ export function Navbar() {
 
         <div className="hidden items-center gap-3 md:flex">
           <Link href="/signin">
-            <Button variant="ghost" size="sm">
+            <MarketingButton variant="secondary" size="sm">
               Sign In
-            </Button>
+            </MarketingButton>
           </Link>
-          {isScrolled && (
-            <Link href="/api/slack/install">
-              <Button size="sm">Add to Slack</Button>
-            </Link>
-          )}
+          <Link href="/api/slack/install">
+            <MarketingButton size="sm">Add to Slack</MarketingButton>
+          </Link>
         </div>
 
         <button
@@ -64,12 +55,12 @@ export function Navbar() {
       </div>
 
       {isMobileOpen && (
-        <div className="border-t border-[#E5E5E5] bg-white px-6 py-4 md:hidden">
+        <div className="border-t-2 border-[#1A1A1A] bg-white px-6 py-4 md:hidden">
           {navLinks.map((link) => (
             <a
               key={link.href}
               href={link.href}
-              className="block cursor-pointer py-2 text-sm text-[#4A4A4A]"
+              className="block cursor-pointer py-2 text-sm font-bold text-[#1A1A1A]"
               onClick={() => setIsMobileOpen(false)}
             >
               {link.label}
@@ -77,12 +68,12 @@ export function Navbar() {
           ))}
           <div className="mt-4 flex flex-col gap-2">
             <Link href="/signin">
-              <Button variant="secondary" className="w-full">
+              <MarketingButton variant="secondary" className="w-full">
                 Sign In
-              </Button>
+              </MarketingButton>
             </Link>
             <Link href="/api/slack/install">
-              <Button className="w-full">Add to Slack</Button>
+              <MarketingButton className="w-full">Add to Slack</MarketingButton>
             </Link>
           </div>
         </div>
