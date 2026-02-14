@@ -10,7 +10,7 @@ export function Hero() {
           <h1 className="font-display text-4xl leading-tight tracking-tight text-[#1A1A1A] md:text-5xl lg:text-6xl">
             Your team&apos;s best
             <br />
-            deserve quotes
+            quotes deserve
             <br />
             to be{" "}
             <span className="relative inline-block">
