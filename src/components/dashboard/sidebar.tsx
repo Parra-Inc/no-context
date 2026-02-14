@@ -17,7 +17,7 @@ interface SidebarProps {
   user: {
     name: string;
     image?: string;
-    workspaceName: string;
+    workspaceName?: string;
   };
 }
 
