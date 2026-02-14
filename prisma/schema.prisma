@@ -1,0 +1,143 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Workspace {
+  id                String   @id @default(cuid())
+  slackTeamId       String   @unique
+  slackTeamName     String
+  slackTeamIcon     String?
+  slackBotToken     String
+  slackBotUserId    String
+  installedByUserId String
+  isActive           Boolean  @default(true)
+  needsReconnection  Boolean  @default(false)
+  defaultStyleId     String   @default("watercolor")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  channels     Channel[]
+  subscription Subscription?
+  quotes       Quote[]
+  customStyles CustomStyle[]
+}
+
+model Subscription {
+  id                   String             @id @default(cuid())
+  workspaceId          String             @unique
+  workspace            Workspace          @relation(fields: [workspaceId], references: [id])
+  stripeCustomerId     String             @unique
+  stripeSubscriptionId String?            @unique
+  stripePriceId        String?
+  tier                 SubscriptionTier   @default(FREE)
+  status               SubscriptionStatus @default(ACTIVE)
+  monthlyQuota         Int                @default(5)
+  currentPeriodStart   DateTime?
+  currentPeriodEnd     DateTime?
+  cancelAtPeriodEnd    Boolean            @default(false)
+  trialEndsAt          DateTime?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+}
+
+enum SubscriptionTier {
+  FREE
+  STARTER
+  TEAM
+  BUSINESS
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  TRIALING
+  UNPAID
+}
+
+model Channel {
+  id             String    @id @default(cuid())
+  workspaceId    String
+  workspace      Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  slackChannelId String
+  channelName    String
+  isActive       Boolean   @default(true)
+  isPaused       Boolean   @default(false)
+  styleId           String?
+  postToChannelId   String?
+  postToChannelName String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  quotes Quote[]
+
+  @@unique([workspaceId, slackChannelId])
+}
+
+model Quote {
+  id              String      @id @default(cuid())
+  workspaceId     String
+  workspace       Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  channelId       String
+  channel         Channel     @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  slackMessageTs  String
+  slackUserId     String
+  slackUserName      String
+  slackUserAvatarUrl String?
+  quoteText       String
+  attributedTo    String?
+  styleId         String
+  imageUrl        String?
+  imagePrompt     String?
+  status          QuoteStatus @default(PENDING)
+  aiConfidence    Float?
+  processingError String?
+  isFavorited     Boolean     @default(false)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@unique([workspaceId, slackMessageTs])
+  @@index([workspaceId, createdAt])
+  @@index([workspaceId, status])
+}
+
+enum QuoteStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  SKIPPED
+}
+
+model CustomStyle {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  name        String
+  description String
+  createdBy   String
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([workspaceId, name])
+}
+
+model UsageRecord {
+  id          String   @id @default(cuid())
+  workspaceId String
+  periodStart DateTime
+  periodEnd   DateTime
+  quotesUsed  Int      @default(0)
+  quotaLimit  Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([workspaceId, periodStart])
+  @@index([workspaceId, periodStart])
+}

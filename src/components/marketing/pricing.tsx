@@ -1,0 +1,177 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Check } from "lucide-react";
+import { FadeIn } from "@/components/marketing/fade-in";
+
+const tiers = [
+  {
+    name: "Free",
+    monthlyPrice: 0,
+    annualPrice: 0,
+    images: 5,
+    popular: false,
+    cta: "Add to Slack — Free",
+    features: [
+      "5 generated images/month",
+      "1 connected channel",
+      "Default watercolor style",
+      "7-day image history",
+    ],
+  },
+  {
+    name: "Starter",
+    monthlyPrice: 9,
+    annualPrice: 7,
+    images: 25,
+    popular: false,
+    cta: "Try Starter Free",
+    features: [
+      "25 generated images/month",
+      "1 connected channel",
+      "5 art style options",
+      "No watermark",
+      "Full image history",
+      "Download images",
+    ],
+  },
+  {
+    name: "Team",
+    monthlyPrice: 29,
+    annualPrice: 24,
+    images: 100,
+    popular: true,
+    cta: "Try Team Free for 14 Days",
+    features: [
+      "100 generated images/month",
+      "3 connected channels",
+      "All 15+ art styles",
+      "Custom style prompts",
+      "Full gallery with search",
+      "Weekly digest",
+      "Download images",
+    ],
+  },
+  {
+    name: "Business",
+    monthlyPrice: 79,
+    annualPrice: 66,
+    images: 500,
+    popular: false,
+    cta: "Try Business Free",
+    features: [
+      "500 generated images/month",
+      "Unlimited channels",
+      "Everything in Team",
+      "API access",
+      "Priority generation queue",
+      "CSV export",
+      "Custom brand watermark",
+    ],
+  },
+];
+
+export function Pricing() {
+  const [isAnnual, setIsAnnual] = useState(false);
+
+  return (
+    <section id="pricing" className="bg-white px-6 py-24">
+      <div className="mx-auto max-w-6xl">
+        <FadeIn>
+          <h2 className="font-display text-center text-3xl text-[#1A1A1A] md:text-4xl">
+            One price. Your whole team.
+          </h2>
+          <p className="mt-4 text-center text-lg text-[#4A4A4A]">
+            Pay for what you create, not per seat.
+          </p>
+
+          <div className="mt-8 flex items-center justify-center gap-3">
+            <span
+              className={`text-sm ${!isAnnual ? "font-medium text-[#1A1A1A]" : "text-[#4A4A4A]"}`}
+            >
+              Monthly
+            </span>
+            <button
+              onClick={() => setIsAnnual(!isAnnual)}
+              className={`relative h-6 w-11 cursor-pointer rounded-full transition-colors ${isAnnual ? "bg-[#7C3AED]" : "bg-gray-200"}`}
+            >
+              <div
+                className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${isAnnual ? "translate-x-5.5" : "translate-x-0.5"}`}
+              />
+            </button>
+            <span
+              className={`text-sm ${isAnnual ? "font-medium text-[#1A1A1A]" : "text-[#4A4A4A]"}`}
+            >
+              Annual
+            </span>
+            {isAnnual && (
+              <Badge variant="default" className="ml-1">
+                Save 17%
+              </Badge>
+            )}
+          </div>
+        </FadeIn>
+
+        <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          {tiers.map((tier, i) => (
+            <FadeIn key={tier.name} delay={i * 100}>
+              <div
+                className={`relative flex h-full flex-col rounded-2xl border bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${tier.popular ? "border-[#7C3AED] shadow-lg shadow-violet-100" : "border-[#E5E5E5]"}`}
+              >
+                {tier.popular && (
+                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">
+                    POPULAR
+                  </Badge>
+                )}
+                <h3 className="text-lg font-semibold text-[#1A1A1A]">
+                  {tier.name}
+                </h3>
+                <div className="mt-4">
+                  <span className="text-4xl font-bold text-[#1A1A1A]">
+                    ${isAnnual ? tier.annualPrice : tier.monthlyPrice}
+                  </span>
+                  <span className="text-[#4A4A4A]">/mo</span>
+                </div>
+                {isAnnual && tier.annualPrice > 0 && (
+                  <p className="mt-1 text-xs text-[#4A4A4A]">billed annually</p>
+                )}
+                <p className="mt-2 text-sm font-medium text-[#7C3AED]">
+                  {tier.images} images/month
+                </p>
+                <ul className="mt-6 space-y-3">
+                  {tier.features.map((feature, j) => (
+                    <li
+                      key={j}
+                      className="flex items-start gap-2 text-sm text-[#4A4A4A]"
+                    >
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#7C3AED]" />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+                <Link href="/api/slack/install" className="mt-auto block cursor-pointer pt-8">
+                  <Button
+                    variant={tier.popular ? "default" : "secondary"}
+                    className="w-full"
+                  >
+                    {tier.cta}
+                  </Button>
+                </Link>
+              </div>
+            </FadeIn>
+          ))}
+        </div>
+
+        <FadeIn delay={200}>
+          <p className="mt-8 text-center text-sm text-[#4A4A4A]">
+            All plans include AI quote detection, Slack integration, and dashboard
+            access. No per-seat pricing — your whole team uses it.
+          </p>
+        </FadeIn>
+      </div>
+    </section>
+  );
+}
