@@ -185,5 +185,8 @@ async function handler(request: NextRequest) {
   }
 }
 
-// Wrap with QStash signature verification
-export const POST = verifySignatureAppRouter(handler);
+// Wrap with QStash signature verification (deferred so build doesn't fail when keys are absent)
+export async function POST(request: NextRequest) {
+  const verified = verifySignatureAppRouter(handler);
+  return verified(request);
+}
