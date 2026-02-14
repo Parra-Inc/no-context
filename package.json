@@ -25,6 +25,7 @@
     "@anthropic-ai/sdk": "^0.74.0",
     "@prisma/adapter-pg": "^7.4.0",
     "@prisma/client": "^7.4.0",
+    "@prisma/client-runtime-utils": "^7.4.0",
     "@slack/web-api": "^7.14.1",
     "@tailwindcss/postcss": "^4.1.18",
     "@types/node": "^25.2.3",

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Logo } from "@/components/logo";
 
 export function Footer() {
   return (
@@ -6,7 +7,7 @@ export function Footer() {
       <div className="mx-auto max-w-6xl">
         <div className="grid gap-8 md:grid-cols-4">
           <div>
-            <p className="text-lg font-bold text-[#1A1A1A]">No Context</p>
+            <Logo size="sm" />
             <p className="mt-2 text-sm text-[#4A4A4A]">
               The Slack bot that turns your team&apos;s funniest quotes into
               art.
@@ -53,12 +54,12 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <a
-                  href="mailto:hello@nocontextbot.com"
+                <Link
+                  href="/contact"
                   className="cursor-pointer text-sm text-[#4A4A4A] hover:text-[#1A1A1A]"
                 >
                   Contact
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -86,7 +87,7 @@ export function Footer() {
         </div>
         <div className="mt-12 pt-6">
           <p className="text-center text-xs text-[#4A4A4A]">
-            &copy; 2026 No Context. Made with humor and vibes.
+            &copy; 2026 Parra, LLC. Made with humor and vibes.
           </p>
         </div>
       </div>

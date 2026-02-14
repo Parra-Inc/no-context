@@ -21,7 +21,7 @@ const organizationSchema = {
     "No Context is a Slack app that turns your team's funniest out-of-context quotes into AI-generated paintings.",
   contactPoint: {
     "@type": "ContactPoint",
-    email: "support@nocontextbot.com",
+    url: `${baseUrl}/contact`,
     contactType: "customer support",
   },
 };

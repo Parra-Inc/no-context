@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Logo } from "@/components/logo";
-import { Button } from "@/components/ui/button";
+import { MarketingButton } from "@/components/marketing/marketing-button";
 import { signInWithSlack } from "./actions";
 
 const GALLERY_CARDS = [
@@ -101,16 +101,17 @@ export function SignInContent() {
           </div>
 
           <form action={signInWithSlack}>
-            <Button
+            <MarketingButton
               type="submit"
+              variant="secondary"
               size="xl"
-              className="w-full gap-3 rounded-2xl text-base"
+              className="w-full gap-3"
               onClick={() => setIsLoading(true)}
               disabled={isLoading}
             >
               <SlackIcon />
               {isLoading ? "Redirecting..." : "Sign in with Slack"}
-            </Button>
+            </MarketingButton>
           </form>
 
           <p className="mt-8 text-center text-xs text-[#4A4A4A]">

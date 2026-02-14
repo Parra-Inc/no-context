@@ -16,17 +16,13 @@ export default function SupportPage() {
       <div className="mt-8 space-y-6 text-[#4A4A4A]">
         <p>Need help with No Context? We&apos;re here for you.</p>
         <div className="rounded-xl border border-[#E5E5E5] bg-white p-6">
-          <h2 className="text-lg font-semibold text-[#1A1A1A]">
-            Email Support
-          </h2>
+          <h2 className="text-lg font-semibold text-[#1A1A1A]">Contact Us</h2>
           <p className="mt-2">
-            Send us an email at{" "}
-            <a
-              href="mailto:support@nocontextbot.com"
-              className="text-[#7C3AED] hover:underline"
-            >
-              support@nocontextbot.com
-            </a>
+            Reach out through our{" "}
+            <a href="/contact" className="text-[#7C3AED] hover:underline">
+              contact form
+            </a>{" "}
+            and we&apos;ll get back to you within 24 hours.
           </p>
         </div>
         <div className="rounded-xl border border-[#E5E5E5] bg-white p-6">

@@ -44,7 +44,13 @@ export default function PrivacyPage() {
           can request full data deletion by contacting support.
         </p>
         <h2 className="text-xl font-semibold text-[#1A1A1A]">Contact</h2>
-        <p>For privacy questions, contact us at privacy@nocontextbot.com.</p>
+        <p>
+          For privacy questions,{" "}
+          <a href="/contact" className="text-[#7C3AED] hover:underline">
+            contact us
+          </a>
+          .
+        </p>
       </div>
     </div>
   );

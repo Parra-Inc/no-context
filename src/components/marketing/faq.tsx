@@ -54,7 +54,7 @@ const faqs = [
         Discord, or another platform, let us know! The more people ask, the
         faster we&apos;ll build it.{" "}
         <a
-          href="mailto:hello@nocontextbot.com"
+          href="/contact"
           className="font-medium text-[#7C3AED] underline hover:text-[#6D28D9]"
         >
           Bug us here

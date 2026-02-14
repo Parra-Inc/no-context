@@ -51,7 +51,13 @@ export default function TermsPage() {
           not liable for any damages arising from use of the service.
         </p>
         <h2 className="text-xl font-semibold text-[#1A1A1A]">Contact</h2>
-        <p>Questions? Contact us at legal@nocontextbot.com.</p>
+        <p>
+          Questions?{" "}
+          <a href="/contact" className="text-[#7C3AED] hover:underline">
+            Contact us
+          </a>
+          .
+        </p>
       </div>
     </div>
   );
