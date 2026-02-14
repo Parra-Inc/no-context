@@ -9,37 +9,37 @@ import { signInWithSlack } from "./actions";
 
 const GALLERY_CARDS = [
   {
-    src: "/images/landing/gallery-duck-ghibli.png",
+    src: "/images/landing/gallery/duck-ghibli.png",
     style: "Ghibli",
     quote: "\u201CThis duck has seen things you wouldn\u2019t believe\u201D",
     author: "Raj, Engineering",
   },
   {
-    src: "/images/landing/gallery-goat-cubism.png",
+    src: "/images/landing/gallery/goat-cubism.png",
     style: "Cubism",
     quote: "\u201CThat\u2019s not a bug, that\u2019s a goat\u201D",
     author: "Priya, Product",
   },
   {
-    src: "/images/landing/gallery-seagull-hokusai.png",
+    src: "/images/landing/gallery/seagull-hokusai.png",
     style: "Ukiyo-e",
     quote: "\u201CWho let the seagull into standup again\u201D",
     author: "Sam, Design",
   },
   {
-    src: "/images/landing/gallery-throne-vangogh.png",
+    src: "/images/landing/gallery/throne-vangogh.png",
     style: "Van Gogh",
     quote: "\u201CThe intern sits on the throne now\u201D",
     author: "Mike, Engineering",
   },
   {
-    src: "/images/landing/gallery-plants-watercolor.png",
+    src: "/images/landing/gallery/plants-watercolor.png",
     style: "Watercolor",
     quote: "\u201CThe office plants are thriving more than our roadmap\u201D",
     author: "Tina, Marketing",
   },
   {
-    src: "/images/landing/gallery-raccoon-pixel.png",
+    src: "/images/landing/gallery/raccoon-pixel.png",
     style: "Pixel Art",
     quote: "\u201CThere\u2019s a raccoon in the server room again\u201D",
     author: "Alex, Ops",

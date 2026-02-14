@@ -81,7 +81,9 @@ async function handler(request: NextRequest) {
     }
 
     // Download, apply watermark for free tier, and upload to Vercel Blob
-    let imageBuffer = await downloadImage(result.imageUrl);
+    let imageBuffer = await downloadImage(
+      result.imageBuffer ?? result.imageUrl,
+    );
     if (TIER_HAS_WATERMARK[tier]) {
       imageBuffer = await applyWatermark(imageBuffer);
     }

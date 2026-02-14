@@ -85,7 +85,8 @@ export function Pricing() {
             One price. Your whole team.
           </h2>
           <p className="mt-4 text-center text-lg text-[#4A4A4A]">
-            Pay for what you create, not per seat.
+            Every plan includes AI quote detection, instant image generation,
+            and full Slack integration — no per-seat fees.
           </p>
 
           <div className="relative mt-8 flex items-center justify-center gap-3">
@@ -173,8 +174,8 @@ export function Pricing() {
 
         <FadeIn delay={200}>
           <p className="mt-8 text-center text-sm text-[#4A4A4A]">
-            All plans include AI quote detection, Slack integration, and
-            dashboard access. No per-seat pricing — your whole team uses it.
+            Need more than 500 images? Contact us for a custom Enterprise plan
+            with unlimited generation and dedicated support.
           </p>
         </FadeIn>
       </div>

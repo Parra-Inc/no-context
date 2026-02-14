@@ -26,22 +26,12 @@ export const metadata: Metadata = {
     title: "No Context — Turn Slack Quotes into AI Art",
     description:
       "Every out-of-context quote your team posts becomes a one-of-a-kind AI-generated painting.",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "No Context — Turn Slack Quotes into AI Art",
-        type: "image/png",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "No Context — Turn Slack Quotes into AI Art",
     description:
       "Every out-of-context quote your team posts becomes a one-of-a-kind AI-generated painting.",
-    images: ["/og-image.png"],
   },
   icons: {
     icon: [

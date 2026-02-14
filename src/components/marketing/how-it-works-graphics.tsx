@@ -228,7 +228,7 @@ export function SetupChannelGraphic() {
           {/* Messages area */}
           <div className="flex-1 overflow-hidden py-2">
             <SlackMessage
-              avatar="/images/landing/avatar-tara.jpg"
+              avatar="/images/landing/avatar/tara.jpg"
               initials="TR"
               color="#2BAC76"
               name="Tara R."
@@ -237,7 +237,7 @@ export function SetupChannelGraphic() {
               joined #no-context.
             </SlackMessage>
             <SlackMessage
-              avatar="/images/landing/avatar-dan.jpg"
+              avatar="/images/landing/avatar/dan.jpg"
               initials="DK"
               color="#E8912D"
               name="Dan K."
@@ -247,7 +247,7 @@ export function SetupChannelGraphic() {
               &ldquo;I peaked in the 3rd grade&rdquo;
             </SlackMessage>
             <SlackMessage
-              avatar="/images/landing/avatar-rachel.jpg"
+              avatar="/images/landing/avatar/rachel.jpg"
               initials="RP"
               color="#1264A3"
               name="Rachel P."
@@ -287,7 +287,7 @@ export function DropQuoteGraphic() {
         {/* Messages */}
         <div className="flex-1 overflow-hidden py-2">
           <SlackMessage
-            avatar="/images/landing/avatar-jamie.jpg"
+            avatar="/images/landing/avatar/jamie.jpg"
             initials="JT"
             color="#7C3AED"
             name="Jamie T."
@@ -302,7 +302,7 @@ export function DropQuoteGraphic() {
           </SlackMessage>
 
           <SlackMessage
-            avatar="/images/landing/avatar-maya.jpg"
+            avatar="/images/landing/avatar/maya.jpg"
             initials="MH"
             color="#E05D44"
             name="Maya H."
@@ -320,7 +320,7 @@ export function DropQuoteGraphic() {
           </SlackMessage>
 
           <SlackMessage
-            avatar="/images/landing/avatar-alex.jpg"
+            avatar="/images/landing/avatar/alex.jpg"
             initials="AW"
             color="#1264A3"
             name="Alex W."
@@ -368,7 +368,7 @@ export function GetArtGraphic() {
         <div className="flex-1 overflow-hidden py-2">
           {/* Original quote */}
           <SlackMessage
-            avatar="/images/landing/avatar-maya.jpg"
+            avatar="/images/landing/avatar/maya.jpg"
             initials="MH"
             color="#E05D44"
             name="Maya H."
@@ -399,7 +399,7 @@ export function GetArtGraphic() {
               {/* Generated painting */}
               <div className="mt-1.5 w-fit overflow-hidden rounded-lg border border-[#E5E5E5]">
                 <Image
-                  src="/images/landing/gallery-goat-cubism.png"
+                  src="/images/landing/gallery/goat-cubism.png"
                   alt="AI-generated painting of a goat in a conference room, cubism style"
                   width={200}
                   height={120}

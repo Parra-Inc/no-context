@@ -10,37 +10,37 @@ const galleryItems = [
     quote: "I just mass-replied 'love you' to the entire company",
     author: "Head of Marketing",
     style: "Pop Art",
-    image: "/images/landing/gallery-love-popart.png",
+    image: "/images/landing/gallery/love-popart.png",
   },
   {
     quote: "Why is there a duck in the server room?",
     author: "CEO",
     style: "Ghibli",
-    image: "/images/landing/gallery-duck-ghibli.png",
+    image: "/images/landing/gallery/duck-ghibli.png",
   },
   {
     quote: "The plants in accounting have become sentient",
     author: "Facilities",
     style: "Watercolor",
-    image: "/images/landing/gallery-plants-watercolor.png",
+    image: "/images/landing/gallery/plants-watercolor.png",
   },
   {
     quote: "Someone let a goat into the conference room again",
     author: "VP of Sales",
     style: "Cubism",
-    image: "/images/landing/gallery-goat-cubism.png",
+    image: "/images/landing/gallery/goat-cubism.png",
   },
   {
     quote: "The printer is haunted and I have evidence",
     author: "Office Manager",
     style: "Dali",
-    image: "/images/landing/gallery-printer-dali.png",
+    image: "/images/landing/gallery/printer-dali.png",
   },
   {
     quote: "A raccoon got into the server room and now it runs better",
     author: "DevOps",
     style: "Pixel Art",
-    image: "/images/landing/gallery-raccoon-pixel.png",
+    image: "/images/landing/gallery/raccoon-pixel.png",
   },
 ];
 
@@ -79,13 +79,13 @@ export function MoraleSection() {
         <div className="mx-auto max-w-3xl text-center">
           <FadeIn>
             <h2 className="font-display text-3xl text-[#1A1A1A] md:text-4xl">
-              Your team is already{" "}
+              Your Slack messages are{" "}
               <span className="relative inline-block">
-                <span className="relative z-10">hilarious.</span>
+                <span className="relative z-10">unhinged.</span>
                 <span className="absolute bottom-1 left-0 -z-0 h-3 w-full bg-[#EDE9FE]" />
               </span>
               <br />
-              Now there&apos;s proof.
+              We just illustrate them.
             </h2>
           </FadeIn>
           <FadeIn delay={100}>

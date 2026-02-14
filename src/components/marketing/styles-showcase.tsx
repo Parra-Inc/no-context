@@ -20,7 +20,7 @@ export function StylesShowcase() {
             </span>
           </h2>
           <p className="mt-4 text-lg text-[#4A4A4A]">
-            Pick from 17+ art styles
+            Pick from 23+ art styles
           </p>
         </FadeIn>
 
@@ -45,10 +45,10 @@ export function StylesShowcase() {
         <FadeIn delay={200}>
           <div className="mx-auto mt-10 max-w-md">
             <div className="overflow-hidden rounded-xl border-2 border-[#1A1A1A] shadow-[4px_4px_0px_0px_#1A1A1A] transition-all duration-200 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#1A1A1A]">
-              <div className="relative aspect-square">
+              <div className="relative aspect-[4/3]">
                 <Image
                   key={selectedStyle.id}
-                  src={`/images/landing/showcase-${selectedStyle.id}.png`}
+                  src={`/images/landing/showcase/${selectedStyle.id}.png`}
                   alt="The printer is on fire again and honestly I think it's personal"
                   fill
                   className="object-cover"

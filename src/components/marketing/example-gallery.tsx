@@ -10,64 +10,111 @@ const examples = [
     quote: "Someone let a goat into the conference room again",
     author: "VP of Sales",
     style: "Cubism",
-    image: "/images/landing/gallery-goat-cubism.png",
+    image: "/images/landing/gallery/goat-cubism.png",
   },
   {
     quote: "There's a sword in the supply closet and HR won't explain it",
     author: "Intern",
     style: "Pop Art",
-    image: "/images/landing/gallery-sword-popart.png",
+    image: "/images/landing/gallery/sword-popart.png",
   },
   {
     quote: "I just watched the CEO chase a seagull across the parking lot",
     author: "Junior Dev",
     style: "Hokusai",
-    image: "/images/landing/gallery-seagull-hokusai.png",
+    image: "/images/landing/gallery/seagull-hokusai.png",
   },
   {
     quote: "Why is there a duck in the server room?",
     author: "CEO",
     style: "Ghibli",
-    image: "/images/landing/gallery-duck-ghibli.png",
+    image: "/images/landing/gallery/duck-ghibli.png",
   },
   {
     quote: "The plants in accounting have become sentient",
     author: "Facilities",
     style: "Watercolor",
-    image: "/images/landing/gallery-plants-watercolor.png",
+    image: "/images/landing/gallery/plants-watercolor.png",
   },
   {
     quote:
       "The intern built a throne out of shipping boxes and won't come down",
     author: "Senior Engineer",
     style: "Van Gogh",
-    image: "/images/landing/gallery-throne-vangogh.png",
+    image: "/images/landing/gallery/throne-vangogh.png",
   },
   {
     quote: "The printer is haunted and I have evidence",
     author: "Office Manager",
     style: "Dali",
-    image: "/images/landing/gallery-printer-dali.png",
+    image: "/images/landing/gallery/printer-dali.png",
   },
   {
     quote: "A raccoon got into the server room and now it runs better",
     author: "DevOps",
     style: "Pixel Art",
-    image: "/images/landing/gallery-raccoon-pixel.png",
+    image: "/images/landing/gallery/raccoon-pixel.png",
   },
   {
     quote:
       "The new hire showed up in full idol gear and challenged the CEO to a dance battle",
     author: "HR Director",
     style: "K-Pop Demon Hunters",
-    image: "/images/landing/gallery-dancebattle-kpop.png",
+    image: "/images/landing/gallery/dancebattle-kpop.png",
   },
   {
     quote:
-      "Someone left a Victory Royale banner on the whiteboard and nobody will take it down",
+      "The marketing team barricaded themselves in the conference room and declared it a sovereign nation",
     author: "Product Manager",
     style: "Fortnite",
-    image: "/images/landing/gallery-victory-fortnite.png",
+    image: "/images/landing/gallery/barricade-fortnite.png",
+  },
+  {
+    quote: "The fire alarm went off and the CEO just kept eating his sandwich",
+    author: "Security Guard",
+    style: "Comic Book",
+    image: "/images/landing/gallery/firealarm-comic.png",
+  },
+  {
+    quote:
+      "Someone brought a horse to bring-your-pet-to-work day and it won't leave",
+    author: "Receptionist",
+    style: "Rockwell",
+    image: "/images/landing/gallery/horse-rockwell.png",
+  },
+  {
+    quote:
+      "The VP just announced he's going dark and won't be reachable for the rest of the quarter",
+    author: "Executive Assistant",
+    style: "Archer",
+    image: "/images/landing/gallery/dark-archer.png",
+  },
+  {
+    quote: "The CFO said our Q3 numbers are gonna have a bad time",
+    author: "Finance Analyst",
+    style: "South Park",
+    image: "/images/landing/gallery/badtime-southpark.png",
+  },
+  {
+    quote:
+      "Good news everyone, the WiFi password is finally being changed from password123",
+    author: "IT Director",
+    style: "Futurama",
+    image: "/images/landing/gallery/wifi-futurama.png",
+  },
+  {
+    quote:
+      "Someone ate every donut from the break room and left a handwritten apology on a napkin",
+    author: "Office Manager",
+    style: "The Simpsons",
+    image: "/images/landing/gallery/donut-simpsons.png",
+  },
+  {
+    quote:
+      "IT converted the basement into a bunker and now they won't come out until the quarterly review is over",
+    author: "CTO",
+    style: "Fallout",
+    image: "/images/landing/gallery/bunker-fallout.png",
   },
 ];
 
@@ -82,6 +129,14 @@ const cardRotations = [
   "rotate-0.5",
   "rotate-1",
   "-rotate-1",
+  "rotate-0.5",
+  "-rotate-0.5",
+  "-rotate-1",
+  "rotate-0.5",
+  "-rotate-0.5",
+  "rotate-1",
+  "-rotate-1",
+  "rotate-0.5",
 ];
 
 export function ExampleGallery() {

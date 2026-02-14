@@ -65,7 +65,7 @@ export function Hero() {
             <div className="space-y-4 p-4">
               <div className="flex gap-3">
                 <img
-                  src="/images/landing/avatar-sarah.jpg"
+                  src="/images/landing/avatar/sarah.jpg"
                   alt="Sarah Chen"
                   className="h-9 w-9 shrink-0 rounded-lg object-cover"
                 />
@@ -175,7 +175,7 @@ export function Hero() {
                 </div>
                 <div className="relative mt-2 aspect-[4/3] overflow-hidden rounded-xl">
                   <Image
-                    src="/images/landing/hero-vangogh.png"
+                    src="/images/landing/hero/vangogh.png"
                     alt="Van Gogh style painting of aliens at a workplace, inspired by the quote"
                     fill
                     className="scale-110 object-cover"
