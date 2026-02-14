@@ -11,6 +11,7 @@ Classic video game aesthetic with blocky pixels.
 **Best for:** Gaming, indie apps, nostalgic brands, tech startups
 
 **Prompt patterns:**
+
 ```
 Pixel art {subject} logo, 8-bit retro style, black pixels on white background, 32x32 grid, minimalist icon, sharp edges, no anti-aliasing
 
@@ -28,6 +29,7 @@ Clean, simple shapes with no gradients or shadows.
 **Best for:** Modern brands, tech companies, professional services
 
 **Prompt patterns:**
+
 ```
 Minimalist {subject} logo, flat design, clean lines, {color} on white background, simple geometric shapes, modern professional
 
@@ -45,6 +47,7 @@ Three-dimensional appearance with depth and perspective.
 **Best for:** Tech products, games, modern apps
 
 **Prompt patterns:**
+
 ```
 3D isometric {subject} logo, modern tech style, {colors}, clean render, glossy finish, white background
 
@@ -62,6 +65,7 @@ Organic, artistic feel with visible strokes.
 **Best for:** Creative agencies, artisan brands, personal projects
 
 **Prompt patterns:**
+
 ```
 Hand-drawn {subject} logo, sketch style, black ink on white paper, artistic strokes, organic lines
 
@@ -79,6 +83,7 @@ Friendly character representing the brand.
 **Best for:** Food brands, children's products, gaming, community apps
 
 **Prompt patterns:**
+
 ```
 Cute {animal/character} mascot logo, friendly expression, {style} style, {colors}, suitable for brand icon
 
@@ -96,6 +101,7 @@ Stylized letter(s) as the logo.
 **Best for:** Personal brands, luxury, corporate, professional services
 
 **Prompt patterns:**
+
 ```
 Letter "{letter}" logo, modern typography, {style} design, {colors}, clean professional look
 
@@ -113,6 +119,7 @@ Non-representational shapes and patterns.
 **Best for:** Tech companies, startups, modern brands
 
 **Prompt patterns:**
+
 ```
 Abstract geometric logo, {shapes} pattern, {colors}, modern minimal, clean vector design
 
@@ -130,6 +137,7 @@ Logo contained within a shape (circle, shield, etc.).
 **Best for:** Sports teams, organizations, traditional brands, craft products
 
 **Prompt patterns:**
+
 ```
 {Subject} emblem logo in circular badge, vintage style, {colors}, detailed border, traditional design
 
@@ -147,6 +155,7 @@ The brand name itself as the logo with custom typography.
 **Best for:** Established brands, media companies, fashion
 
 **Prompt patterns:**
+
 ```
 "{brand name}" wordmark logo, custom typography, {style} font style, {colors}, clean design
 
@@ -164,6 +173,7 @@ Icon combined with text.
 **Best for:** Most brands, especially new ones needing recognition
 
 **Prompt patterns:**
+
 ```
 {Subject} icon with "{name}" text below, {style} style, {colors}, balanced composition
 
@@ -177,16 +187,19 @@ Logo combining {symbol} icon and "{name}" wordmark, {style}, professional, {colo
 ## Color Guidelines
 
 ### Monochrome
+
 - Black on white (most versatile)
 - White on black (dark mode)
 - Single brand color
 
 ### Limited Palette
+
 - 2-3 colors maximum
 - High contrast combinations
 - Consider accessibility
 
 ### Common Color Meanings
+
 - **Blue:** Trust, professional, tech
 - **Green:** Growth, nature, health
 - **Red:** Energy, passion, urgency
@@ -199,25 +212,25 @@ Logo combining {symbol} icon and "{name}" wordmark, {style}, professional, {colo
 
 ## Aspect Ratios
 
-| Ratio | Use Case |
-|-------|----------|
-| 1:1 | Favicons, app icons, social avatars |
-| 16:9 | Website headers, presentations |
-| 4:3 | Traditional formats |
-| 2:1 | Horizontal banners |
-| 1:2 | Vertical banners, mobile |
+| Ratio | Use Case                            |
+| ----- | ----------------------------------- |
+| 1:1   | Favicons, app icons, social avatars |
+| 16:9  | Website headers, presentations      |
+| 4:3   | Traditional formats                 |
+| 2:1   | Horizontal banners                  |
+| 1:2   | Vertical banners, mobile            |
 
 ---
 
 ## File Format Guidelines
 
-| Format | Use Case |
-|--------|----------|
-| SVG | Web, print, scaling |
-| PNG | Web with transparency |
-| JPG | Web photos, no transparency |
-| ICO | Favicons |
-| PDF | Print, documents |
+| Format | Use Case                    |
+| ------ | --------------------------- |
+| SVG    | Web, print, scaling         |
+| PNG    | Web with transparency       |
+| JPG    | Web photos, no transparency |
+| ICO    | Favicons                    |
+| PDF    | Print, documents            |
 
 ---
 

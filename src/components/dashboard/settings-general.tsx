@@ -1,7 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { ArtStyle } from "@/lib/styles";
 
@@ -103,7 +108,9 @@ export default function SettingsGeneral({
     setSaving(`routing-${channelId}`);
     setChannels((prev) =>
       prev.map((ch) =>
-        ch.id === channelId ? { ...ch, postToChannelId, postToChannelName } : ch,
+        ch.id === channelId
+          ? { ...ch, postToChannelId, postToChannelName }
+          : ch,
       ),
     );
     try {
@@ -159,7 +166,7 @@ export default function SettingsGeneral({
                 value={defaultStyleId}
                 onChange={(e) => updateDefaultStyle(e.target.value)}
                 disabled={saving === "defaultStyle"}
-                className="rounded-lg border border-[#E5E5E5] bg-white px-3 py-1.5 text-sm text-[#1A1A1A] focus:border-[#7C3AED] focus:outline-none focus:ring-1 focus:ring-[#7C3AED]"
+                className="rounded-lg border border-[#E5E5E5] bg-white px-3 py-1.5 text-sm text-[#1A1A1A] focus:border-[#7C3AED] focus:ring-1 focus:ring-[#7C3AED] focus:outline-none"
               >
                 {allStyles.map((style) => (
                   <option key={style.id} value={style.id}>
@@ -199,15 +206,19 @@ export default function SettingsGeneral({
                       <select
                         value={channel.styleId || ""}
                         onChange={(e) =>
-                          updateChannelStyle(
-                            channel.id,
-                            e.target.value || null,
-                          )
+                          updateChannelStyle(channel.id, e.target.value || null)
                         }
                         disabled={saving === `style-${channel.id}`}
-                        className="w-full rounded-lg border border-[#E5E5E5] bg-white px-3 py-1.5 text-sm text-[#1A1A1A] focus:border-[#7C3AED] focus:outline-none focus:ring-1 focus:ring-[#7C3AED]"
+                        className="w-full rounded-lg border border-[#E5E5E5] bg-white px-3 py-1.5 text-sm text-[#1A1A1A] focus:border-[#7C3AED] focus:ring-1 focus:ring-[#7C3AED] focus:outline-none"
                       >
-                        <option value="">Default ({allStyles.find((s) => s.id === defaultStyleId)?.displayName})</option>
+                        <option value="">
+                          Default (
+                          {
+                            allStyles.find((s) => s.id === defaultStyleId)
+                              ?.displayName
+                          }
+                          )
+                        </option>
                         {allStyles.map((style) => (
                           <option key={style.id} value={style.id}>
                             {style.displayName}
@@ -228,7 +239,7 @@ export default function SettingsGeneral({
                           )
                         }
                         disabled={saving === `routing-${channel.id}`}
-                        className="w-full rounded-lg border border-[#E5E5E5] bg-white px-3 py-1.5 text-sm text-[#1A1A1A] focus:border-[#7C3AED] focus:outline-none focus:ring-1 focus:ring-[#7C3AED]"
+                        className="w-full rounded-lg border border-[#E5E5E5] bg-white px-3 py-1.5 text-sm text-[#1A1A1A] focus:border-[#7C3AED] focus:ring-1 focus:ring-[#7C3AED] focus:outline-none"
                       >
                         <option value="">Same channel (thread reply)</option>
                         {slackChannels.map((ch) => (
@@ -260,7 +271,9 @@ export default function SettingsGeneral({
             <div className="flex items-center justify-between">
               <span className="text-sm text-[#4A4A4A]">Status</span>
               <Badge
-                variant={subscriptionStatus === "ACTIVE" ? "success" : "warning"}
+                variant={
+                  subscriptionStatus === "ACTIVE" ? "success" : "warning"
+                }
               >
                 {subscriptionStatus}
               </Badge>

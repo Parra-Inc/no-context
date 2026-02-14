@@ -108,7 +108,10 @@ export function Pricing() {
               Annual
             </span>
             {isAnnual && (
-              <Badge variant="default" className="absolute left-1/2 top-1/2 ml-[88px] -translate-y-1/2">
+              <Badge
+                variant="default"
+                className="absolute top-1/2 left-1/2 ml-[88px] -translate-y-1/2"
+              >
                 Save 17%
               </Badge>
             )}
@@ -152,7 +155,10 @@ export function Pricing() {
                     </li>
                   ))}
                 </ul>
-                <Link href="/api/slack/install" className="mt-auto block cursor-pointer pt-8">
+                <Link
+                  href="/api/slack/install"
+                  className="mt-auto block cursor-pointer pt-8"
+                >
                   <MarketingButton
                     variant={tier.popular ? "default" : "secondary"}
                     className="w-full"
@@ -167,8 +173,8 @@ export function Pricing() {
 
         <FadeIn delay={200}>
           <p className="mt-8 text-center text-sm text-[#4A4A4A]">
-            All plans include AI quote detection, Slack integration, and dashboard
-            access. No per-seat pricing — your whole team uses it.
+            All plans include AI quote detection, Slack integration, and
+            dashboard access. No per-seat pricing — your whole team uses it.
           </p>
         </FadeIn>
       </div>

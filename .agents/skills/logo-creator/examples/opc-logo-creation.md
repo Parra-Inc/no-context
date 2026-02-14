@@ -12,6 +12,7 @@
 **User:** Please refer to this pixel art mule logo - I like the 8-bit retro style with black pixels on white background.
 
 **Agent:** Got it! The reference is a classic pixel art style:
+
 - Black pixels on white background
 - 8-bit retro aesthetic
 - Simple, recognizable silhouette
@@ -19,6 +20,7 @@
 I'll generate 20 pixel art logo variations for OPC Skills.
 
 Generating with prompts like:
+
 - "Pixel art robot head logo, 8-bit retro style, black pixels on white background"
 - "Pixel art crowned person, 8-bit style, solopreneur king"
 - "Pixel art lightning bolt, 8-bit, black on white"

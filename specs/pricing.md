@@ -6,24 +6,24 @@ Price by **posts per month** (generated images), not by seats. This aligns cost 
 
 ## Plans
 
-| | Free | Starter | Team | Business |
-|---|---|---|---|---|
-| **Monthly** | $0 | $9 | $29 | $79 |
-| **Annual (per month)** | $0 | $7 | $24 | $66 |
-| **Images/month** | 5 | 25 | 100 | 500 |
-| **Channels** | 1 | 1 | 3 | Unlimited |
-| **Art styles** | Default watercolor | 5 styles | All 15+ styles | All 15+ styles |
-| **Image size** | 1024x1024 | 1792x1024 | 1792x1024 | 1792x1024 |
-| **Aspect ratio options** | Square only | Square only | 3 presets | All presets |
-| **Watermark** | Yes (URL/logo/QR) | No | No | No |
-| **Custom style prompts** | — | — | Yes | Yes |
-| **Weekly digest** | — | — | Yes | Yes |
-| **Custom brand watermark** | — | — | — | Yes |
-| **API access** | — | — | — | Yes |
-| **Priority generation** | — | — | — | Yes |
-| **CSV export** | — | — | — | Yes |
-| **History** | 7 days | Full | Full | Full |
-| **Download images** | — | Yes | Yes | Yes |
+|                            | Free               | Starter     | Team           | Business       |
+| -------------------------- | ------------------ | ----------- | -------------- | -------------- |
+| **Monthly**                | $0                 | $9          | $29            | $79            |
+| **Annual (per month)**     | $0                 | $7          | $24            | $66            |
+| **Images/month**           | 5                  | 25          | 100            | 500            |
+| **Channels**               | 1                  | 1           | 3              | Unlimited      |
+| **Art styles**             | Default watercolor | 5 styles    | All 15+ styles | All 15+ styles |
+| **Image size**             | 1024x1024          | 1792x1024   | 1792x1024      | 1792x1024      |
+| **Aspect ratio options**   | Square only        | Square only | 3 presets      | All presets    |
+| **Watermark**              | Yes (URL/logo/QR)  | No          | No             | No             |
+| **Custom style prompts**   | —                  | —           | Yes            | Yes            |
+| **Weekly digest**          | —                  | —           | Yes            | Yes            |
+| **Custom brand watermark** | —                  | —           | —              | Yes            |
+| **API access**             | —                  | —           | —              | Yes            |
+| **Priority generation**    | —                  | —           | —              | Yes            |
+| **CSV export**             | —                  | —           | —              | Yes            |
+| **History**                | 7 days             | Full        | Full           | Full           |
+| **Download images**        | —                  | Yes         | Yes            | Yes            |
 
 ### Free - $0/month
 
@@ -69,21 +69,21 @@ Price by **posts per month** (generated images), not by seats. This aligns cost 
 
 ## Annual Pricing (2 months free)
 
-| Tier | Monthly | Annual (total) | Annual (per month) | Savings |
-|------|---------|---------------|-------------------|---------|
-| Starter | $9 | $84 | $7 | $24/yr |
-| Team | $29 | $288 | $24 | $60/yr |
-| Business | $79 | $792 | $66 | $156/yr |
+| Tier     | Monthly | Annual (total) | Annual (per month) | Savings |
+| -------- | ------- | -------------- | ------------------ | ------- |
+| Starter  | $9      | $84            | $7                 | $24/yr  |
+| Team     | $29     | $288           | $24                | $60/yr  |
+| Business | $79     | $792           | $66                | $156/yr |
 
 ## Aspect Ratio Presets
 
 Users can choose from predefined aspect ratios when generating images via a Slack dropdown or dashboard setting. This controls the DALL-E `size` parameter.
 
-| Preset | Dimensions | Use Case |
-|--------|-----------|----------|
-| Square | 1024x1024 | Profile-style, simple compositions |
-| Landscape | 1792x1024 | Default panoramic format |
-| Portrait | 1024x1792 | Tall/vertical compositions |
+| Preset    | Dimensions | Use Case                           |
+| --------- | ---------- | ---------------------------------- |
+| Square    | 1024x1024  | Profile-style, simple compositions |
+| Landscape | 1792x1024  | Default panoramic format           |
+| Portrait  | 1024x1792  | Tall/vertical compositions         |
 
 - **Free & Starter**: Square (1024x1024) only
 - **Team**: Square, Landscape, Portrait
@@ -118,11 +118,11 @@ The workspace default can be set in the dashboard. Individual users can override
 
 ## Image Generation Costs (DALL-E 3, Standard Quality)
 
-| Size | Cost per Image | Notes |
-|------|---------------|-------|
-| 1792x1024 (landscape) | $0.080 | Panoramic format |
-| 1024x1792 (portrait) | $0.080 | Vertical format, same cost as landscape |
-| 1024x1024 (square) | $0.040 | Square, half the cost |
+| Size                  | Cost per Image | Notes                                   |
+| --------------------- | -------------- | --------------------------------------- |
+| 1792x1024 (landscape) | $0.080         | Panoramic format                        |
+| 1024x1792 (portrait)  | $0.080         | Vertical format, same cost as landscape |
+| 1024x1024 (square)    | $0.040         | Square, half the cost                   |
 
 Based on real usage: $1.92 for 24 generations at 1792x1024 = **$0.08/image** (confirmed).
 
@@ -130,20 +130,20 @@ Free tier at 1024x1024: **$0.04/image** (50% cost reduction).
 
 ### Other Per-Generation Costs
 
-| Service | Cost | Notes |
-|---------|------|-------|
+| Service                        | Cost            | Notes                                |
+| ------------------------------ | --------------- | ------------------------------------ |
 | Claude Haiku (quote detection) | ~$0.003/message | Runs on every eligible Slack message |
-| Total COGS per image (paid) | ~$0.08–0.09 | Image gen + API overhead |
-| Total COGS per image (free) | ~$0.04–0.05 | Smaller image + API overhead |
+| Total COGS per image (paid)    | ~$0.08–0.09     | Image gen + API overhead             |
+| Total COGS per image (free)    | ~$0.04–0.05     | Smaller image + API overhead         |
 
 ## Margin Analysis
 
-| Tier | Revenue/image | Cost/image | Margin |
-|------|--------------|------------|--------|
-| Free | $0.00 | ~$0.04 | -$0.04 (acquisition cost) |
-| Starter | $0.36 ($9 / 25) | ~$0.08 | $0.28 (78%) |
-| Team | $0.29 ($29 / 100) | ~$0.08 | $0.21 (72%) |
-| Business | $0.16 ($79 / 500) | ~$0.08 | $0.08 (50%) |
+| Tier     | Revenue/image     | Cost/image | Margin                    |
+| -------- | ----------------- | ---------- | ------------------------- |
+| Free     | $0.00             | ~$0.04     | -$0.04 (acquisition cost) |
+| Starter  | $0.36 ($9 / 25)   | ~$0.08     | $0.28 (78%)               |
+| Team     | $0.29 ($29 / 100) | ~$0.08     | $0.21 (72%)               |
+| Business | $0.16 ($79 / 500) | ~$0.08     | $0.08 (50%)               |
 
 ### Free Tier Monthly Cost
 

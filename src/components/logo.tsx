@@ -42,14 +42,7 @@ export function Logo({
         <circle cx="32" cy="5" r="3" fill="#F97066" />
 
         {/* Head */}
-        <rect
-          x="12"
-          y="14"
-          width="40"
-          height="32"
-          rx="8"
-          fill="#7C3AED"
-        />
+        <rect x="12" y="14" width="40" height="32" rx="8" fill="#7C3AED" />
 
         {/* Eyes */}
         <circle cx="24" cy="28" r="5" fill="white" />
@@ -120,14 +113,7 @@ export function LogoIcon({ className = "" }: { className?: string }) {
       <circle cx="32" cy="5" r="3" fill="#F97066" />
 
       {/* Head */}
-      <rect
-        x="12"
-        y="14"
-        width="40"
-        height="32"
-        rx="8"
-        fill="#7C3AED"
-      />
+      <rect x="12" y="14" width="40" height="32" rx="8" fill="#7C3AED" />
 
       {/* Eyes */}
       <circle cx="24" cy="28" r="5" fill="white" />

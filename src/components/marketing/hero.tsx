@@ -8,7 +8,7 @@ export function Hero() {
       <div className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-2">
         <div className="text-center lg:text-left">
           <h1 className="font-display text-4xl leading-tight tracking-tight text-[#1A1A1A] md:text-5xl lg:text-6xl">
-            Your team&apos;s best 
+            Your team&apos;s best
             <br />
             deserve quotes
             <br />
@@ -30,7 +30,11 @@ export function Hero() {
               </MarketingButton>
             </Link>
             <Link href="#how-it-works">
-              <MarketingButton variant="secondary" size="xl" className="group text-base">
+              <MarketingButton
+                variant="secondary"
+                size="xl"
+                className="group text-base"
+              >
                 How it Works
                 <svg
                   className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-y-1"
@@ -39,7 +43,11 @@ export function Hero() {
                   stroke="currentColor"
                   strokeWidth={2}
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M19 9l-7 7-7-7"
+                  />
                 </svg>
               </MarketingButton>
             </Link>
@@ -48,7 +56,7 @@ export function Hero() {
 
         {/* Mock Slack UI */}
         <div className="mx-auto w-full max-w-lg">
-          <div className="overflow-hidden rounded-2xl border border-[#E5E5E5] bg-white shadow-xl transition-transform duration-300 hover:-rotate-1 hover:scale-[1.02]">
+          <div className="overflow-hidden rounded-2xl border border-[#E5E5E5] bg-white shadow-xl transition-transform duration-300 hover:scale-[1.02] hover:-rotate-1">
             <div className="border-b border-[#E5E5E5] bg-[#3F0E40] px-4 py-3">
               <span className="text-sm font-medium text-white">
                 # no-context
@@ -94,17 +102,63 @@ export function Hero() {
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-7 w-7"
                     >
-                      <line x1="32" y1="6" x2="32" y2="14" stroke="#7C3AED" strokeWidth="3" strokeLinecap="round" />
+                      <line
+                        x1="32"
+                        y1="6"
+                        x2="32"
+                        y2="14"
+                        stroke="#7C3AED"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                      />
                       <circle cx="32" cy="5" r="3" fill="#F97066" />
-                      <rect x="12" y="14" width="40" height="32" rx="8" fill="#7C3AED" />
+                      <rect
+                        x="12"
+                        y="14"
+                        width="40"
+                        height="32"
+                        rx="8"
+                        fill="#7C3AED"
+                      />
                       <circle cx="24" cy="28" r="5" fill="white" />
                       <circle cx="40" cy="28" r="5" fill="white" />
                       <circle cx="25" cy="27" r="2.5" fill="#1A1A1A" />
                       <circle cx="41" cy="27" r="2.5" fill="#1A1A1A" />
-                      <rect x="22" y="37" width="20" height="4" rx="2" fill="#F97066" />
-                      <rect x="4" y="24" width="6" height="12" rx="3" fill="#7C3AED" opacity="0.7" />
-                      <rect x="54" y="24" width="6" height="12" rx="3" fill="#7C3AED" opacity="0.7" />
-                      <rect x="22" y="48" width="20" height="10" rx="4" fill="#7C3AED" opacity="0.5" />
+                      <rect
+                        x="22"
+                        y="37"
+                        width="20"
+                        height="4"
+                        rx="2"
+                        fill="#F97066"
+                      />
+                      <rect
+                        x="4"
+                        y="24"
+                        width="6"
+                        height="12"
+                        rx="3"
+                        fill="#7C3AED"
+                        opacity="0.7"
+                      />
+                      <rect
+                        x="54"
+                        y="24"
+                        width="6"
+                        height="12"
+                        rx="3"
+                        fill="#7C3AED"
+                        opacity="0.7"
+                      />
+                      <rect
+                        x="22"
+                        y="48"
+                        width="20"
+                        height="10"
+                        rx="4"
+                        fill="#7C3AED"
+                        opacity="0.5"
+                      />
                     </svg>
                   </span>
                   <div>

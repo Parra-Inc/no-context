@@ -104,13 +104,13 @@ Navigate to **Slash Commands**:
 
 Create one slash command:
 
-| Field                             | Value                                                             |
-| --------------------------------- | ----------------------------------------------------------------- | ----- | ----- | -------- |
-| Command                           | `/nocontext`                                                      |
+| Field                             | Value                                                                |
+| --------------------------------- | -------------------------------------------------------------------- | ----- | ----- | -------- |
+| Command                           | `/nocontext`                                                         |
 | Request URL                       | `https://app.nocontextbot.com/api/slack/commands` (or ngrok for dev) |
-| Short Description                 | Manage No Context settings and usage                              |
-| Usage Hint                        | `[status                                                          | style | pause | resume]` |
-| Escape channels, users, and links | Yes                                                               |
+| Short Description                 | Manage No Context settings and usage                                 |
+| Usage Hint                        | `[status                                                             | style | pause | resume]` |
+| Escape channels, users, and links | Yes                                                                  |
 
 ---
 
@@ -232,7 +232,7 @@ When ready to distribute publicly:
 | Item           | Dev                        | Production                           |
 | -------------- | -------------------------- | ------------------------------------ |
 | Slack App      | Separate "Dev" app         | Production app                       |
-| OAuth redirect | `localhost:3000` via ngrok | `app.nocontextbot.com`                  |
+| OAuth redirect | `localhost:3000` via ngrok | `app.nocontextbot.com`               |
 | Event URL      | ngrok tunnel               | Production server                    |
 | Bot token      | Single workspace token     | Per-workspace via OAuth              |
 | Stripe keys    | `sk_test_` / `pk_test_`    | `sk_live_` / `pk_live_`              |

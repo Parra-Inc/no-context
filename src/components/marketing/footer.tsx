@@ -9,7 +9,7 @@ export function Footer() {
             <p className="text-lg font-bold text-[#1A1A1A]">No Context</p>
             <p className="mt-2 text-sm text-[#4A4A4A]">
               The Slack bot that turns your team&apos;s funniest quotes into
-            art.
+              art.
             </p>
           </div>
           <div>

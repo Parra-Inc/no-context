@@ -9,28 +9,39 @@ export default async function DashboardPage() {
   const session = await auth();
   const workspaceId = session!.user.workspaceId;
 
+  const workspaceQuery = prisma.workspace.findUnique({
+    where: { id: workspaceId },
+  });
+  const subscriptionQuery = prisma.subscription.findUnique({
+    where: { workspaceId },
+  });
+  const channelsQuery = prisma.channel.findMany({
+    where: { workspaceId, isActive: true },
+  });
+  const totalQuotesQuery = prisma.quote.count({
+    where: { workspaceId, status: "COMPLETED" },
+  });
+  const recentQuotesQuery = prisma.quote.findMany({
+    where: { workspaceId, status: "COMPLETED" },
+    orderBy: { createdAt: "desc" },
+    take: 8,
+    include: { channel: { select: { channelName: true } } },
+  });
+  const usageQuery = prisma.usageRecord.findFirst({
+    where: {
+      workspaceId,
+      periodStart: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+    },
+  });
+
   const [workspace, subscription, channels, totalQuotes, recentQuotes, usage] =
     await Promise.all([
-      prisma.workspace.findUnique({ where: { id: workspaceId } }),
-      prisma.subscription.findUnique({ where: { workspaceId } }),
-      prisma.channel.findMany({ where: { workspaceId, isActive: true } }),
-      prisma.quote.count({ where: { workspaceId, status: "COMPLETED" } }),
-      prisma.quote.findMany({
-        where: { workspaceId, status: "COMPLETED" },
-        orderBy: { createdAt: "desc" },
-        take: 8,
-        include: { channel: { select: { channelName: true } } },
-      }),
-      prisma.usageRecord.findFirst({
-        where: {
-          workspaceId,
-          periodStart: new Date(
-            new Date().getFullYear(),
-            new Date().getMonth(),
-            1,
-          ),
-        },
-      }),
+      workspaceQuery,
+      subscriptionQuery,
+      channelsQuery,
+      totalQuotesQuery,
+      recentQuotesQuery,
+      usageQuery,
     ]);
 
   const tier = subscription?.tier || "FREE";

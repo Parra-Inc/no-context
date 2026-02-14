@@ -1,10 +1,10 @@
 # Product Ideas
 
-A running list of feature ideas for future iterations. Nothing here is committed — just a place to capture thoughts. 
+A running list of feature ideas for future iterations. Nothing here is committed — just a place to capture thoughts.
 
 ## Instructions
-- When an idea has been implemented, remove it from this list and add it to the respective spec document
 
+- When an idea has been implemented, remove it from this list and add it to the respective spec document
 
 ## Engagement & Social
 

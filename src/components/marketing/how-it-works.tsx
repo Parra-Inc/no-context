@@ -42,7 +42,11 @@ export function HowItWorks() {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (!entry.isIntersecting && window.location.hash === "#how-it-works") {
-          history.replaceState(null, "", window.location.pathname + window.location.search);
+          history.replaceState(
+            null,
+            "",
+            window.location.pathname + window.location.search,
+          );
         }
       },
       { threshold: 0 },
@@ -82,7 +86,7 @@ export function HowItWorks() {
                   </div>
 
                   {/* Step number label */}
-                  <span className="mt-4 text-xs font-semibold uppercase tracking-widest text-[#7C3AED]">
+                  <span className="mt-4 text-xs font-semibold tracking-widest text-[#7C3AED] uppercase">
                     Step {i + 1}
                   </span>
 

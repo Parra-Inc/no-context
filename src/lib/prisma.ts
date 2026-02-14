@@ -8,7 +8,6 @@ function getPrismaClient(): PrismaClient {
   if (globalForPrisma.prisma) return globalForPrisma.prisma;
 
   // Dynamic import to avoid issues during build
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { PrismaPg } = require("@prisma/adapter-pg");
   const adapter = new PrismaPg({
     connectionString: process.env.DATABASE_URL!,

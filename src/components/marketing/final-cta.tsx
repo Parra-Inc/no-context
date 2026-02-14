@@ -20,7 +20,9 @@ export function FinalCTA() {
           </h2>
           <div className="mt-8">
             <Link href="/api/slack/install">
-              <MarketingButton size="xl">Add to Slack — It&apos;s Free</MarketingButton>
+              <MarketingButton size="xl">
+                Add to Slack — It&apos;s Free
+              </MarketingButton>
             </Link>
           </div>
           <p className="mt-4 text-sm text-[#4A4A4A]">

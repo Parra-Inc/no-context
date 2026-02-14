@@ -4,4 +4,4 @@ coverage
 build
 *.tsbuildinfo
 prisma/*.db
-package-lock.json
+pnpm-lock.yaml

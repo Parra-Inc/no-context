@@ -70,7 +70,7 @@ export function SignInContent() {
                   />
                 </div>
                 <div className="px-3 py-2">
-                  <p className="text-xs font-bold leading-snug text-[#1A1A1A]">
+                  <p className="text-xs leading-snug font-bold text-[#1A1A1A]">
                     {card.quote}
                   </p>
                   <div className="mt-1 flex items-center justify-between">
@@ -155,7 +155,7 @@ export function SignInContent() {
                   />
                 </div>
                 <div className="px-4 py-3">
-                  <p className="text-sm font-bold leading-snug text-[#1A1A1A]">
+                  <p className="text-sm leading-snug font-bold text-[#1A1A1A]">
                     {card.quote}
                   </p>
                   <div className="mt-1.5 flex items-center justify-between">

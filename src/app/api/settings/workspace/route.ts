@@ -31,10 +31,7 @@ export async function PATCH(request: NextRequest) {
       },
     });
     if (!customStyle) {
-      return NextResponse.json(
-        { error: "Invalid style ID" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Invalid style ID" }, { status: 400 });
     }
   }
 

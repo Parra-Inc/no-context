@@ -61,7 +61,9 @@ export function MoraleSection() {
 
   const goToPrev = useCallback(() => {
     setLightboxIndex((prev) =>
-      prev === null ? null : (prev - 1 + galleryItems.length) % galleryItems.length,
+      prev === null
+        ? null
+        : (prev - 1 + galleryItems.length) % galleryItems.length,
     );
   }, []);
 
@@ -89,9 +91,9 @@ export function MoraleSection() {
           <FadeIn delay={100}>
             <div className="mt-8 space-y-4 text-lg text-[#4A4A4A]">
               <p>
-                The best teams share inside jokes. They laugh at the weird things
-                people say in meetings. They have a #no-context channel — and
-                it&apos;s everyone&apos;s favorite.
+                The best teams share inside jokes. They laugh at the weird
+                things people say in meetings. They have a #no-context channel —
+                and it&apos;s everyone&apos;s favorite.
               </p>
               <p>
                 No Context Bot takes that energy and turns it into something you
@@ -109,7 +111,7 @@ export function MoraleSection() {
               <FadeIn key={i} delay={i * 80}>
                 <button
                   onClick={() => openLightbox(i)}
-                  className={`group relative aspect-square w-full cursor-pointer overflow-hidden rounded-xl border-2 border-[#1A1A1A] shadow-[4px_4px_0px_0px_#1A1A1A] ${rotations[i]} transition-all duration-200 hover:rotate-0 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#1A1A1A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED]`}
+                  className={`group relative aspect-square w-full cursor-pointer overflow-hidden rounded-xl border-2 border-[#1A1A1A] shadow-[4px_4px_0px_0px_#1A1A1A] ${rotations[i]} transition-all duration-200 hover:translate-x-[2px] hover:translate-y-[2px] hover:rotate-0 hover:shadow-[2px_2px_0px_0px_#1A1A1A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED]`}
                 >
                   <Image
                     src={item.image}
@@ -119,7 +121,7 @@ export function MoraleSection() {
                     sizes="(max-width: 768px) 50vw, 33vw"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                  <div className="absolute bottom-0 left-0 right-0 p-3 text-left opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                  <div className="absolute right-0 bottom-0 left-0 p-3 text-left opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                     <p className="font-quote text-xs text-white md:text-sm">
                       &ldquo;{item.quote}&rdquo;
                     </p>

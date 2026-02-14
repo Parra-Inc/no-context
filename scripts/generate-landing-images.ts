@@ -63,15 +63,16 @@ async function generateAndSave(image: LandingImage): Promise<void> {
     image.filename,
   );
   writeFileSync(outputPath, buffer);
-  console.log(`  Saved to: ${outputPath} (${(buffer.length / 1024).toFixed(0)} KB)`);
+  console.log(
+    `  Saved to: ${outputPath} (${(buffer.length / 1024).toFixed(0)} KB)`,
+  );
 }
 
 // Define all landing page images
 const LANDING_IMAGES: LandingImage[] = [
   {
     filename: "hero-vangogh.png",
-    quote:
-      "I'm not saying it was aliens, but it was definitely the intern",
+    quote: "I'm not saying it was aliens, but it was definitely the intern",
     styleId: "vangogh",
     attribution: "Mike, Engineering",
   },
@@ -114,7 +115,8 @@ const LANDING_IMAGES: LandingImage[] = [
   },
   {
     filename: "gallery-throne-vangogh.png",
-    quote: "The intern built a throne out of shipping boxes and won't come down",
+    quote:
+      "The intern built a throne out of shipping boxes and won't come down",
     styleId: "vangogh",
     attribution: "Senior Engineer",
   },

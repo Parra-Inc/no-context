@@ -79,7 +79,7 @@ export function Lightbox({
         {/* Previous arrow */}
         <button
           onClick={onPrev}
-          className="absolute left-0 top-1/2 z-10 flex h-12 w-12 cursor-pointer -translate-y-1/2 items-center justify-center rounded-full text-white/70 transition-colors hover:text-white md:-left-16"
+          className="absolute top-1/2 left-0 z-10 flex h-12 w-12 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-white/70 transition-colors hover:text-white md:-left-16"
           aria-label="Previous"
         >
           <svg
@@ -100,7 +100,7 @@ export function Lightbox({
         {/* Next arrow */}
         <button
           onClick={onNext}
-          className="absolute right-0 top-1/2 z-10 flex h-12 w-12 cursor-pointer -translate-y-1/2 items-center justify-center rounded-full text-white/70 transition-colors hover:text-white md:-right-16"
+          className="absolute top-1/2 right-0 z-10 flex h-12 w-12 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-white/70 transition-colors hover:text-white md:-right-16"
           aria-label="Next"
         >
           <svg
@@ -135,9 +135,7 @@ export function Lightbox({
           <p className="font-quote text-lg text-white md:text-xl">
             &ldquo;{item.quote}&rdquo;
           </p>
-          <p className="mt-2 text-sm text-white/60">
-            — {item.author}
-          </p>
+          <p className="mt-2 text-sm text-white/60">— {item.author}</p>
           <p className="mt-1 text-xs font-medium text-[#A78BFA]">
             {item.style}
           </p>

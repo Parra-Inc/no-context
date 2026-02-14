@@ -297,8 +297,8 @@ export function DropQuoteGraphic() {
               { emoji: "🤣", count: 3 },
             ]}
           >
-            &ldquo;I&apos;m not being dramatic, the printer is
-            gaslighting me&rdquo;
+            &ldquo;I&apos;m not being dramatic, the printer is gaslighting
+            me&rdquo;
           </SlackMessage>
 
           <SlackMessage
@@ -356,9 +356,7 @@ export function GetArtGraphic() {
         {/* Thread header */}
         <div className="flex items-center justify-between border-b border-[#E5E5E5] px-4 py-2">
           <div>
-            <span className="text-[14px] font-bold text-[#1D1C1D]">
-              Thread
-            </span>
+            <span className="text-[14px] font-bold text-[#1D1C1D]">Thread</span>
             <span className="ml-2 text-[11px] text-[#616061]">
               # no-context
             </span>

@@ -140,10 +140,7 @@ export default function GalleryPage() {
     fetchQuotes(nextPage, true);
   };
 
-  const toggleFavorite = async (
-    e: React.MouseEvent,
-    id: string,
-  ) => {
+  const toggleFavorite = async (e: React.MouseEvent, id: string) => {
     e.preventDefault();
     e.stopPropagation();
     const res = await fetch(`/api/quotes/${id}/favorite`, { method: "POST" });
@@ -413,7 +410,11 @@ export default function GalleryPage() {
       {/* Empty state */}
       {!loading && quotes.length === 0 && (
         <p className="text-center text-sm text-[#4A4A4A]">
-          {debouncedSearch || channelId || styleId || debouncedAuthor || favoritesOnly
+          {debouncedSearch ||
+          channelId ||
+          styleId ||
+          debouncedAuthor ||
+          favoritesOnly
             ? "No quotes match your filters. Try adjusting your search."
             : "No quotes yet. Post something in your connected channel!"}
         </p>

@@ -19,14 +19,14 @@ Create professional logos through AI image generation with an iterative design p
 ## Prerequisites
 
 **Required API Keys (set in environment):**
+
 - `GEMINI_API_KEY` - Get from [Google AI Studio](https://aistudio.google.com/apikey)
 - `REMOVE_BG_API_KEY` - Get from [remove.bg](https://www.remove.bg/api)
 - `RECRAFT_API_KEY` - Get from [recraft.ai](https://www.recraft.ai/)
 
 **Required Skills:**
+
 - `nanobanana` - AI image generation (Gemini 3 Pro Image)
-
-
 
 ## File Output Location
 
@@ -37,6 +37,7 @@ All generated files should be saved to the `.skill-archive` directory:
 ```
 
 **Example:**
+
 ```
 .skill-archive/logo-creator/2026-01-18-opc-logo/
   logo-01.png
@@ -49,6 +50,7 @@ All generated files should be saved to the `.skill-archive` directory:
 ```
 
 **Guidelines:**
+
 - Use current date in format `yyyy-mm-dd`
 - Add short summary name (project/brand name, kebab-case)
 - Create directory before generating first logo
@@ -62,6 +64,7 @@ All generated files should be saved to the `.skill-archive` directory:
 Before generating, gather requirements from user:
 
 **Ask about:**
+
 1. **Project/Brand name** - What is the logo for?
 2. **Style preference** - See [references/styles.md](./references/styles.md) for options:
    - Pixel art / 8-bit retro
@@ -102,11 +105,13 @@ python3 <nanobanana_skill_dir>/scripts/batch_generate.py "{style} logo for {bran
 ```
 
 **Guidelines:**
+
 - Use batch_generate.py for multiple variations (includes auto-delay)
 - Save to `.skill-archive/logo-creator/<yyyy-mm-dd-summaryname>/` directory
 - Use sequential naming: `logo-01.png`, `logo-02.png`, etc.
 
 **Prompt Tips:**
+
 - Include style keywords: "pixel art", "minimalist", "8-bit", "flat design"
 - Specify colors: "black on white", "monochrome", "blue gradient"
 - Add context: "tech startup", "food brand", "gaming company"
@@ -131,11 +136,13 @@ open .skill-archive/logo-creator/<yyyy-mm-dd-summaryname>/preview.html
 ### Step 4: Iterate with User
 
 Ask user which logos they prefer:
+
 - "Which logos do you like? (e.g., #5, #12, #18)"
 - "What do you like about them?"
 - "Any changes you'd want?"
 
 Based on feedback:
+
 1. Generate 10-20 more variations of favorite styles
 2. Use naming: `logo-{original}-v{n}.png` (e.g., `logo-05-v1.png`)
 3. Update HTML preview
@@ -146,16 +153,19 @@ Based on feedback:
 Once user approves a logo, process it:
 
 **5a. Crop whitespace (make 1:1 with no margins):**
+
 ```bash
 python3 <skill_dir>/scripts/crop_logo.py {input.png} {output-cropped.png}
 ```
 
 **5b. Remove background:**
+
 ```bash
 python3 <skill_dir>/scripts/remove_bg.py {input.png} {output-nobg.png}
 ```
 
 **5c. Convert to SVG:**
+
 ```bash
 python3 <skill_dir>/scripts/vectorize.py {input.png} {output.svg}
 ```
@@ -183,21 +193,25 @@ Copy final logo to user's desired location.
 ### Common Prompt Patterns
 
 **Pixel Art:**
+
 ```
 Pixel art {subject} logo, 8-bit retro style, black pixels on white background, {size}x{size} grid, minimalist icon
 ```
 
 **Minimalist:**
+
 ```
 Minimalist {subject} logo, flat design, clean lines, {color} on white, simple geometric shapes
 ```
 
 **Mascot:**
+
 ```
 Cute {animal/character} mascot logo, friendly expression, {style} style, {colors}, suitable for brand icon
 ```
 
 **Lettermark:**
+
 ```
 Letter "{letter}" logo, modern typography, {style} design, {colors}, clean professional look
 ```
