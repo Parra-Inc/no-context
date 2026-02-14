@@ -1,8 +1,8 @@
 import { ART_STYLES, getStyleById, getStylePrompt } from "./styles";
 
 describe("art styles", () => {
-  it("exports all 15 built-in styles", () => {
-    expect(ART_STYLES).toHaveLength(15);
+  it("exports all 17 built-in styles", () => {
+    expect(ART_STYLES).toHaveLength(17);
   });
 
   it("each style has id, displayName, and promptModifier", () => {

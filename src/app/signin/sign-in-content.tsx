@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Logo } from "@/components/logo";
@@ -47,7 +47,7 @@ const GALLERY_CARDS = [
 ];
 
 export function SignInContent() {
-  const [isLoading, setIsLoading] = useState(false);
+  const [error, formAction, isPending] = useActionState(signInWithSlack, null);
 
   return (
     <div className="flex min-h-screen flex-col lg:flex-row">
@@ -100,19 +100,22 @@ export function SignInContent() {
             </p>
           </div>
 
-          <form action={signInWithSlack}>
+          <form action={formAction}>
             <MarketingButton
               type="submit"
               variant="secondary"
               size="xl"
               className="w-full gap-3"
-              onClick={() => setIsLoading(true)}
-              disabled={isLoading}
+              disabled={isPending}
             >
               <SlackIcon />
-              {isLoading ? "Redirecting..." : "Sign in with Slack"}
+              {isPending ? "Redirecting..." : "Sign in with Slack"}
             </MarketingButton>
           </form>
+
+          {error && (
+            <p className="mt-4 text-center text-sm text-red-600">{error}</p>
+          )}
 
           <p className="mt-8 text-center text-xs text-[#4A4A4A]">
             Your workspace must have No Context installed.

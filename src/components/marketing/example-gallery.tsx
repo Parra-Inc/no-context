@@ -55,6 +55,20 @@ const examples = [
     style: "Pixel Art",
     image: "/images/landing/gallery-raccoon-pixel.png",
   },
+  {
+    quote:
+      "The new hire showed up in full idol gear and challenged the CEO to a dance battle",
+    author: "HR Director",
+    style: "K-Pop Demon Hunters",
+    image: "/images/landing/gallery-dancebattle-kpop.png",
+  },
+  {
+    quote:
+      "Someone left a Victory Royale banner on the whiteboard and nobody will take it down",
+    author: "Product Manager",
+    style: "Fortnite",
+    image: "/images/landing/gallery-victory-fortnite.png",
+  },
 ];
 
 const cardRotations = [
@@ -66,6 +80,8 @@ const cardRotations = [
   "-rotate-1",
   "-rotate-0.5",
   "rotate-0.5",
+  "rotate-1",
+  "-rotate-1",
 ];
 
 export function ExampleGallery() {
@@ -96,10 +112,10 @@ export function ExampleGallery() {
           </FadeIn>
           <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {examples.map((example, i) => (
-              <FadeIn key={i} delay={i * 80}>
+              <FadeIn key={i} delay={i * 80} className="h-full">
                 <button
                   onClick={() => setLightboxIndex(i)}
-                  className={`group w-full cursor-pointer overflow-hidden rounded-xl border-2 border-[#1A1A1A] bg-white text-left shadow-[4px_4px_0px_0px_#1A1A1A] transition-all duration-200 hover:translate-x-[2px] hover:translate-y-[2px] hover:rotate-0 hover:shadow-[2px_2px_0px_0px_#1A1A1A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED] ${cardRotations[i]}`}
+                  className={`group flex h-full w-full cursor-pointer flex-col overflow-hidden rounded-xl border-2 border-[#1A1A1A] bg-white text-left shadow-[4px_4px_0px_0px_#1A1A1A] transition-all duration-200 hover:translate-x-[2px] hover:translate-y-[2px] hover:rotate-0 hover:shadow-[2px_2px_0px_0px_#1A1A1A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED] ${cardRotations[i]}`}
                 >
                   <div className="relative aspect-square overflow-hidden">
                     <Image

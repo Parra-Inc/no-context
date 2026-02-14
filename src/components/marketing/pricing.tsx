@@ -48,7 +48,7 @@ const tiers = [
     features: [
       "100 generated images/month",
       "3 connected channels",
-      "All 15+ art styles",
+      "All 17+ art styles",
       "Custom style prompts",
       "Full gallery with search",
       "Weekly digest",

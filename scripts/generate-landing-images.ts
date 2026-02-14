@@ -223,6 +223,34 @@ const LANDING_IMAGES: LandingImage[] = [
     styleId: "stainedglass",
     attribution: "Jeff, Operations",
   },
+  // K-Pop Demon Hunters
+  {
+    filename: "showcase-kpop.png",
+    quote: "The printer is on fire again and honestly I think it's personal",
+    styleId: "kpop",
+    attribution: "Jeff, Operations",
+  },
+  {
+    filename: "gallery-dancebattle-kpop.png",
+    quote:
+      "The new hire showed up in full idol gear and challenged the CEO to a dance battle",
+    styleId: "kpop",
+    attribution: "HR Director",
+  },
+  // Fortnite
+  {
+    filename: "showcase-fortnite.png",
+    quote: "The printer is on fire again and honestly I think it's personal",
+    styleId: "fortnite",
+    attribution: "Jeff, Operations",
+  },
+  {
+    filename: "gallery-victory-fortnite.png",
+    quote:
+      "Someone left a Victory Royale banner on the whiteboard and nobody will take it down",
+    styleId: "fortnite",
+    attribution: "Product Manager",
+  },
 ];
 
 async function main() {

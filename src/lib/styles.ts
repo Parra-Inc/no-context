@@ -95,6 +95,18 @@ export const ART_STYLES: ArtStyle[] = [
     promptModifier:
       "stained glass window design with bold black leading lines, jewel-toned translucent colors, and radiant light",
   },
+  {
+    id: "kpop",
+    displayName: "K-Pop Demon Hunters",
+    promptModifier:
+      "stylish K-pop idol aesthetic fused with dark fantasy demon hunting, featuring characters in sleek idol outfits with glowing weapons, neon-lit supernatural battlegrounds, dramatic poses, vibrant hair colors, and manhwa-inspired linework",
+  },
+  {
+    id: "fortnite",
+    displayName: "Fortnite",
+    promptModifier:
+      "Fortnite-inspired 3D cartoon style with exaggerated proportions, vibrant saturated colors, cel-shaded characters, bold outlines, playful action poses, and a colorful stylized environment",
+  },
 ];
 
 export function getStyleById(id: string): ArtStyle | null {

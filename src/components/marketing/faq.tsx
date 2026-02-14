@@ -34,7 +34,7 @@ const faqs = [
   {
     question: "What art styles are available?",
     answer:
-      "We have 15+ styles including Watercolor, Picasso (Cubism), Van Gogh, Pop Art, Hokusai, Dali, Studio Ghibli, Pixel Art, and more. On Team plans and above, you can write your own custom style prompts.",
+      "We have 17+ styles including Watercolor, Picasso (Cubism), Van Gogh, Pop Art, Hokusai, Dali, Studio Ghibli, Pixel Art, K-Pop Demon Hunters, Fortnite, and more. On Team plans and above, you can write your own custom style prompts.",
   },
   {
     question: "Can I cancel anytime?",

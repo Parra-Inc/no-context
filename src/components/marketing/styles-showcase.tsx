@@ -20,7 +20,7 @@ export function StylesShowcase() {
             </span>
           </h2>
           <p className="mt-4 text-lg text-[#4A4A4A]">
-            Pick from 15+ art styles
+            Pick from 17+ art styles
           </p>
         </FadeIn>
 

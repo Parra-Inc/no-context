@@ -21,7 +21,7 @@ const features = [
   },
   {
     icon: Palette,
-    title: "15+ Art Styles",
+    title: "17+ Art Styles",
     description:
       "From Picasso to Pixel Art. Set a default or let each channel have its own vibe.",
     gradient: "from-rose-100 to-pink-50",

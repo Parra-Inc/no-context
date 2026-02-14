@@ -9,8 +9,9 @@ declare module "next-auth" {
       name: string;
       image?: string;
       slackUserId: string;
-      workspaceId: string;
-      workspaceName: string;
+      slackTeamId: string;
+      workspaceId?: string;
+      workspaceName?: string;
     };
   }
 }
@@ -49,14 +50,7 @@ export const authConfig: NextAuthConfig = {
         "https://slack.com/team_id"
       ] as string | undefined;
 
-      if (!slackTeamId) return false;
-
-      // Check if workspace has installed the app
-      const workspace = await prisma.workspace.findUnique({
-        where: { slackTeamId },
-      });
-
-      return !!workspace?.isActive;
+      return !!slackTeamId;
     },
     async jwt({ token, profile }) {
       if (profile) {
@@ -67,6 +61,9 @@ export const authConfig: NextAuthConfig = {
           "https://slack.com/user_id"
         ] as string;
 
+        token.slackUserId = slackUserId;
+        token.slackTeamId = slackTeamId;
+
         const workspace = await prisma.workspace.findUnique({
           where: { slackTeamId },
         });
@@ -74,16 +71,16 @@ export const authConfig: NextAuthConfig = {
         if (workspace) {
           token.workspaceId = workspace.id;
           token.workspaceName = workspace.slackTeamName;
-          token.slackUserId = slackUserId;
         }
       }
       return token;
     },
     async session({ session, token }) {
       if (token) {
-        session.user.workspaceId = token.workspaceId as string;
-        session.user.workspaceName = token.workspaceName as string;
         session.user.slackUserId = token.slackUserId as string;
+        session.user.slackTeamId = token.slackTeamId as string;
+        session.user.workspaceId = token.workspaceId as string | undefined;
+        session.user.workspaceName = token.workspaceName as string | undefined;
       }
       return session;
     },

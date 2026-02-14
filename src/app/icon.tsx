@@ -12,7 +12,7 @@ export default function Icon() {
       style={{
         width: 32,
         height: 32,
-        background: "#7C3AED",
+        background: "#EDE9FE",
         borderRadius: 6,
         display: "flex",
         alignItems: "center",
@@ -51,11 +51,35 @@ export default function Icon() {
         <rect x="22" y="37" width="20" height="4" rx="2" fill="#F97066" />
 
         {/* Ears */}
-        <rect x="4" y="24" width="6" height="12" rx="3" fill="#9F67FF" />
-        <rect x="54" y="24" width="6" height="12" rx="3" fill="#9F67FF" />
+        <rect
+          x="4"
+          y="24"
+          width="6"
+          height="12"
+          rx="3"
+          fill="#7C3AED"
+          opacity="0.7"
+        />
+        <rect
+          x="54"
+          y="24"
+          width="6"
+          height="12"
+          rx="3"
+          fill="#7C3AED"
+          opacity="0.7"
+        />
 
         {/* Body hint */}
-        <rect x="22" y="48" width="20" height="10" rx="4" fill="#9F67FF" />
+        <rect
+          x="22"
+          y="48"
+          width="20"
+          height="10"
+          rx="4"
+          fill="#7C3AED"
+          opacity="0.5"
+        />
       </svg>
     </div>,
     {
