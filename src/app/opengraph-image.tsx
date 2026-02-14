@@ -14,19 +14,26 @@ export const size = {
 export const contentType = "image/png";
 
 async function loadImage(filename: string): Promise<string> {
-  const path = join(process.cwd(), "public", "images", "landing", filename);
+  const path = join(
+    process.cwd(),
+    "public",
+    "images",
+    "landing",
+    "showcase",
+    filename,
+  );
   const data = await readFile(path);
   return `data:image/png;base64,${data.toString("base64")}`;
 }
 
 export default async function Image() {
   const [img1, img2, img3, img4, img5, img6] = await Promise.all([
-    loadImage("showcase-vangogh.png"),
-    loadImage("showcase-hokusai.png"),
-    loadImage("showcase-dali.png"),
-    loadImage("showcase-comic.png"),
-    loadImage("showcase-pixel.png"),
-    loadImage("showcase-warhol.png"),
+    loadImage("vangogh.png"),
+    loadImage("hokusai.png"),
+    loadImage("dali.png"),
+    loadImage("comic.png"),
+    loadImage("pixel.png"),
+    loadImage("warhol.png"),
   ]);
 
   const images = [img1, img2, img3, img4, img5, img6];
