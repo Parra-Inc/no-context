@@ -6,7 +6,7 @@ import { OnboardingWizard } from "./onboarding-wizard";
 export default async function OnboardingPage() {
   const session = await auth();
 
-  if (!session?.user) {
+  if (!session?.user?.id) {
     redirect("/signin");
   }
 

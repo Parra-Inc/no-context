@@ -160,6 +160,23 @@ export function SignInContent() {
             ))}
           </div>
         </div>
+        {/* Comic-style angled clip — mobile */}
+        <svg
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-10 block h-8 w-full"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+        >
+          <polygon points="100,0 100,100 0,100" fill="var(--background)" />
+          <line
+            x1="0"
+            y1="100"
+            x2="100"
+            y2="0"
+            stroke="#1A1A1A"
+            strokeWidth="6"
+            vectorEffect="non-scaling-stroke"
+          />
+        </svg>
       </div>
 
       {/* Sign in */}
@@ -395,6 +412,23 @@ export function SignInContent() {
             ))}
           </div>
         </div>
+        {/* Comic-style angled clip — desktop */}
+        <svg
+          className="pointer-events-none absolute inset-y-0 left-0 z-10 h-full w-8"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+        >
+          <polygon points="0,0 100,0 0,100" fill="var(--background)" />
+          <line
+            x1="100"
+            y1="0"
+            x2="0"
+            y2="100"
+            stroke="#1A1A1A"
+            strokeWidth="6"
+            vectorEffect="non-scaling-stroke"
+          />
+        </svg>
       </div>
     </div>
   );
