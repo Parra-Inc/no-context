@@ -135,22 +135,35 @@ export async function POST(request: NextRequest) {
 }
 
 async function processMessage(event: SlackEvent, teamId: string) {
+  log.info(
+    `Slack events: processMessage started team=${teamId} channel=${event.channel} user=${event.user} text="${event.text?.substring(0, 50)}"`,
+  );
+
   // Find workspace
   const workspace = await prisma.workspace.findUnique({
     where: { slackTeamId: teamId },
     include: { subscription: true },
   });
 
-  if (!workspace?.isActive || workspace.needsReconnection) {
-    log.debug(
-      `Slack events: workspace inactive or needs reconnection team=${teamId}`,
+  if (!workspace) {
+    log.warn(`Slack events: no workspace found for team=${teamId}`);
+    return;
+  }
+
+  log.info(
+    `Slack events: workspace found id=${workspace.id} isActive=${workspace.isActive} needsReconnection=${workspace.needsReconnection} botUserId=${workspace.slackBotUserId}`,
+  );
+
+  if (!workspace.isActive || workspace.needsReconnection) {
+    log.warn(
+      `Slack events: workspace inactive or needs reconnection team=${teamId} isActive=${workspace.isActive} needsReconnection=${workspace.needsReconnection}`,
     );
     return;
   }
 
   // Filter self-messages
   if (event.user === workspace.slackBotUserId) {
-    log.debug("Slack events: ignoring self-message");
+    log.info("Slack events: ignoring self-message");
     return;
   }
 
@@ -164,9 +177,20 @@ async function processMessage(event: SlackEvent, teamId: string) {
     },
   });
 
-  if (!channel?.isActive || channel.isPaused) {
-    log.debug(
-      `Slack events: channel not active or paused channel=${event.channel}`,
+  if (!channel) {
+    log.warn(
+      `Slack events: no channel record found workspaceId=${workspace.id} slackChannelId=${event.channel}`,
+    );
+    return;
+  }
+
+  log.info(
+    `Slack events: channel found id=${channel.id} isActive=${channel.isActive} isPaused=${channel.isPaused}`,
+  );
+
+  if (!channel.isActive || channel.isPaused) {
+    log.warn(
+      `Slack events: channel not active or paused channel=${event.channel} isActive=${channel.isActive} isPaused=${channel.isPaused}`,
     );
     return;
   }
@@ -188,6 +212,10 @@ async function processMessage(event: SlackEvent, teamId: string) {
   const quota = workspace.subscription?.monthlyQuota || TIER_QUOTAS.FREE;
   const used = usage?.quotesUsed || 0;
 
+  log.info(
+    `Slack events: quota check tier=${tier} used=${used}/${quota} workspace=${workspace.id}`,
+  );
+
   if (used >= quota) {
     log.info(
       `Slack events: quota exceeded for workspace=${workspace.id} used=${used}/${quota}`,
@@ -203,10 +231,23 @@ async function processMessage(event: SlackEvent, teamId: string) {
   }
 
   // Detect quote
-  const detection = await detectQuote(event.text!);
+  log.info(`Slack events: calling detectQuote with text="${event.text}"`);
+
+  let detection;
+  try {
+    detection = await detectQuote(event.text!);
+  } catch (err) {
+    log.error("Slack events: detectQuote threw an error", err);
+    return;
+  }
+
+  log.info(
+    `Slack events: detectQuote result isQuote=${detection.isQuote} confidence=${detection.confidence} extractedQuote="${detection.extractedQuote}" attributedTo="${detection.attributedTo}"`,
+  );
+
   if (!detection.isQuote) {
-    log.debug(
-      `Slack events: message not detected as quote channel=${event.channel}`,
+    log.info(
+      `Slack events: message not detected as quote channel=${event.channel} confidence=${detection.confidence}`,
     );
     return;
   }
@@ -285,20 +326,29 @@ async function processMessage(event: SlackEvent, teamId: string) {
   }
 
   // Enqueue image generation
-  await enqueueImageGeneration({
-    workspaceId: workspace.id,
-    channelId: channel.id,
-    quoteId: quote.id,
-    messageTs: event.ts!,
-    slackChannelId: event.channel!,
-    quoteText: detection.extractedQuote || event.text!,
-    styleId,
-    customStyleDescription,
-    encryptedBotToken: workspace.slackBotToken,
-    postToSlackChannelId: channel.postToChannelId || undefined,
-    tier,
-    priority: TIER_PRIORITY[tier] || 4,
-  });
+  try {
+    const messageId = await enqueueImageGeneration({
+      workspaceId: workspace.id,
+      channelId: channel.id,
+      quoteId: quote.id,
+      messageTs: event.ts!,
+      slackChannelId: event.channel!,
+      quoteText: detection.extractedQuote || event.text!,
+      styleId,
+      customStyleDescription,
+      encryptedBotToken: workspace.slackBotToken,
+      postToSlackChannelId: channel.postToChannelId || undefined,
+      tier,
+      priority: TIER_PRIORITY[tier] || 4,
+    });
 
-  log.info(`Slack events: image generation enqueued quote=${quote.id}`);
+    log.info(
+      `Slack events: image generation enqueued quote=${quote.id} qstashMessageId=${messageId}`,
+    );
+  } catch (err) {
+    log.error(
+      `Slack events: failed to enqueue image generation quote=${quote.id}`,
+      err,
+    );
+  }
 }

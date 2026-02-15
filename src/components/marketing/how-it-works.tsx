@@ -65,7 +65,7 @@ export function HowItWorks() {
       <div className="mx-auto max-w-5xl">
         <FadeIn>
           <h2 className="font-display text-center text-3xl text-[#1A1A1A] md:text-4xl">
-            Three steps. Negative effort.
+            How it works
           </h2>
           <p className="mt-4 text-center text-lg text-[#4A4A4A]">
             Get up and running in under a minute.
@@ -79,7 +79,7 @@ export function HowItWorks() {
             className="absolute top-10 hidden md:block"
             style={{ left: "calc(100% / 6)", right: "calc(100% / 6)" }}
           >
-            <FadeIn delay={150}>
+            <FadeIn delay={450}>
               <div className="h-0.5 bg-[#1A1A1A]" />
             </FadeIn>
           </div>

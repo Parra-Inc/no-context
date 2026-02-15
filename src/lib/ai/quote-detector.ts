@@ -1,4 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { log } from "@/lib/logger";
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -77,6 +78,8 @@ export async function detectQuote(
     };
   }
 
+  log.info(`detectQuote: calling Anthropic API for text="${messageText}"`);
+
   const response = await anthropic.messages.create({
     model: "claude-3-5-haiku-latest",
     max_tokens: 256,
@@ -92,16 +95,25 @@ export async function detectQuote(
   const text =
     response.content[0].type === "text" ? response.content[0].text : "";
 
+  log.info(`detectQuote: raw AI response="${text}"`);
+
   try {
     const parsed = JSON.parse(text);
 
-    return {
+    const result = {
       isQuote: parsed.is_quote === true && parsed.confidence >= 0.7,
       confidence: parsed.confidence,
       extractedQuote: parsed.extracted_quote || null,
       attributedTo: parsed.attributed_to || null,
     };
+
+    log.info(
+      `detectQuote: parsed result isQuote=${result.isQuote} confidence=${result.confidence}`,
+    );
+
+    return result;
   } catch {
+    log.warn(`detectQuote: failed to parse AI response as JSON: "${text}"`);
     // If Claude returns invalid JSON, treat as not a quote
     return {
       isQuote: false,
