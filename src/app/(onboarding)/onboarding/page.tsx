@@ -14,7 +14,7 @@ export default async function OnboardingPage() {
   // (e.g. after the Slack OAuth callback). Fall back to a direct DB lookup.
   let workspaceId = session.user.workspaceId;
 
-  if (!workspaceId && session.user.authType === "email") {
+  if (!workspaceId) {
     const dbUser = await prisma.user.findUnique({
       where: { id: session.user.id },
       select: { workspaceId: true },

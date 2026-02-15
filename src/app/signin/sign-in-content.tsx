@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { Logo } from "@/components/logo";
 import { MarketingButton } from "@/components/marketing/marketing-button";
 import { Input } from "@/components/ui/input";
+import { signIn as nextAuthSignIn } from "next-auth/react";
 import { signInWithSlack, signInWithEmail } from "./actions";
 
 const GALLERY_CARDS = [
@@ -101,10 +102,21 @@ export function SignInContent() {
         return;
       }
 
-      // Redirect to verify email page
-      router.push(
-        `/auth/verify-email?userId=${data.userId}&email=${encodeURIComponent(email)}`,
-      );
+      // Auto sign-in the newly created user
+      const signInResult = await nextAuthSignIn("email", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (signInResult?.ok) {
+        router.push("/auth/verify-email");
+      } else {
+        // Fallback: redirect with params if auto sign-in fails
+        router.push(
+          `/auth/verify-email?userId=${data.userId}&email=${encodeURIComponent(email)}`,
+        );
+      }
     } catch {
       setSignupError("Something went wrong. Please try again.");
       setIsSigningUp(false);

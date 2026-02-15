@@ -78,7 +78,7 @@ export function EmailVerificationClient({
       if (result.success) {
         setSuccess(true);
         setTimeout(() => {
-          router.push("/signin");
+          router.push("/dashboard");
         }, 2000);
       } else {
         setError(result.error || "Invalid verification code.");
@@ -134,7 +134,7 @@ export function EmailVerificationClient({
             Email Verified!
           </h2>
           <p className="mt-3 text-[#4A4A4A]">
-            Your email has been verified. Redirecting to sign in...
+            Your email has been verified. Redirecting...
           </p>
         </div>
       </div>
