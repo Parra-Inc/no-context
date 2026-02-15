@@ -79,7 +79,7 @@ export function FAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
-    <section id="faq" className="px-6 py-24">
+    <section id="faq" className="px-4 py-16 sm:px-6 sm:py-24">
       <div className="mx-auto max-w-3xl">
         <FadeIn>
           <h2 className="font-display text-center text-3xl text-[#1A1A1A] md:text-4xl">

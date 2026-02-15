@@ -1,11 +1,21 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import { MarketingButton } from "@/components/marketing/marketing-button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export function Hero() {
   return (
-    <section className="px-6 pt-32 pb-20">
-      <div className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-2">
+    <section className="px-4 pt-24 pb-12 sm:px-6 sm:pt-32 sm:pb-20">
+      <div className="mx-auto grid max-w-6xl items-center gap-8 sm:gap-12 lg:grid-cols-2">
         <div className="text-center lg:text-left">
           <h1 className="font-display text-4xl leading-tight tracking-tight text-[#1A1A1A] md:text-5xl lg:text-6xl">
             Your team&apos;s best
@@ -23,17 +33,20 @@ export function Hero() {
             into one-of-a-kind AI paintings. The best team culture tool is the
             one nobody has to manage.
           </p>
-          <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row lg:items-start">
-            <Link href="/api/slack/install">
-              <MarketingButton size="xl" className="text-base">
-                Add to Slack — Free to Start
+          <div className="mt-10 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-center sm:gap-4 lg:justify-start">
+            <Link href="/api/slack/install" className="w-full sm:w-auto">
+              <MarketingButton
+                size="lg"
+                className="w-full text-sm sm:h-14 sm:px-10 sm:text-base"
+              >
+                Add to Slack — Free
               </MarketingButton>
             </Link>
-            <Link href="#how-it-works">
+            <Link href="#how-it-works" className="w-full sm:w-auto">
               <MarketingButton
                 variant="secondary"
-                size="xl"
-                className="group text-base"
+                size="lg"
+                className="group w-full text-sm sm:h-14 sm:px-10 sm:text-base"
               >
                 How it Works
                 <svg
@@ -51,6 +64,42 @@ export function Hero() {
                 </svg>
               </MarketingButton>
             </Link>
+          </div>
+          <div className="mt-4 text-center lg:text-left">
+            <Dialog>
+              <DialogTrigger asChild>
+                <button className="cursor-pointer text-sm text-[#4A4A4A] underline decoration-[#4A4A4A]/40 underline-offset-2 transition-colors hover:text-[#7C3AED] hover:decoration-[#7C3AED]/40">
+                  What&apos;s a #no-context channel?
+                </button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>What&apos;s a #no-context channel?</DialogTitle>
+                  <DialogDescription>
+                    A #no-context channel is a Slack channel where your team
+                    posts the funniest things people say — completely out of
+                    context.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-3 text-sm text-[#4A4A4A]">
+                  <p>
+                    Someone says something hilarious in a meeting or chat? Drop
+                    the quote in #no-context with zero explanation. The less
+                    context, the better.
+                  </p>
+                  <p>
+                    It&apos;s one of the most beloved traditions in team culture
+                    — a living highlight reel of your team&apos;s funniest
+                    moments.
+                  </p>
+                  <p>
+                    No Context Bot takes it a step further by turning each quote
+                    into a unique AI-generated painting, making your channel a
+                    gallery of inside jokes.
+                  </p>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
 

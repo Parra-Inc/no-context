@@ -6,7 +6,7 @@ import { FadeIn } from "@/components/marketing/fade-in";
 
 export function FinalCTA() {
   return (
-    <section className="bg-gradient-to-b from-[#EDE9FE] to-[#FAFAF8] px-6 py-24">
+    <section className="bg-gradient-to-b from-[#EDE9FE] to-[#FAFAF8] px-4 py-16 sm:px-6 sm:py-24">
       <FadeIn>
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="font-display text-3xl text-[#1A1A1A] md:text-4xl">
@@ -20,7 +20,10 @@ export function FinalCTA() {
           </h2>
           <div className="mt-8">
             <Link href="/api/slack/install">
-              <MarketingButton size="xl">
+              <MarketingButton
+                size="lg"
+                className="w-full text-sm sm:h-14 sm:w-auto sm:px-10 sm:text-base"
+              >
                 Add to Slack — It&apos;s Free
               </MarketingButton>
             </Link>

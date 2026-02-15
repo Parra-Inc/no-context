@@ -4,9 +4,9 @@ import { COPYRIGHT_HOLDER } from "@/lib/constants";
 
 export function Footer() {
   return (
-    <footer className="bg-white px-6 py-12">
+    <footer className="bg-white px-4 py-12 sm:px-6">
       <div className="mx-auto max-w-6xl">
-        <div className="grid gap-8 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
           <div>
             <Logo size="sm" />
             <p className="mt-2 text-sm text-[#4A4A4A]">

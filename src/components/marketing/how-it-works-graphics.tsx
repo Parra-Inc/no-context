@@ -164,7 +164,7 @@ export function SetupChannelGraphic() {
     <div className="overflow-hidden rounded-xl border border-[#E5E5E5] bg-white shadow-lg">
       <div className="flex h-80">
         {/* ---- Sidebar ---- */}
-        <div className="flex w-[120px] shrink-0 flex-col bg-[#4A154B] text-[11px]">
+        <div className="hidden w-[120px] shrink-0 flex-col bg-[#4A154B] text-[11px] sm:flex">
           {/* Workspace header */}
           <div className="flex items-center gap-1 border-b border-white/10 px-3 py-2.5">
             <div className="flex h-5 w-5 items-center justify-center rounded bg-white/20 text-[9px] font-bold text-white">

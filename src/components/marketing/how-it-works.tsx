@@ -57,7 +57,11 @@ export function HowItWorks() {
   }, []);
 
   return (
-    <section ref={sectionRef} id="how-it-works" className="px-6 py-24">
+    <section
+      ref={sectionRef}
+      id="how-it-works"
+      className="px-4 py-16 sm:px-6 sm:py-24"
+    >
       <div className="mx-auto max-w-5xl">
         <FadeIn>
           <h2 className="font-display text-center text-3xl text-[#1A1A1A] md:text-4xl">
@@ -72,9 +76,13 @@ export function HowItWorks() {
           {/* Connecting line — visible on md+ */}
           <div
             aria-hidden
-            className="absolute top-10 hidden h-0.5 bg-[#1A1A1A] md:block"
+            className="absolute top-10 hidden md:block"
             style={{ left: "calc(100% / 6)", right: "calc(100% / 6)" }}
-          />
+          >
+            <FadeIn delay={150}>
+              <div className="h-0.5 bg-[#1A1A1A]" />
+            </FadeIn>
+          </div>
 
           <div className="grid gap-16 md:grid-cols-3 md:gap-12">
             {steps.map((step, i) => (

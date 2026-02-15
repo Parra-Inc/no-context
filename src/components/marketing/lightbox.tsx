@@ -141,17 +141,10 @@ export function Lightbox({
           </p>
         </div>
 
-        {/* Dots indicator */}
-        <div className="mt-6 flex gap-2">
-          {items.map((_, i) => (
-            <span
-              key={i}
-              className={`h-2 w-2 rounded-full transition-colors ${
-                i === currentIndex ? "bg-white" : "bg-white/30"
-              }`}
-            />
-          ))}
-        </div>
+        {/* Counter indicator */}
+        <p className="mt-6 text-sm text-white/60">
+          {currentIndex + 1} / {items.length}
+        </p>
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { FadeIn } from "@/components/marketing/fade-in";
 import { Lightbox } from "@/components/marketing/lightbox";
 
@@ -141,6 +141,9 @@ const cardRotations = [
 
 export function ExampleGallery() {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
 
   const closeLightbox = () => setLightboxIndex(null);
 
@@ -156,45 +159,148 @@ export function ExampleGallery() {
     );
   }, []);
 
+  const updateScrollButtons = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 1);
+    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 1);
+  }, []);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    updateScrollButtons();
+    el.addEventListener("scroll", updateScrollButtons, { passive: true });
+    window.addEventListener("resize", updateScrollButtons);
+    return () => {
+      el.removeEventListener("scroll", updateScrollButtons);
+      window.removeEventListener("resize", updateScrollButtons);
+    };
+  }, [updateScrollButtons]);
+
+  const scroll = (direction: "left" | "right") => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const cardWidth =
+      el.querySelector<HTMLElement>(":scope > div")?.offsetWidth ?? 300;
+    el.scrollBy({
+      left: direction === "left" ? -cardWidth * 2 : cardWidth * 2,
+      behavior: "smooth",
+    });
+  };
+
   return (
     <>
-      <section className="bg-white px-6 py-24">
+      <section className="bg-white px-4 py-16 sm:px-6 sm:py-24">
         <div className="mx-auto max-w-6xl">
           <FadeIn>
             <h2 className="font-display text-center text-3xl text-[#1A1A1A] md:text-4xl">
-              Real quotes. Sick art.
+              23+ styles.{" "}
+              <span className="relative inline-block">
+                <span className="relative z-10">Random every time.</span>
+                <span className="absolute inset-0 -skew-x-2 rounded-lg bg-[#EDE9FE]" />
+              </span>
             </h2>
+            <p className="mx-auto mt-4 max-w-xl text-center text-base text-[#4A4A4A] sm:text-lg">
+              Every quote gets a surprise art style from the full collection.
+              Configure which styles are in the rotation, or create your own
+              from scratch.
+            </p>
           </FadeIn>
-          <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {examples.map((example, i) => (
-              <FadeIn key={i} delay={i * 80} className="h-full">
-                <button
-                  onClick={() => setLightboxIndex(i)}
-                  className={`group flex h-full w-full cursor-pointer flex-col overflow-hidden rounded-xl border-2 border-[#1A1A1A] bg-white text-left shadow-[4px_4px_0px_0px_#1A1A1A] transition-all duration-200 hover:translate-x-[2px] hover:translate-y-[2px] hover:rotate-0 hover:shadow-[2px_2px_0px_0px_#1A1A1A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED] ${cardRotations[i]}`}
+
+          <div className="relative mt-12">
+            {/* Left arrow */}
+            <button
+              onClick={() => scroll("left")}
+              disabled={!canScrollLeft}
+              className="absolute top-1/2 -left-4 z-10 hidden h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border-2 border-[#1A1A1A] bg-white shadow-[2px_2px_0px_0px_#1A1A1A] transition-opacity disabled:cursor-default disabled:opacity-0 sm:flex"
+              aria-label="Scroll left"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+            </button>
+
+            {/* Right arrow */}
+            <button
+              onClick={() => scroll("right")}
+              disabled={!canScrollRight}
+              className="absolute top-1/2 -right-4 z-10 hidden h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border-2 border-[#1A1A1A] bg-white shadow-[2px_2px_0px_0px_#1A1A1A] transition-opacity disabled:cursor-default disabled:opacity-0 sm:flex"
+              aria-label="Scroll right"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </button>
+
+            {/* Fade edges */}
+            <div
+              className="pointer-events-none absolute inset-y-0 left-0 z-[5] hidden w-16 bg-gradient-to-r from-white to-transparent transition-opacity sm:block"
+              style={{ opacity: canScrollLeft ? 1 : 0 }}
+            />
+            <div
+              className="pointer-events-none absolute inset-y-0 right-0 z-[5] hidden w-16 bg-gradient-to-l from-white to-transparent transition-opacity sm:block"
+              style={{ opacity: canScrollRight ? 1 : 0 }}
+            />
+
+            {/* Carousel track */}
+            <div
+              ref={scrollRef}
+              className="scrollbar-hide flex snap-x snap-mandatory gap-6 overflow-x-auto scroll-smooth pb-4"
+            >
+              {examples.map((example, i) => (
+                <div
+                  key={i}
+                  className="w-[280px] flex-shrink-0 snap-start sm:w-[260px]"
                 >
-                  <div className="relative aspect-square overflow-hidden">
-                    <Image
-                      src={example.image}
-                      alt={example.quote}
-                      fill
-                      className="object-cover transition-transform duration-300 group-hover:scale-[1.025]"
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                    />
-                  </div>
-                  <div className="p-4">
-                    <p className="font-quote text-sm text-[#1A1A1A]">
-                      &ldquo;{example.quote}&rdquo;
-                    </p>
-                    <p className="mt-1 text-xs text-[#4A4A4A]">
-                      — {example.author}
-                    </p>
-                    <p className="mt-2 text-xs font-medium text-[#7C3AED]">
-                      {example.style}
-                    </p>
-                  </div>
-                </button>
-              </FadeIn>
-            ))}
+                  <button
+                    onClick={() => setLightboxIndex(i)}
+                    className={`group flex h-full w-full cursor-pointer flex-col overflow-hidden rounded-xl border-2 border-[#1A1A1A] bg-white text-left shadow-[4px_4px_0px_0px_#1A1A1A] transition-all duration-200 hover:translate-x-[2px] hover:translate-y-[2px] hover:rotate-0 hover:shadow-[2px_2px_0px_0px_#1A1A1A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED] ${cardRotations[i]}`}
+                  >
+                    <div className="relative aspect-square overflow-hidden">
+                      <Image
+                        src={example.image}
+                        alt={example.quote}
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-[1.025]"
+                        sizes="280px"
+                      />
+                    </div>
+                    <div className="p-4">
+                      <p className="font-quote text-sm text-[#1A1A1A]">
+                        &ldquo;{example.quote}&rdquo;
+                      </p>
+                      <p className="mt-1 text-xs text-[#4A4A4A]">
+                        — {example.author}
+                      </p>
+                      <p className="mt-2 text-xs font-medium text-[#7C3AED]">
+                        {example.style}
+                      </p>
+                    </div>
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>

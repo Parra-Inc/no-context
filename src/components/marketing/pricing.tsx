@@ -79,7 +79,7 @@ export function Pricing() {
   const [isAnnual, setIsAnnual] = useState(false);
 
   return (
-    <section id="pricing" className="bg-white px-6 py-24">
+    <section id="pricing" className="bg-white px-4 py-16 sm:px-6 sm:py-24">
       <div className="mx-auto max-w-6xl">
         <FadeIn>
           <h2 className="font-display text-center text-3xl text-[#1A1A1A] md:text-4xl">
@@ -90,33 +90,28 @@ export function Pricing() {
             and full Slack integration — no per-seat fees.
           </p>
 
-          <div className="relative mt-8 flex items-center justify-center gap-3">
-            <span
-              className={`text-sm ${!isAnnual ? "font-medium text-[#1A1A1A]" : "text-[#4A4A4A]"}`}
-            >
-              Monthly
-            </span>
-            <button
-              onClick={() => setIsAnnual(!isAnnual)}
-              className={`relative h-6 w-11 cursor-pointer rounded-full transition-colors ${isAnnual ? "bg-[#7C3AED]" : "bg-gray-200"}`}
-            >
-              <div
-                className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${isAnnual ? "translate-x-5.5" : "translate-x-0.5"}`}
-              />
-            </button>
-            <span
-              className={`text-sm ${isAnnual ? "font-medium text-[#1A1A1A]" : "text-[#4A4A4A]"}`}
-            >
-              Annual
-            </span>
-            {isAnnual && (
-              <Badge
-                variant="default"
-                className="absolute top-1/2 left-1/2 ml-[88px] -translate-y-1/2"
+          <div className="mt-8 flex flex-col items-center gap-2">
+            <div className="flex items-center gap-3">
+              <span
+                className={`text-sm ${!isAnnual ? "font-medium text-[#1A1A1A]" : "text-[#4A4A4A]"}`}
               >
-                Save 17%
-              </Badge>
-            )}
+                Monthly
+              </span>
+              <button
+                onClick={() => setIsAnnual(!isAnnual)}
+                className={`relative h-6 w-11 cursor-pointer rounded-full transition-colors ${isAnnual ? "bg-[#7C3AED]" : "bg-gray-200"}`}
+              >
+                <div
+                  className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${isAnnual ? "translate-x-5.5" : "translate-x-0.5"}`}
+                />
+              </button>
+              <span
+                className={`text-sm ${isAnnual ? "font-medium text-[#1A1A1A]" : "text-[#4A4A4A]"}`}
+              >
+                Annual
+              </span>
+              {isAnnual && <Badge variant="default">Save 17%</Badge>}
+            </div>
           </div>
         </FadeIn>
 

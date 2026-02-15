@@ -75,7 +75,7 @@ export function MoraleSection() {
 
   return (
     <>
-      <section className="bg-white px-6 py-24">
+      <section className="bg-white px-4 py-16 sm:px-6 sm:py-24">
         <div className="mx-auto max-w-3xl text-center">
           <FadeIn>
             <h2 className="font-display text-3xl text-[#1A1A1A] md:text-4xl">
