@@ -25,6 +25,7 @@ export const authConfig: NextAuthConfig = {
       issuer: "https://slack.com",
       clientId: process.env.SLACK_CLIENT_ID!,
       clientSecret: process.env.SLACK_CLIENT_SECRET!,
+      checks: ["state"],
       authorization: {
         params: {
           scope: "openid profile email",
