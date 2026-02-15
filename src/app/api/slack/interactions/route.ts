@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
   log.info(
     `Slack interactions: received type=${payload.type} team=${payload.team?.id || "n/a"} user=${payload.user?.id || "n/a"}`,
   );
-  log.debug("Slack interactions: full payload", payload);
+  log.debug("Slack interactions: full payload", JSON.stringify(payload));
 
   // Persist the raw event
   await prisma.slackEvent

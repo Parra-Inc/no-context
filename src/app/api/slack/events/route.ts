@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import {
   verifySlackSignature,
@@ -123,9 +123,11 @@ export async function POST(request: NextRequest) {
       `Slack events: processing message from user=${event.user} channel=${event.channel} team=${teamId}`,
     );
 
-    // Process async — respond to Slack immediately
-    processMessage(event, teamId!).catch((err) =>
-      log.error("Slack events: message processing error", err),
+    // Process async — respond to Slack immediately, but keep function alive
+    after(
+      processMessage(event, teamId!).catch((err) =>
+        log.error("Slack events: message processing error", err),
+      ),
     );
 
     return NextResponse.json({ ok: true });
