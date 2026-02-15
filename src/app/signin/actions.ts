@@ -16,3 +16,30 @@ export async function signInWithSlack(
   }
   return null;
 }
+
+export async function signInWithEmail(
+  _prevState: string | null,
+  formData: FormData,
+): Promise<string | null> {
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+
+  if (!email || !password) {
+    return "Email and password are required.";
+  }
+
+  try {
+    await signIn("email", {
+      email,
+      password,
+      redirectTo: "/dashboard",
+    });
+  } catch (error) {
+    if (error && typeof error === "object" && "digest" in error) {
+      throw error;
+    }
+    console.error("Email sign-in error:", error);
+    return "Invalid email or password.";
+  }
+  return null;
+}

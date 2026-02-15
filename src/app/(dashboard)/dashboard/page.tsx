@@ -4,15 +4,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
 export default async function DashboardPage() {
   const session = await auth();
-  const workspaceId = session!.user.workspaceId;
-
-  if (!workspaceId) {
-    redirect("/dashboard/onboarding");
-  }
+  const workspaceId = session!.user.workspaceId!;
 
   const workspaceQuery = prisma.workspace.findUnique({
     where: { id: workspaceId },

@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { DashboardSidebar } from "@/components/dashboard/sidebar";
+import prisma from "@/lib/prisma";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/dashboard/app-sidebar";
 
 export const metadata: Metadata = {
   robots: {
@@ -25,12 +27,35 @@ export default async function DashboardLayout({
     redirect("/signin");
   }
 
+  // Email auth users must verify before accessing dashboard
+  if (session.user.authType === "email" && !session.user.isEmailVerified) {
+    redirect(
+      `/auth/verify-email?userId=${session.user.id}&email=${encodeURIComponent(session.user.email || "")}`,
+    );
+  }
+
+  const workspaceId = session.user.workspaceId;
+
+  if (!workspaceId) {
+    redirect("/onboarding");
+  }
+
+  const workspace = await prisma.workspace.findUnique({
+    where: { id: workspaceId },
+    select: { onboardingCompleted: true },
+  });
+
+  if (!workspace?.onboardingCompleted) {
+    redirect("/onboarding");
+  }
+
   return (
-    <div className="flex min-h-screen bg-[#FAFAF8]">
-      <DashboardSidebar user={session.user} />
+    <SidebarProvider>
+      <AppSidebar user={session.user} />
       <main className="flex-1 overflow-auto">
+        <SidebarTrigger className="m-4 md:hidden" />
         <div className="mx-auto max-w-6xl px-6 py-8">{children}</div>
       </main>
-    </div>
+    </SidebarProvider>
   );
 }

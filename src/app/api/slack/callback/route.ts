@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
 import { encrypt } from "@/lib/encryption";
 import { stripe, TIER_QUOTAS } from "@/lib/stripe";
@@ -7,7 +8,30 @@ export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const code = searchParams.get("code");
   const error = searchParams.get("error");
+  const stateParam = searchParams.get("state");
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
+  // Parse state to extract returnTo and userId
+  let returnTo = "/signin";
+  let linkUserId: string | null = null;
+
+  if (stateParam) {
+    try {
+      const statePayload = JSON.parse(
+        Buffer.from(stateParam, "base64url").toString(),
+      );
+      const cookieStore = await cookies();
+      const storedToken = cookieStore.get("slack_oauth_state")?.value;
+      cookieStore.delete("slack_oauth_state");
+
+      if (storedToken && storedToken === statePayload.token) {
+        returnTo = statePayload.returnTo || "/signin";
+        linkUserId = statePayload.userId || null;
+      }
+    } catch {
+      // Malformed state — fall back to defaults
+    }
+  }
 
   if (error) {
     return NextResponse.redirect(`${appUrl}/?error=slack_oauth_denied`);
@@ -109,7 +133,15 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    return NextResponse.redirect(`${appUrl}/signin`);
+    // Link email auth user to workspace if userId was passed through state
+    if (linkUserId) {
+      await prisma.user.update({
+        where: { id: linkUserId },
+        data: { workspaceId: workspace.id },
+      });
+    }
+
+    return NextResponse.redirect(`${appUrl}${returnTo}`);
   } catch (error) {
     console.error("Slack OAuth callback error:", error);
     return NextResponse.redirect(`${appUrl}/?error=install_failed`);

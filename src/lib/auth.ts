@@ -1,5 +1,7 @@
 import NextAuth from "next-auth";
 import type { NextAuthConfig } from "next-auth";
+import Credentials from "next-auth/providers/credentials";
+import { compare } from "bcryptjs";
 import prisma from "./prisma";
 
 declare module "next-auth" {
@@ -7,11 +9,14 @@ declare module "next-auth" {
     user: {
       id: string;
       name: string;
+      email?: string;
       image?: string;
-      slackUserId: string;
-      slackTeamId: string;
+      slackUserId?: string;
+      slackTeamId?: string;
       workspaceId?: string;
       workspaceName?: string;
+      isEmailVerified?: boolean;
+      authType: "slack" | "email";
     };
   }
 }
@@ -55,19 +60,52 @@ export const authConfig: NextAuthConfig = {
         };
       },
     },
+    Credentials({
+      id: "email",
+      name: "Email",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        const email = credentials?.email as string;
+        const password = credentials?.password as string;
+
+        if (!email || !password) return null;
+
+        const user = await prisma.user.findUnique({
+          where: { email: email.toLowerCase() },
+        });
+
+        if (!user) return null;
+
+        const isValid = await compare(password, user.hashedPassword);
+        if (!isValid) return null;
+
+        return {
+          id: user.id,
+          name: user.name || user.email,
+          email: user.email,
+          emailVerified: user.emailVerified,
+          authType: "email" as const,
+        };
+      },
+    }),
   ],
   callbacks: {
-    async signIn({ profile }) {
-      if (!profile) return false;
-
-      const slackTeamId = (profile as Record<string, unknown>)[
-        "https://slack.com/team_id"
-      ] as string | undefined;
-
-      return !!slackTeamId;
+    async signIn({ account, profile }) {
+      if (account?.provider === "slack") {
+        if (!profile) return false;
+        const slackTeamId = (profile as Record<string, unknown>)[
+          "https://slack.com/team_id"
+        ] as string | undefined;
+        return !!slackTeamId;
+      }
+      // Email credentials — always allow sign-in
+      return true;
     },
-    async jwt({ token, profile }) {
-      if (profile) {
+    async jwt({ token, user, account, profile }) {
+      if (account?.provider === "slack" && profile) {
         const slackTeamId = (profile as Record<string, unknown>)[
           "https://slack.com/team_id"
         ] as string;
@@ -77,6 +115,7 @@ export const authConfig: NextAuthConfig = {
 
         token.slackUserId = slackUserId;
         token.slackTeamId = slackTeamId;
+        token.authType = "slack";
 
         const workspace = await prisma.workspace.findUnique({
           where: { slackTeamId },
@@ -87,12 +126,59 @@ export const authConfig: NextAuthConfig = {
           token.workspaceName = workspace.slackTeamName;
         }
       }
+
+      if (account?.provider === "email" && user) {
+        token.authType = "email";
+        token.userId = user.id;
+        token.isEmailVerified = !!(user as Record<string, unknown>)
+          .emailVerified;
+      }
+
+      // Lazy workspace resolution: if workspaceId is missing, try to find it
+      if (!token.workspaceId) {
+        if (token.authType === "slack" && token.slackTeamId) {
+          const workspace = await prisma.workspace.findUnique({
+            where: { slackTeamId: token.slackTeamId as string },
+          });
+          if (workspace) {
+            token.workspaceId = workspace.id;
+            token.workspaceName = workspace.slackTeamName;
+          }
+        } else if (token.authType === "email" && token.userId) {
+          const dbUser = await prisma.user.findUnique({
+            where: { id: token.userId as string },
+            select: {
+              workspaceId: true,
+              workspace: { select: { slackTeamName: true } },
+            },
+          });
+          if (dbUser?.workspaceId) {
+            token.workspaceId = dbUser.workspaceId;
+            token.workspaceName = dbUser.workspace?.slackTeamName;
+          }
+        }
+      }
+
       return token;
     },
     async session({ session, token }) {
       if (token) {
-        session.user.slackUserId = token.slackUserId as string;
-        session.user.slackTeamId = token.slackTeamId as string;
+        session.user.authType =
+          (token.authType as "slack" | "email") || "slack";
+
+        if (token.authType === "slack") {
+          session.user.slackUserId = token.slackUserId as string;
+          session.user.slackTeamId = token.slackTeamId as string;
+        }
+
+        if (token.authType === "email") {
+          session.user.id = token.userId as string;
+          session.user.isEmailVerified = token.isEmailVerified as
+            | boolean
+            | undefined;
+        }
+
+        // Common: both auth types can have workspace after linking
         session.user.workspaceId = token.workspaceId as string | undefined;
         session.user.workspaceName = token.workspaceName as string | undefined;
       }

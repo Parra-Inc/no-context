@@ -8,8 +8,9 @@ import { Features } from "@/components/marketing/features";
 import { Pricing } from "@/components/marketing/pricing";
 import { FAQ } from "@/components/marketing/faq";
 import { FinalCTA } from "@/components/marketing/final-cta";
+import { DEFAULT_BASE_URL } from "@/lib/constants";
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nocontext.app";
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || DEFAULT_BASE_URL;
 
 const organizationSchema = {
   "@context": "https://schema.org",

@@ -16,7 +16,8 @@ model Workspace {
   slackBotUserId    String
   installedByUserId String
   isActive           Boolean  @default(true)
-  needsReconnection  Boolean  @default(false)
+  needsReconnection   Boolean  @default(false)
+  onboardingCompleted Boolean  @default(false)
   defaultStyleId     String   @default("watercolor")
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
@@ -25,6 +26,7 @@ model Workspace {
   subscription Subscription?
   quotes       Quote[]
   customStyles CustomStyle[]
+  users        User[]
 }
 
 model Subscription {
@@ -151,4 +153,35 @@ model ContactFormSubmission {
   status    String   @default("new")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model User {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  hashedPassword String
+  name           String?
+  emailVerified  DateTime?
+  workspaceId    String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  workspace              Workspace?              @relation(fields: [workspaceId], references: [id])
+  emailVerificationCodes EmailVerificationCode[]
+}
+
+model EmailVerificationCode {
+  id        String   @id @default(cuid())
+  userId    String
+  code      String
+  token     String?  @unique
+  expires   DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([code])
+  @@index([token])
+  @@index([expires])
 }

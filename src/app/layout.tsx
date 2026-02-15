@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { DEFAULT_BASE_URL } from "@/lib/constants";
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nocontext.app";
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || DEFAULT_BASE_URL;
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
