@@ -27,6 +27,7 @@ model Workspace {
   quotes       Quote[]
   customStyles CustomStyle[]
   users        User[]
+
 }
 
 model Subscription {
@@ -45,6 +46,7 @@ model Subscription {
   trialEndsAt          DateTime?
   createdAt            DateTime           @default(now())
   updatedAt            DateTime           @updatedAt
+
 }
 
 enum SubscriptionTier {
@@ -153,6 +155,7 @@ model ContactFormSubmission {
   status    String   @default("new")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
 }
 
 model User {
@@ -167,6 +170,7 @@ model User {
 
   workspace              Workspace?              @relation(fields: [workspaceId], references: [id])
   emailVerificationCodes EmailVerificationCode[]
+
 }
 
 model EmailVerificationCode {

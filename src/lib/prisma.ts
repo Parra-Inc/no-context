@@ -1,18 +1,61 @@
 import { PrismaClient } from "@prisma/client";
+import { createId, getModelPrefix } from "./id";
+
+function createExtendedClient(base: PrismaClient) {
+  return base.$extends({
+    query: {
+      $allModels: {
+        async create({ model, args, query }) {
+          const prefix = getModelPrefix(model);
+          if (prefix && !(args.data as Record<string, unknown>).id) {
+            (args.data as Record<string, unknown>).id = createId(prefix);
+          }
+          return query(args);
+        },
+        async createMany({ model, args, query }) {
+          const prefix = getModelPrefix(model);
+          if (prefix) {
+            const items = Array.isArray(args.data) ? args.data : [args.data];
+            for (const item of items) {
+              if (!(item as Record<string, unknown>).id) {
+                (item as Record<string, unknown>).id = createId(prefix);
+              }
+            }
+          }
+          return query(args);
+        },
+        async createManyAndReturn({ model, args, query }) {
+          const prefix = getModelPrefix(model);
+          if (prefix) {
+            const items = Array.isArray(args.data) ? args.data : [args.data];
+            for (const item of items) {
+              if (!(item as Record<string, unknown>).id) {
+                (item as Record<string, unknown>).id = createId(prefix);
+              }
+            }
+          }
+          return query(args);
+        },
+      },
+    },
+  });
+}
+
+type ExtendedPrismaClient = ReturnType<typeof createExtendedClient>;
 
 const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
+  prisma: ExtendedPrismaClient | undefined;
 };
 
-function getPrismaClient(): PrismaClient {
+function getPrismaClient(): ExtendedPrismaClient {
   if (globalForPrisma.prisma) return globalForPrisma.prisma;
 
-  // Dynamic import to avoid issues during build
   const { PrismaPg } = require("@prisma/adapter-pg");
   const adapter = new PrismaPg({
     connectionString: process.env.DATABASE_URL!,
   });
-  const client = new PrismaClient({ adapter });
+  const base = new PrismaClient({ adapter });
+  const client = createExtendedClient(base);
 
   if (process.env.NODE_ENV !== "production") {
     globalForPrisma.prisma = client;
@@ -21,7 +64,7 @@ function getPrismaClient(): PrismaClient {
   return client;
 }
 
-const prisma = new Proxy({} as PrismaClient, {
+const prisma = new Proxy({} as ExtendedPrismaClient, {
   get(_target, prop) {
     const client = getPrismaClient();
     const value = (client as unknown as Record<string | symbol, unknown>)[prop];
