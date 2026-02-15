@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { ART_STYLES } from "@/lib/styles";
 import SettingsGeneral from "@/components/dashboard/settings-general";
@@ -6,6 +7,10 @@ import SettingsGeneral from "@/components/dashboard/settings-general";
 export default async function SettingsPage() {
   const session = await auth();
   const workspaceId = session!.user.workspaceId;
+
+  if (!workspaceId) {
+    redirect("/onboarding");
+  }
 
   const [workspace, channels, subscription, customStyles] = await Promise.all([
     prisma.workspace.findUnique({ where: { id: workspaceId } }),
