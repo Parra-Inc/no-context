@@ -66,13 +66,6 @@ export function StylesShowcase() {
                 </p>
               </div>
             </div>
-            <p className="mt-4 text-sm text-[#4A4A4A]">
-              <span className="font-medium text-[#1A1A1A]">
-                {selectedStyle.displayName}
-              </span>
-              {" — "}
-              {selectedStyle.promptModifier.slice(0, 80)}...
-            </p>
           </div>
         </FadeIn>
       </div>
