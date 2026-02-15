@@ -109,7 +109,7 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    return NextResponse.redirect(`${appUrl}/dashboard/onboarding`);
+    return NextResponse.redirect(`${appUrl}/signin`);
   } catch (error) {
     console.error("Slack OAuth callback error:", error);
     return NextResponse.redirect(`${appUrl}/?error=install_failed`);
