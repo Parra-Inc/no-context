@@ -1,49 +1,27 @@
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { z } from "zod/v4";
+
+const ContactSchema = z.object({
+  name: z.string().min(1).max(100),
+  email: z.string().email().max(255),
+  message: z.string().min(10).max(5000),
+  subject: z.string().max(200).optional(),
+});
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    const { name, email, subject, message } = body;
-
-    if (!name || typeof name !== "string" || name.length > 100) {
+    const result = ContactSchema.safeParse(body);
+    if (!result.success) {
       return NextResponse.json(
-        { error: "Name is required and must be under 100 characters" },
+        { error: result.error.issues[0].message },
         { status: 400 },
       );
     }
 
-    if (
-      !email ||
-      typeof email !== "string" ||
-      !email.includes("@") ||
-      email.length > 255
-    ) {
-      return NextResponse.json(
-        { error: "A valid email address is required" },
-        { status: 400 },
-      );
-    }
-
-    if (
-      !message ||
-      typeof message !== "string" ||
-      message.length < 10 ||
-      message.length > 5000
-    ) {
-      return NextResponse.json(
-        { error: "Message must be between 10 and 5000 characters" },
-        { status: 400 },
-      );
-    }
-
-    if (subject && (typeof subject !== "string" || subject.length > 200)) {
-      return NextResponse.json(
-        { error: "Subject must be under 200 characters" },
-        { status: 400 },
-      );
-    }
+    const { name, email, message, subject } = result.data;
 
     const submission = await prisma.contactFormSubmission.create({
       data: {

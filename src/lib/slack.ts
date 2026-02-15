@@ -49,14 +49,18 @@ export async function postThreadReply(
   imageUrl?: string,
 ) {
   if (imageUrl) {
-    // Upload image and share in thread
+    // Download image to buffer — Slack uploadV2 expects binary data, not a URL
+    const response = await fetch(imageUrl);
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
     const uploadResult = await client.files.uploadV2({
       channel_id: channel,
       thread_ts: threadTs,
       initial_comment: text,
       file_uploads: [
         {
-          file: imageUrl,
+          file: buffer,
           filename: "no-context-art.png",
         },
       ],
@@ -106,12 +110,17 @@ export async function postToChannel(
   imageUrl?: string,
 ) {
   if (imageUrl) {
+    // Download image to buffer — Slack uploadV2 expects binary data, not a URL
+    const response = await fetch(imageUrl);
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
     const uploadResult = await client.files.uploadV2({
       channel_id: channel,
       initial_comment: text,
       file_uploads: [
         {
-          file: imageUrl,
+          file: buffer,
           filename: "no-context-art.png",
         },
       ],

@@ -2,6 +2,20 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { TIER_MAX_CHANNELS } from "@/lib/stripe";
+import { z } from "zod/v4";
+
+const CreateChannelSchema = z.object({
+  slackChannelId: z.string().min(1),
+  channelName: z.string().min(1),
+  styleId: z.string().optional(),
+});
+
+const UpdateChannelSchema = z.object({
+  channelId: z.string().min(1),
+  styleId: z.string().nullable().optional(),
+  postToChannelId: z.string().nullable().optional(),
+  postToChannelName: z.string().nullable().optional(),
+});
 
 export async function GET() {
   const session = await auth();
@@ -26,14 +40,16 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { slackChannelId, channelName, styleId } = body;
 
-  if (!slackChannelId || !channelName) {
+  const result = CreateChannelSchema.safeParse(body);
+  if (!result.success) {
     return NextResponse.json(
-      { error: "slackChannelId and channelName are required" },
+      { error: result.error.issues[0].message },
       { status: 400 },
     );
   }
+
+  const { slackChannelId, channelName, styleId } = result.data;
 
   // Check channel limit
   const subscription = await prisma.subscription.findUnique({
@@ -83,14 +99,17 @@ export async function PATCH(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { channelId, styleId, postToChannelId, postToChannelName } = body;
 
-  if (!channelId) {
+  const result = UpdateChannelSchema.safeParse(body);
+  if (!result.success) {
     return NextResponse.json(
-      { error: "channelId is required" },
+      { error: result.error.issues[0].message },
       { status: 400 },
     );
   }
+
+  const { channelId, styleId, postToChannelId, postToChannelName } =
+    result.data;
 
   const data: Record<string, unknown> = {};
 

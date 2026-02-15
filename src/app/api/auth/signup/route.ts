@@ -2,24 +2,27 @@ import { NextRequest, NextResponse } from "next/server";
 import { hash } from "bcryptjs";
 import prisma from "@/lib/prisma";
 import { sendVerificationEmail } from "@/lib/email/send-verification";
+import { z } from "zod/v4";
+
+const SignupSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  name: z.string().optional(),
+});
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password, name } = await request.json();
+    const body = await request.json();
 
-    if (!email || !password) {
+    const result = SignupSchema.safeParse(body);
+    if (!result.success) {
       return NextResponse.json(
-        { error: "Email and password are required" },
+        { error: result.error.issues[0].message },
         { status: 400 },
       );
     }
 
-    if (password.length < 8) {
-      return NextResponse.json(
-        { error: "Password must be at least 8 characters" },
-        { status: 400 },
-      );
-    }
+    const { email, password, name } = result.data;
 
     const normalizedEmail = email.toLowerCase().trim();
 

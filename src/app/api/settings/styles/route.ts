@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { z } from "zod/v4";
+
+const CreateStyleSchema = z.object({
+  name: z.string().min(1),
+  description: z.string().min(1).max(200),
+});
 
 export async function GET() {
   const session = await auth();
@@ -37,21 +43,16 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { name, description } = body;
 
-  if (!name || !description) {
+  const result = CreateStyleSchema.safeParse(body);
+  if (!result.success) {
     return NextResponse.json(
-      { error: "name and description are required" },
+      { error: result.error.issues[0].message },
       { status: 400 },
     );
   }
 
-  if (description.length > 200) {
-    return NextResponse.json(
-      { error: "Style description must be 200 characters or less" },
-      { status: 400 },
-    );
-  }
+  const { name, description } = result.data;
 
   const style = await prisma.customStyle.create({
     data: {

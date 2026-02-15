@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { ART_STYLES } from "@/lib/styles";
+import { z } from "zod/v4";
+
+const UpdateWorkspaceSchema = z.object({
+  defaultStyleId: z.string().min(1),
+});
 
 export async function PATCH(request: NextRequest) {
   const session = await auth();
@@ -11,14 +16,16 @@ export async function PATCH(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { defaultStyleId } = body;
 
-  if (!defaultStyleId || typeof defaultStyleId !== "string") {
+  const result = UpdateWorkspaceSchema.safeParse(body);
+  if (!result.success) {
     return NextResponse.json(
-      { error: "defaultStyleId is required" },
+      { error: result.error.issues[0].message },
       { status: 400 },
     );
   }
+
+  const { defaultStyleId } = result.data;
 
   // Validate style exists (built-in or custom)
   const isBuiltIn = ART_STYLES.some((s) => s.id === defaultStyleId);
