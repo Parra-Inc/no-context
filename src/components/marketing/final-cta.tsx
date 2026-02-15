@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { MarketingButton } from "@/components/marketing/marketing-button";
 import { FadeIn } from "@/components/marketing/fade-in";
 
@@ -19,14 +18,14 @@ export function FinalCTA() {
             </span>
           </h2>
           <div className="mt-8">
-            <Link href="/api/slack/install">
+            <a href="/api/slack/install">
               <MarketingButton
                 size="lg"
                 className="w-full text-sm sm:h-14 sm:w-auto sm:px-10 sm:text-base"
               >
                 Add to Slack — It&apos;s Free
               </MarketingButton>
-            </Link>
+            </a>
           </div>
           <p className="mt-4 text-sm text-[#4A4A4A]">
             Setup in 60 seconds. No credit card required.

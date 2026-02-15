@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  Brain,
-  Palette,
-  Image,
-  Zap,
-  CalendarDays,
-  Sparkles,
-} from "lucide-react";
+import { Brain, Palette, Image, Zap, Shield, Sparkles } from "lucide-react";
 import { FadeIn } from "@/components/marketing/fade-in";
 
 const features = [
@@ -44,10 +37,10 @@ const features = [
     iconColor: "text-emerald-600",
   },
   {
-    icon: CalendarDays,
-    title: "Weekly Digest",
+    icon: Shield,
+    title: "Private & Secure",
     description:
-      "Get a roundup of the week's best quotes delivered to your channel every Friday.",
+      "Your quotes never leave your workspace. Per-workspace isolation means your team's funniest moments stay private.",
     gradient: "from-blue-100 to-sky-50",
     iconColor: "text-blue-600",
   },

@@ -41,9 +41,9 @@ export function Navbar() {
               Sign In
             </MarketingButton>
           </Link>
-          <Link href="/api/slack/install">
+          <a href="/api/slack/install">
             <MarketingButton size="sm">Add to Slack</MarketingButton>
-          </Link>
+          </a>
         </div>
 
         <button
@@ -72,9 +72,9 @@ export function Navbar() {
                 Sign In
               </MarketingButton>
             </Link>
-            <Link href="/api/slack/install">
+            <a href="/api/slack/install">
               <MarketingButton className="w-full">Add to Slack</MarketingButton>
-            </Link>
+            </a>
           </div>
         </div>
       )}

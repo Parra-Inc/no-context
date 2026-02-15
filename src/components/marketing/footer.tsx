@@ -48,6 +48,14 @@ export function Footer() {
             <ul className="mt-3 space-y-2">
               <li>
                 <Link
+                  href="/blog"
+                  className="cursor-pointer text-sm text-[#4A4A4A] hover:text-[#1A1A1A]"
+                >
+                  Blog
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/support"
                   className="cursor-pointer text-sm text-[#4A4A4A] hover:text-[#1A1A1A]"
                 >

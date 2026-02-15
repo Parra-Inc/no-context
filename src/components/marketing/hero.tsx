@@ -3,14 +3,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { MarketingButton } from "@/components/marketing/marketing-button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 
 export function Hero() {
   return (
@@ -34,14 +26,14 @@ export function Hero() {
             one nobody has to manage.
           </p>
           <div className="mt-10 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-center sm:gap-4 lg:justify-start">
-            <Link href="/api/slack/install" className="w-full sm:w-auto">
+            <a href="/api/slack/install" className="w-full sm:w-auto">
               <MarketingButton
                 size="lg"
                 className="w-full text-sm sm:h-14 sm:px-10 sm:text-base"
               >
                 Add to Slack — Free
               </MarketingButton>
-            </Link>
+            </a>
             <Link href="#how-it-works" className="w-full sm:w-auto">
               <MarketingButton
                 variant="secondary"
@@ -65,41 +57,13 @@ export function Hero() {
               </MarketingButton>
             </Link>
           </div>
-          <div className="mt-4 text-center lg:text-left">
-            <Dialog>
-              <DialogTrigger asChild>
-                <button className="cursor-pointer text-sm text-[#4A4A4A] underline decoration-[#4A4A4A]/40 underline-offset-2 transition-colors hover:text-[#7C3AED] hover:decoration-[#7C3AED]/40">
-                  What&apos;s a #no-context channel?
-                </button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle>What&apos;s a #no-context channel?</DialogTitle>
-                  <DialogDescription>
-                    A #no-context channel is a Slack channel where your team
-                    posts the funniest things people say — completely out of
-                    context.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-3 text-sm text-[#4A4A4A]">
-                  <p>
-                    Someone says something hilarious in a meeting or chat? Drop
-                    the quote in #no-context with zero explanation. The less
-                    context, the better.
-                  </p>
-                  <p>
-                    It&apos;s one of the most beloved traditions in team culture
-                    — a living highlight reel of your team&apos;s funniest
-                    moments.
-                  </p>
-                  <p>
-                    No Context Bot takes it a step further by turning each quote
-                    into a unique AI-generated painting, making your channel a
-                    gallery of inside jokes.
-                  </p>
-                </div>
-              </DialogContent>
-            </Dialog>
+          <div className="mt-4 text-center">
+            <Link
+              href="/blog/what-is-a-no-context-channel"
+              className="text-sm text-[#4A4A4A] underline decoration-[#4A4A4A]/40 underline-offset-2 transition-colors hover:text-[#7C3AED] hover:decoration-[#7C3AED]/40"
+            >
+              What&apos;s a #no-context channel?
+            </Link>
           </div>
         </div>
 

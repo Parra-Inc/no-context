@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { MarketingButton } from "@/components/marketing/marketing-button";
 import { Badge } from "@/components/ui/badge";
 import { Check } from "lucide-react";
@@ -157,7 +156,7 @@ export function Pricing() {
                     </li>
                   ))}
                 </ul>
-                <Link
+                <a
                   href="/api/slack/install"
                   className="mt-auto block cursor-pointer pt-8"
                 >
@@ -167,7 +166,7 @@ export function Pricing() {
                   >
                     {tier.cta}
                   </MarketingButton>
-                </Link>
+                </a>
               </div>
             </FadeIn>
           ))}

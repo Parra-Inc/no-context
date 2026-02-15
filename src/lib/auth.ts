@@ -148,6 +148,21 @@ export const authConfig: NextAuthConfig = {
           .emailVerified;
       }
 
+      // Lazy refresh: re-check email verification status from DB
+      if (
+        token.authType === "email" &&
+        token.userId &&
+        !token.isEmailVerified
+      ) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.userId as string },
+          select: { emailVerified: true },
+        });
+        if (dbUser?.emailVerified) {
+          token.isEmailVerified = true;
+        }
+      }
+
       // Lazy workspace resolution: if workspaceId is missing, try to find it
       if (!token.workspaceId) {
         if (token.authType === "slack" && token.slackTeamId) {
@@ -180,9 +195,9 @@ export const authConfig: NextAuthConfig = {
         session.user.authType =
           (token.authType as "slack" | "email") || "slack";
 
-        if (token.userId) {
-          session.user.id = token.userId as string;
-        }
+        // Always set id — Auth.js v5 does NOT populate session.user.id
+        // by default. Prefer our DB userId, fall back to JWT sub.
+        session.user.id = (token.userId as string) ?? (token.sub as string);
 
         if (token.authType === "slack") {
           session.user.slackUserId = token.slackUserId as string;

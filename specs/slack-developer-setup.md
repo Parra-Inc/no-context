@@ -168,7 +168,6 @@ Create a `.env.local` file with:
 SLACK_CLIENT_ID=your_client_id
 SLACK_CLIENT_SECRET=your_client_secret
 SLACK_SIGNING_SECRET=your_signing_secret
-SLACK_BOT_TOKEN=xoxb-your-dev-bot-token  # only for single-workspace dev
 SLACK_APP_ID=your_app_id
 
 # NextAuth
