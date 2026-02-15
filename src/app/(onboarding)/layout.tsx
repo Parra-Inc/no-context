@@ -20,6 +20,13 @@ export default async function OnboardingLayout({
     redirect("/signin");
   }
 
+  // Email auth users must verify before onboarding
+  if (session.user.authType === "email" && !session.user.isEmailVerified) {
+    redirect(
+      `/auth/verify-email?userId=${session.user.id}&email=${encodeURIComponent(session.user.email || "")}`,
+    );
+  }
+
   // Ensure the user record exists in the DB (create if missing)
   const userId = await assertUser({
     id: session.user.id,

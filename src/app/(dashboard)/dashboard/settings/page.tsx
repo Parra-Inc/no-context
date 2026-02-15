@@ -2,13 +2,9 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { TIER_MAX_CHANNELS } from "@/lib/stripe";
-import { SettingsTabs } from "@/components/dashboard/settings-tabs";
+import SettingsGeneral from "@/components/dashboard/settings-general";
 
-export default async function SettingsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ tab?: string }>;
-}) {
+export default async function SettingsGeneralPage() {
   const session = await auth();
   const workspaceId = session!.user.workspaceId;
 
@@ -16,9 +12,7 @@ export default async function SettingsPage({
     redirect("/onboarding");
   }
 
-  const { tab } = await searchParams;
-
-  const [workspace, channels, subscription, styles, usage] = await Promise.all([
+  const [workspace, channels, subscription, styles] = await Promise.all([
     prisma.workspace.findUnique({ where: { id: workspaceId } }),
     prisma.channel.findMany({
       where: { workspaceId, isActive: true },
@@ -32,23 +26,9 @@ export default async function SettingsPage({
       },
       orderBy: { createdAt: "asc" },
     }),
-    prisma.usageRecord.findFirst({
-      where: {
-        workspaceId,
-        periodStart: new Date(
-          new Date().getFullYear(),
-          new Date().getMonth(),
-          1,
-        ),
-      },
-    }),
   ]);
 
   const tier = subscription?.tier || "FREE";
-  const quota = subscription?.monthlyQuota || 5;
-  const used = usage?.quotesUsed || 0;
-  const remaining = Math.max(quota - used, 0);
-  const usagePercent = quota > 0 ? (used / quota) * 100 : 0;
 
   const allStyles = styles.map((s) => ({
     id: s.id,
@@ -59,56 +39,23 @@ export default async function SettingsPage({
   }));
 
   return (
-    <SettingsTabs
-      initialTab={tab}
-      general={{
-        workspaceName: workspace?.slackTeamName || "",
-        needsReconnection: workspace?.needsReconnection || false,
-        channels: channels.map((ch) => ({
-          id: ch.id,
-          slackChannelId: ch.slackChannelId,
-          channelName: ch.channelName,
-          isActive: ch.isActive,
-          isPaused: ch.isPaused,
-          styleMode: ch.styleMode,
-          postToChannelId: ch.postToChannelId,
-          postToChannelName: ch.postToChannelName,
-          disabledStyleIds: ch.channelStyles.map((cs) => cs.styleId),
-        })),
-        styles: allStyles,
-        subscriptionTier: tier,
-        maxChannels: TIER_MAX_CHANNELS[tier] || 1,
-      }}
-      billing={{
-        tier,
-        quota,
-        used,
-        remaining,
-        usagePercent,
-        bonusCredits: subscription?.bonusCredits || 0,
-        hasStripeCustomer: !!subscription?.stripeCustomerId,
-        currentPeriodEnd: subscription?.currentPeriodEnd?.toISOString() ?? null,
-      }}
-      styles={{
-        subscriptionTier: tier,
-        builtInStyles: allStyles
-          .filter((s) => s.isBuiltIn)
-          .map(({ id, name, displayName, description }) => ({
-            id,
-            name,
-            displayName,
-            description,
-          })),
-        customStyles: allStyles
-          .filter((s) => !s.isBuiltIn)
-          .map(({ id, name, displayName, description }) => ({
-            id,
-            name,
-            displayName,
-            description,
-          })),
-        canCreateCustom: ["TEAM", "BUSINESS"].includes(tier),
-      }}
+    <SettingsGeneral
+      workspaceName={workspace?.slackTeamName || ""}
+      needsReconnection={workspace?.needsReconnection || false}
+      channels={channels.map((ch) => ({
+        id: ch.id,
+        slackChannelId: ch.slackChannelId,
+        channelName: ch.channelName,
+        isActive: ch.isActive,
+        isPaused: ch.isPaused,
+        styleMode: ch.styleMode,
+        postToChannelId: ch.postToChannelId,
+        postToChannelName: ch.postToChannelName,
+        disabledStyleIds: ch.channelStyles.map((cs) => cs.styleId),
+      }))}
+      styles={allStyles}
+      subscriptionTier={tier}
+      maxChannels={TIER_MAX_CHANNELS[tier] || 1}
     />
   );
 }

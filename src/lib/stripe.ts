@@ -36,8 +36,8 @@ export async function createCheckoutSession(
     payment_method_types: ["card"],
     line_items: [{ price: priceId, quantity: 1 }],
     mode: "subscription",
-    success_url: `${appUrl}/dashboard/settings?tab=billing&success=true`,
-    cancel_url: `${appUrl}/dashboard/settings?tab=billing&canceled=true`,
+    success_url: `${appUrl}/dashboard/settings/billing?success=true`,
+    cancel_url: `${appUrl}/dashboard/settings/billing?canceled=true`,
     metadata: { workspaceId },
   });
 }
@@ -47,7 +47,7 @@ export async function createCustomerPortalSession(customerId: string) {
 
   return stripe.billingPortal.sessions.create({
     customer: customerId,
-    return_url: `${appUrl}/dashboard/settings?tab=billing`,
+    return_url: `${appUrl}/dashboard/settings/billing`,
   });
 }
 
@@ -112,8 +112,8 @@ export async function createTokenPackCheckoutSession(
     payment_method_types: ["card"],
     line_items: [{ price: pack.stripePriceId, quantity: 1 }],
     mode: "payment",
-    success_url: `${appUrl}/dashboard/settings?tab=billing&tokens=success&pack=${pack.id}`,
-    cancel_url: `${appUrl}/dashboard/settings?tab=billing&tokens=canceled`,
+    success_url: `${appUrl}/dashboard/settings/billing?tokens=success&pack=${pack.id}`,
+    cancel_url: `${appUrl}/dashboard/settings/billing?tokens=canceled`,
     metadata: {
       workspaceId,
       tokenPackId: pack.id,

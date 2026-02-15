@@ -89,22 +89,27 @@ export function AppSidebar({
       </SidebarHeader>
 
       {/* Workspace */}
-      <div className="px-4 py-3">
-        <div className="flex items-center gap-2.5">
+      <div className="px-3 py-1">
+        <div className="bg-sidebar-accent/40 flex items-center gap-2.5 rounded-lg border px-3 py-2.5 shadow-sm">
           {workspaceIcon ? (
             <img
               src={workspaceIcon}
               alt={user.workspaceName || "Workspace"}
-              className="h-7 w-7 shrink-0 rounded-md"
+              className="h-8 w-8 shrink-0 rounded-lg border object-cover shadow-sm"
             />
           ) : (
-            <div className="bg-primary/10 text-primary flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-xs font-semibold">
+            <div className="bg-primary text-primary-foreground flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-xs font-bold shadow-sm">
               {user.workspaceName?.[0]?.toUpperCase() || "W"}
             </div>
           )}
-          <p className="truncate text-sm leading-tight font-medium">
-            {user.workspaceName || "Workspace"}
-          </p>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm leading-tight font-semibold">
+              {user.workspaceName || "Workspace"}
+            </p>
+            <p className="text-muted-foreground mt-0.5 text-[11px] leading-tight">
+              Workspace
+            </p>
+          </div>
         </div>
       </div>
 
@@ -180,7 +185,7 @@ export function AppSidebar({
               className={`mt-1 h-1.5 ${usagePercent >= 90 ? "[&>div]:bg-red-500" : usagePercent >= 70 ? "[&>div]:bg-yellow-500" : ""}`}
             />
           </div>
-          <Link href="/dashboard/settings?tab=billing" className="block">
+          <Link href="/dashboard/settings/billing" className="block">
             <button className="bg-primary text-primary-foreground hover:bg-primary/90 flex w-full items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors">
               Upgrade plan
               <ArrowUpRight className="h-3 w-3" />

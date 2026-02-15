@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import {
   Card,
   CardContent,
@@ -25,15 +27,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Plus,
-  Trash2,
-  Pause,
-  Play,
-  ChevronDown,
-  ChevronUp,
-  Hash,
-} from "lucide-react";
+import { Plus, Trash2, ChevronDown, Hash, Palette } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 
 interface Channel {
@@ -68,7 +63,6 @@ interface SettingsGeneralProps {
   styles: Style[];
   subscriptionTier: string;
   maxChannels: number;
-  onNavigateTab?: (tab: string) => void;
 }
 
 export default function SettingsGeneral({
@@ -78,7 +72,6 @@ export default function SettingsGeneral({
   styles,
   subscriptionTier,
   maxChannels,
-  onNavigateTab,
 }: SettingsGeneralProps) {
   const [channels, setChannels] = useState(initialChannels);
   const [slackChannels, setSlackChannels] = useState<SlackChannel[]>([]);
@@ -390,13 +383,12 @@ export default function SettingsGeneral({
               <p className="mt-2 text-xs text-[#9A9A9A]">
                 You&apos;ve reached the channel limit for your{" "}
                 {subscriptionTier} plan.{" "}
-                <button
-                  type="button"
-                  onClick={() => onNavigateTab?.("billing")}
+                <Link
+                  href="/dashboard/settings/billing"
                   className="text-[#7C3AED] hover:underline"
                 >
                   Upgrade
-                </button>{" "}
+                </Link>{" "}
                 to add more.
               </p>
             )}
@@ -410,159 +402,165 @@ export default function SettingsGeneral({
                 return (
                   <div
                     key={channel.id}
-                    className={`rounded-lg border p-4 ${channel.isPaused ? "border-yellow-200 bg-yellow-50/50" : "border-[#E5E5E5] bg-gray-50"}`}
+                    className={`overflow-hidden rounded-lg border transition-all ${channel.isPaused ? "border-border/50 opacity-60" : "border-[#E5E5E5]"}`}
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Hash className="h-4 w-4 text-[#9A9A9A]" />
-                        <span className="text-sm font-medium text-[#1A1A1A]">
-                          {channel.channelName}
-                        </span>
-                        <Badge
-                          variant={channel.isPaused ? "warning" : "success"}
-                        >
-                          {channel.isPaused ? "Paused" : "Active"}
-                        </Badge>
+                    <div
+                      className={`p-4 ${channel.isPaused ? "bg-muted/30" : "bg-gray-50"}`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Hash className="h-4 w-4 text-[#9A9A9A]" />
+                          <span className="text-sm font-medium text-[#1A1A1A]">
+                            {channel.channelName}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <Switch
+                            checked={!channel.isPaused}
+                            onCheckedChange={() =>
+                              toggleChannelPause(channel.id)
+                            }
+                          />
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setDeleteTarget(channel)}
+                            className="text-red-500 hover:text-red-700"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => toggleChannelPause(channel.id)}
-                          title={
-                            channel.isPaused
-                              ? "Resume channel"
-                              : "Pause channel"
-                          }
-                        >
-                          {channel.isPaused ? (
-                            <Play className="h-4 w-4" />
-                          ) : (
-                            <Pause className="h-4 w-4" />
-                          )}
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setDeleteTarget(channel)}
-                          className="text-red-500 hover:text-red-700"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                      <div>
-                        <label className="mb-1 block text-xs text-[#4A4A4A]">
-                          Style Mode
-                        </label>
-                        <Select
-                          value={channel.styleMode}
-                          onValueChange={(v) =>
-                            updateChannelStyleMode(
-                              channel.id,
-                              v as "RANDOM" | "AI",
-                            )
-                          }
-                          disabled={saving === `mode-${channel.id}`}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="RANDOM">Random</SelectItem>
-                            <SelectItem value="AI">AI Selection</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <label className="mb-1 block text-xs text-[#4A4A4A]">
-                          Post To
-                        </label>
-                        <Select
-                          value={channel.postToChannelId || "same"}
-                          onValueChange={(v) =>
-                            updateChannelRouting(
-                              channel.id,
-                              v === "same" ? null : v,
-                            )
-                          }
-                          disabled={saving === `routing-${channel.id}`}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="same">
-                              Same channel (thread reply)
-                            </SelectItem>
-                            {slackChannels.map((ch) => (
-                              <SelectItem key={ch.id} value={ch.id}>
-                                # {ch.name}
+                      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                        <div>
+                          <label className="mb-1 block text-xs text-[#4A4A4A]">
+                            Style Mode
+                          </label>
+                          <Select
+                            value={channel.styleMode}
+                            onValueChange={(v) =>
+                              updateChannelStyleMode(
+                                channel.id,
+                                v as "RANDOM" | "AI",
+                              )
+                            }
+                            disabled={saving === `mode-${channel.id}`}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="RANDOM">Random</SelectItem>
+                              <SelectItem value="AI">AI Selection</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <label className="mb-1 block text-xs text-[#4A4A4A]">
+                            Post To
+                          </label>
+                          <Select
+                            value={channel.postToChannelId || "same"}
+                            onValueChange={(v) =>
+                              updateChannelRouting(
+                                channel.id,
+                                v === "same" ? null : v,
+                              )
+                            }
+                            disabled={saving === `routing-${channel.id}`}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="same">
+                                Same channel (thread reply)
                               </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                              {slackChannels.map((ch) => (
+                                <SelectItem key={ch.id} value={ch.id}>
+                                  # {ch.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
                     </div>
 
                     {/* Styles toggle section */}
-                    <div className="mt-3 border-t border-[#E5E5E5] pt-3">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setExpandedChannel(isExpanded ? null : channel.id)
-                        }
-                        className="flex w-full items-center justify-between text-xs text-[#4A4A4A] hover:text-[#1A1A1A]"
-                      >
-                        <span>
-                          {enabledCount} of {styles.length} styles enabled
-                        </span>
-                        {isExpanded ? (
-                          <ChevronUp className="h-3.5 w-3.5" />
-                        ) : (
-                          <ChevronDown className="h-3.5 w-3.5" />
-                        )}
-                      </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setExpandedChannel(isExpanded ? null : channel.id)
+                      }
+                      className="flex w-full items-center justify-between border-t border-[#E5E5E5] bg-gray-50/50 px-4 py-2.5 text-xs text-[#4A4A4A] transition-colors hover:bg-gray-100/80"
+                    >
+                      <span>
+                        {enabledCount} of {styles.length} styles enabled
+                      </span>
+                      <ChevronDown
+                        className={`h-3.5 w-3.5 transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`}
+                      />
+                    </button>
 
-                      {isExpanded && (
-                        <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                    <div
+                      className="grid transition-[grid-template-rows] duration-300 ease-in-out"
+                      style={{
+                        gridTemplateRows: isExpanded ? "1fr" : "0fr",
+                      }}
+                    >
+                      <div className="overflow-hidden">
+                        <div className="grid grid-cols-2 gap-2 border-t border-[#E5E5E5] p-4 sm:grid-cols-3">
                           {styles.map((style) => {
                             const isEnabled =
                               !channel.disabledStyleIds.includes(style.id);
                             return (
-                              <button
+                              <div
                                 key={style.id}
-                                type="button"
-                                onClick={() =>
-                                  toggleChannelStyle(channel.id, style.id)
-                                }
-                                className={`rounded-lg border p-2 text-left transition-colors ${
+                                className={`overflow-hidden rounded-lg border transition-all ${
                                   isEnabled
-                                    ? "border-[#7C3AED] bg-white"
-                                    : "border-[#E5E5E5] bg-gray-100 opacity-50"
+                                    ? "border-border bg-background"
+                                    : "border-border/50 bg-muted/30 opacity-50"
                                 }`}
                               >
-                                <div className="flex items-center justify-between">
-                                  <span className="text-xs font-medium text-[#1A1A1A]">
-                                    {style.displayName}
-                                  </span>
-                                  <div
-                                    className={`h-3 w-3 rounded-full ${
-                                      isEnabled ? "bg-[#7C3AED]" : "bg-gray-300"
-                                    }`}
+                                {style.isBuiltIn ? (
+                                  <div className="bg-muted relative aspect-[3/2]">
+                                    <Image
+                                      src={`/images/dashboard/styles/${style.name}.png`}
+                                      alt={`${style.displayName} preview`}
+                                      fill
+                                      className="object-cover"
+                                      sizes="(max-width: 640px) 50vw, 33vw"
+                                    />
+                                  </div>
+                                ) : (
+                                  <div className="flex aspect-[3/2] items-center justify-center bg-gradient-to-br from-violet-50 to-purple-100">
+                                    <Palette className="h-6 w-6 text-violet-400" />
+                                  </div>
+                                )}
+                                <div className="flex items-center justify-between gap-2 px-2.5 py-2">
+                                  <div className="min-w-0">
+                                    <p className="truncate text-xs font-medium">
+                                      {style.displayName}
+                                    </p>
+                                    {!style.isBuiltIn && (
+                                      <p className="text-muted-foreground text-[10px]">
+                                        Custom
+                                      </p>
+                                    )}
+                                  </div>
+                                  <Switch
+                                    checked={isEnabled}
+                                    onCheckedChange={() =>
+                                      toggleChannelStyle(channel.id, style.id)
+                                    }
                                   />
                                 </div>
-                                {!style.isBuiltIn && (
-                                  <span className="mt-0.5 text-[10px] text-[#9A9A9A]">
-                                    Custom
-                                  </span>
-                                )}
-                              </button>
+                              </div>
                             );
                           })}
                         </div>
-                      )}
+                      </div>
                     </div>
                   </div>
                 );

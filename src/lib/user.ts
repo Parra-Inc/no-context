@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import prisma from "@/lib/prisma";
 
 /**
@@ -52,15 +53,29 @@ export async function assertUser(session: {
     throw new Error("Cannot create user: no email available from session");
   }
 
-  const created = await prisma.user.create({
-    data: {
-      email,
-      name: session.name ?? undefined,
-      slackUserId: session.slackUserId ?? undefined,
-    },
-  });
-
-  return created.id;
+  try {
+    const created = await prisma.user.create({
+      data: {
+        email,
+        name: session.name ?? undefined,
+        slackUserId: session.slackUserId ?? undefined,
+      },
+    });
+    return created.id;
+  } catch (e) {
+    // Race condition: another request created the user between our lookup and insert
+    if (
+      e instanceof Prisma.PrismaClientKnownRequestError &&
+      e.code === "P2002"
+    ) {
+      const existing = await prisma.user.findUnique({
+        where: { email },
+        select: { id: true },
+      });
+      if (existing) return existing.id;
+    }
+    throw e;
+  }
 }
 
 /**

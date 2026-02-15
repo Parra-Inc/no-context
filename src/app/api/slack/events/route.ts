@@ -276,7 +276,7 @@ async function processMessage(event: SlackEvent, teamId: string) {
       slackUserId,
       [
         `You've used all ${used}/${quota} monthly images${bonusCredits === 0 ? "" : " and bonus credits"} for No Context. Your monthly usage resets on *${resetDateStr}*.`,
-        `<${appUrl}/dashboard/settings?tab=billing|Upgrade your plan> or <${appUrl}/dashboard/settings?tab=billing|buy a token pack> to keep generating!`,
+        `<${appUrl}/dashboard/settings/billing|Upgrade your plan> or <${appUrl}/dashboard/settings/billing|buy a token pack> to keep generating!`,
       ].join("\n"),
     );
     return;
