@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import { encrypt } from "@/lib/encryption";
 import { stripe, TIER_QUOTAS } from "@/lib/stripe";
 import { findOrCreateUserBySlack } from "@/lib/user";
+import { log } from "@/lib/logger";
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -11,6 +12,25 @@ export async function GET(request: NextRequest) {
   const error = searchParams.get("error");
   const stateParam = searchParams.get("state");
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
+  log.info(
+    `Slack callback: received code=${code ? "present" : "missing"} error=${error || "none"}`,
+  );
+
+  // Persist the raw event
+  await prisma.slackEvent
+    .create({
+      data: {
+        eventType: error ? `oauth:error:${error}` : "oauth:callback",
+        rawBody: JSON.stringify({
+          code: code ? "[REDACTED]" : null,
+          error,
+          state: stateParam ? "[REDACTED]" : null,
+        }),
+        endpoint: "/api/slack/callback",
+      },
+    })
+    .catch((err) => log.error("Failed to persist slack callback event", err));
 
   // Parse state to extract returnTo and userId
   let returnTo = "/signin";
@@ -28,17 +48,21 @@ export async function GET(request: NextRequest) {
       if (storedToken && storedToken === statePayload.token) {
         returnTo = statePayload.returnTo || "/signin";
         linkUserId = statePayload.userId || null;
+      } else {
+        log.warn("Slack callback: CSRF token mismatch");
       }
     } catch {
-      // Malformed state — fall back to defaults
+      log.warn("Slack callback: malformed state parameter");
     }
   }
 
   if (error) {
+    log.warn(`Slack callback: OAuth denied error=${error}`);
     return NextResponse.redirect(`${appUrl}/?error=slack_oauth_denied`);
   }
 
   if (!code) {
+    log.warn("Slack callback: no code provided");
     return NextResponse.redirect(`${appUrl}/?error=no_code`);
   }
 
@@ -58,7 +82,11 @@ export async function GET(request: NextRequest) {
     const tokenData = await tokenResponse.json();
 
     if (!tokenData.ok) {
-      console.error("Slack OAuth error:", tokenData.error);
+      log.error(
+        "Slack callback: OAuth token exchange failed",
+        undefined,
+        tokenData.error,
+      );
       return NextResponse.redirect(`${appUrl}/?error=slack_oauth_failed`);
     }
 
@@ -68,6 +96,10 @@ export async function GET(request: NextRequest) {
       bot_user_id: slackBotUserId,
       authed_user: { id: slackInstallerUserId },
     } = tokenData;
+
+    log.info(
+      `Slack callback: OAuth success team=${slackTeamId} teamName=${slackTeamName}`,
+    );
 
     // Resolve or create a database User for the installer
     let userId = linkUserId;
@@ -81,6 +113,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (!userId) {
+      log.warn(`Slack callback: could not resolve user team=${slackTeamId}`);
       return NextResponse.redirect(`${appUrl}/?error=user_required`);
     }
 
@@ -99,7 +132,7 @@ export async function GET(request: NextRequest) {
           teamInfo.team.icon?.image_132 || teamInfo.team.icon?.image_68 || null;
       }
     } catch {
-      // Non-critical — skip
+      log.debug("Slack callback: failed to fetch team icon (non-critical)");
     }
 
     // Upsert workspace with the database User ID as installer
@@ -125,6 +158,10 @@ export async function GET(request: NextRequest) {
       },
     });
 
+    log.info(
+      `Slack callback: workspace upserted id=${workspace.id} team=${slackTeamId}`,
+    );
+
     // Create Stripe customer + free subscription if new
     const existingSub = await prisma.subscription.findUnique({
       where: { workspaceId: workspace.id },
@@ -148,6 +185,10 @@ export async function GET(request: NextRequest) {
           monthlyQuota: TIER_QUOTAS.FREE,
         },
       });
+
+      log.info(
+        `Slack callback: created free subscription for workspace=${workspace.id}`,
+      );
     }
 
     // Link the user to the workspace
@@ -156,9 +197,11 @@ export async function GET(request: NextRequest) {
       data: { workspaceId: workspace.id },
     });
 
+    log.info(`Slack callback: complete, redirecting to ${returnTo}`);
+
     return NextResponse.redirect(`${appUrl}${returnTo}`);
   } catch (error) {
-    console.error("Slack OAuth callback error:", error);
+    log.error("Slack callback: OAuth flow error", error);
     return NextResponse.redirect(`${appUrl}/?error=install_failed`);
   }
 }

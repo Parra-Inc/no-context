@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { cookies } from "next/headers";
+import { log } from "@/lib/logger";
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const returnTo = searchParams.get("returnTo") || "/signin";
   const userId = searchParams.get("userId");
+
+  log.info(
+    `Slack install: initiating OAuth flow returnTo=${returnTo} userId=${userId || "none"}`,
+  );
 
   const clientId = process.env.SLACK_CLIENT_ID;
   const scopes = [
@@ -37,6 +42,8 @@ export async function GET(request: NextRequest) {
   });
 
   const slackUrl = `https://slack.com/oauth/v2/authorize?client_id=${clientId}&scope=${scopes}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodedState}`;
+
+  log.info("Slack install: redirecting to Slack OAuth");
 
   return NextResponse.redirect(slackUrl);
 }

@@ -190,7 +190,7 @@ Options (pick one):
 ```env
 # App
 NODE_ENV=production
-NEXT_PUBLIC_APP_URL=https://app.nocontextbot.com
+NEXT_PUBLIC_APP_URL=https://nocontextbot.com
 
 # Slack
 SLACK_CLIENT_ID=
@@ -199,7 +199,7 @@ SLACK_SIGNING_SECRET=
 SLACK_APP_ID=
 
 # Auth
-NEXTAUTH_URL=https://app.nocontextbot.com
+NEXTAUTH_URL=https://nocontextbot.com
 NEXTAUTH_SECRET=
 
 # Database

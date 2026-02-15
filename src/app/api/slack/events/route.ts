@@ -10,6 +10,7 @@ import {
 import { detectQuote } from "@/lib/ai/quote-detector";
 import { enqueueImageGeneration } from "@/lib/queue/queue";
 import { TIER_QUOTAS } from "@/lib/stripe";
+import { log } from "@/lib/logger";
 
 interface SlackEvent {
   type: string;
@@ -51,13 +52,36 @@ export async function POST(request: NextRequest) {
       signature,
     )
   ) {
+    log.warn("Slack events: invalid signature");
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
 
   const payload: SlackEventPayload = JSON.parse(body);
+  const eventType = payload.event?.type || payload.type;
+
+  log.info(
+    `Slack events: received type=${payload.type} eventType=${eventType} team=${payload.team_id || "n/a"}`,
+  );
+  log.debug("Slack events: full payload", payload);
+
+  // Persist the raw event
+  await prisma.slackEvent
+    .create({
+      data: {
+        eventType,
+        teamId: payload.team_id || null,
+        channel: payload.event?.channel || null,
+        userId: payload.event?.user || null,
+        messageTs: payload.event?.ts || null,
+        rawBody: body,
+        endpoint: "/api/slack/events",
+      },
+    })
+    .catch((err) => log.error("Failed to persist slack event", err));
 
   // Handle URL verification challenge
   if (payload.type === "url_verification") {
+    log.info("Slack events: responding to url_verification challenge");
     return NextResponse.json({ challenge: payload.challenge });
   }
 
@@ -68,6 +92,7 @@ export async function POST(request: NextRequest) {
 
     // Handle app_uninstalled
     if (event.type === "app_uninstalled" && teamId) {
+      log.info(`Slack events: app_uninstalled for team=${teamId}`);
       await prisma.workspace.updateMany({
         where: { slackTeamId: teamId },
         data: { isActive: false },
@@ -82,17 +107,25 @@ export async function POST(request: NextRequest) {
       !event.ts ||
       !event.text
     ) {
+      log.debug(`Slack events: ignoring non-message event type=${event.type}`);
       return NextResponse.json({ ok: true });
     }
 
     // Filter out bot messages, thread replies, edits
     if (event.bot_id || event.subtype || event.thread_ts) {
+      log.debug(
+        `Slack events: filtering out message bot_id=${event.bot_id} subtype=${event.subtype} thread_ts=${event.thread_ts}`,
+      );
       return NextResponse.json({ ok: true });
     }
 
+    log.info(
+      `Slack events: processing message from user=${event.user} channel=${event.channel} team=${teamId}`,
+    );
+
     // Process async — respond to Slack immediately
     processMessage(event, teamId!).catch((err) =>
-      console.error("Message processing error:", err),
+      log.error("Slack events: message processing error", err),
     );
 
     return NextResponse.json({ ok: true });
@@ -108,10 +141,18 @@ async function processMessage(event: SlackEvent, teamId: string) {
     include: { subscription: true },
   });
 
-  if (!workspace?.isActive || workspace.needsReconnection) return;
+  if (!workspace?.isActive || workspace.needsReconnection) {
+    log.debug(
+      `Slack events: workspace inactive or needs reconnection team=${teamId}`,
+    );
+    return;
+  }
 
   // Filter self-messages
-  if (event.user === workspace.slackBotUserId) return;
+  if (event.user === workspace.slackBotUserId) {
+    log.debug("Slack events: ignoring self-message");
+    return;
+  }
 
   // Check if channel is connected
   const channel = await prisma.channel.findUnique({
@@ -123,7 +164,12 @@ async function processMessage(event: SlackEvent, teamId: string) {
     },
   });
 
-  if (!channel?.isActive || channel.isPaused) return;
+  if (!channel?.isActive || channel.isPaused) {
+    log.debug(
+      `Slack events: channel not active or paused channel=${event.channel}`,
+    );
+    return;
+  }
 
   // Check quota
   const now = new Date();
@@ -143,6 +189,9 @@ async function processMessage(event: SlackEvent, teamId: string) {
   const used = usage?.quotesUsed || 0;
 
   if (used >= quota) {
+    log.info(
+      `Slack events: quota exceeded for workspace=${workspace.id} used=${used}/${quota}`,
+    );
     const slackClient = getSlackClient(workspace.slackBotToken);
     await addReaction(
       slackClient,
@@ -155,7 +204,16 @@ async function processMessage(event: SlackEvent, teamId: string) {
 
   // Detect quote
   const detection = await detectQuote(event.text!);
-  if (!detection.isQuote) return;
+  if (!detection.isQuote) {
+    log.debug(
+      `Slack events: message not detected as quote channel=${event.channel}`,
+    );
+    return;
+  }
+
+  log.info(
+    `Slack events: quote detected confidence=${detection.confidence} channel=${event.channel}`,
+  );
 
   // Get user display name and avatar
   let userName = "Unknown";
@@ -170,9 +228,13 @@ async function processMessage(event: SlackEvent, teamId: string) {
     userAvatarUrl = userInfo.user?.profile?.image_72 || undefined;
   } catch (error) {
     if (isSlackTokenError(error)) {
+      log.warn(
+        `Slack events: token error fetching user info workspace=${workspace.id}`,
+      );
       await markWorkspaceDisconnected(workspace.id);
       return;
     }
+    log.error("Slack events: error fetching user info", error);
   }
 
   // Add processing reaction
@@ -181,9 +243,13 @@ async function processMessage(event: SlackEvent, teamId: string) {
     await addReaction(slackClient, event.channel!, event.ts!, "art");
   } catch (error) {
     if (isSlackTokenError(error)) {
+      log.warn(
+        `Slack events: token error adding reaction workspace=${workspace.id}`,
+      );
       await markWorkspaceDisconnected(workspace.id);
       return;
     }
+    log.error("Slack events: error adding reaction", error);
   }
 
   // Create quote record
@@ -204,6 +270,10 @@ async function processMessage(event: SlackEvent, teamId: string) {
       status: "PENDING",
     },
   });
+
+  log.info(
+    `Slack events: quote created id=${quote.id} style=${styleId} workspace=${workspace.id}`,
+  );
 
   // Check for custom style
   let customStyleDescription: string | undefined;
@@ -229,4 +299,6 @@ async function processMessage(event: SlackEvent, teamId: string) {
     tier,
     priority: TIER_PRIORITY[tier] || 4,
   });
+
+  log.info(`Slack events: image generation enqueued quote=${quote.id}`);
 }

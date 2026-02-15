@@ -4,7 +4,7 @@
 
 The dashboard is a Next.js web app where workspace admins manage their No Context installation. It is authenticated via NextAuth using the "Sign in with Slack" OAuth flow (reusing the same Slack OAuth credentials).
 
-**URL structure**: `app.nocontextbot.com` (or similar)
+**URL structure**: `nocontextbot.com` (or similar)
 
 ---
 

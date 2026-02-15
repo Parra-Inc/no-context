@@ -174,6 +174,24 @@ model User {
 
 }
 
+model SlackEvent {
+  id          String   @id @default(cuid())
+  eventType   String
+  teamId      String?
+  channel     String?
+  userId      String?
+  messageTs   String?
+  rawBody     String
+  endpoint    String
+  processedOk Boolean  @default(true)
+  error       String?
+  createdAt   DateTime @default(now())
+
+  @@index([eventType])
+  @@index([teamId])
+  @@index([createdAt])
+}
+
 model EmailVerificationCode {
   id        String   @id @default(cuid())
   userId    String

@@ -51,25 +51,25 @@ vercel env pull .env.local
 
 Configure the following in **Settings** > **Environment Variables**:
 
-| Variable                             | Description                                                |
-| ------------------------------------ | ---------------------------------------------------------- |
-| `DATABASE_URL`                       | PostgreSQL connection string (e.g., from Neon)             |
-| `REDIS_URL`                          | Redis connection string (e.g., from Upstash)               |
-| `NEXTAUTH_URL`                       | Your production URL (e.g., `https://app.nocontextbot.com`) |
-| `NEXTAUTH_SECRET`                    | Random secret for NextAuth session encryption              |
-| `SLACK_CLIENT_ID`                    | From Slack app settings                                    |
-| `SLACK_CLIENT_SECRET`                | From Slack app settings                                    |
-| `SLACK_SIGNING_SECRET`               | From Slack app settings                                    |
-| `SLACK_APP_ID`                       | From Slack app settings                                    |
-| `ANTHROPIC_API_KEY`                  | Anthropic API key for Claude (quote detection)             |
-| `OPENAI_API_KEY`                     | OpenAI API key for DALL-E (image generation)               |
-| `STRIPE_SECRET_KEY`                  | Stripe secret key                                          |
-| `STRIPE_PUBLISHABLE_KEY`             | Stripe publishable key                                     |
-| `STRIPE_WEBHOOK_SECRET`              | Stripe webhook signing secret                              |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe publishable key (client-side)                       |
-| `NEXT_PUBLIC_APP_URL`                | Your production URL                                        |
-| `TOKEN_ENCRYPTION_KEY`               | 64-character hex string for Slack token encryption         |
-| `BLOB_READ_WRITE_TOKEN`              | Auto-added when Blob Storage is connected                  |
+| Variable                             | Description                                            |
+| ------------------------------------ | ------------------------------------------------------ |
+| `DATABASE_URL`                       | PostgreSQL connection string (e.g., from Neon)         |
+| `REDIS_URL`                          | Redis connection string (e.g., from Upstash)           |
+| `NEXTAUTH_URL`                       | Your production URL (e.g., `https://nocontextbot.com`) |
+| `NEXTAUTH_SECRET`                    | Random secret for NextAuth session encryption          |
+| `SLACK_CLIENT_ID`                    | From Slack app settings                                |
+| `SLACK_CLIENT_SECRET`                | From Slack app settings                                |
+| `SLACK_SIGNING_SECRET`               | From Slack app settings                                |
+| `SLACK_APP_ID`                       | From Slack app settings                                |
+| `ANTHROPIC_API_KEY`                  | Anthropic API key for Claude (quote detection)         |
+| `OPENAI_API_KEY`                     | OpenAI API key for DALL-E (image generation)           |
+| `STRIPE_SECRET_KEY`                  | Stripe secret key                                      |
+| `STRIPE_PUBLISHABLE_KEY`             | Stripe publishable key                                 |
+| `STRIPE_WEBHOOK_SECRET`              | Stripe webhook signing secret                          |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe publishable key (client-side)                   |
+| `NEXT_PUBLIC_APP_URL`                | Your production URL                                    |
+| `TOKEN_ENCRYPTION_KEY`               | 64-character hex string for Slack token encryption     |
+| `BLOB_READ_WRITE_TOKEN`              | Auto-added when Blob Storage is connected              |
 
 Stripe price IDs (`STRIPE_PRICE_*`) must also be configured per your Stripe product setup.
 

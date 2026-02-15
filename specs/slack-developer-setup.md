@@ -44,12 +44,12 @@ Navigate to **OAuth & Permissions**:
 Add your OAuth callback URL:
 
 - **Dev**: `http://localhost:3000/api/auth/callback/slack`
-- **Prod**: `https://app.nocontextbot.com/api/auth/callback/slack`
+- **Prod**: `https://nocontextbot.com/api/auth/callback/slack`
 
 > You may need separate redirect URLs for the Slack install flow vs. NextAuth sign-in. If so:
 >
-> - Install flow: `https://app.nocontextbot.com/api/slack/callback`
-> - NextAuth sign-in: `https://app.nocontextbot.com/api/auth/callback/slack`
+> - Install flow: `https://nocontextbot.com/api/slack/callback`
+> - NextAuth sign-in: `https://nocontextbot.com/api/auth/callback/slack`
 
 ### Bot Token Scopes
 
@@ -78,7 +78,7 @@ Navigate to **Event Subscriptions**:
 1. **Enable Events**: Toggle ON
 2. **Request URL**:
    - **Dev**: Use ngrok or similar tunnel → `https://your-tunnel.ngrok.io/api/slack/events`
-   - **Prod**: `https://app.nocontextbot.com/api/slack/events`
+   - **Prod**: `https://nocontextbot.com/api/slack/events`
    - Slack will send a challenge request to verify — your endpoint must respond with the challenge value
 3. **Subscribe to Bot Events**:
    - `message.channels` — Messages posted in public channels
@@ -94,7 +94,7 @@ Navigate to **Interactivity & Shortcuts**:
 1. **Enable Interactivity**: Toggle ON
 2. **Request URL**:
    - **Dev**: `https://your-tunnel.ngrok.io/api/slack/interactions`
-   - **Prod**: `https://app.nocontextbot.com/api/slack/interactions`
+   - **Prod**: `https://nocontextbot.com/api/slack/interactions`
 
 ---
 
@@ -104,13 +104,13 @@ Navigate to **Slash Commands**:
 
 Create one slash command:
 
-| Field                             | Value                                                                |
-| --------------------------------- | -------------------------------------------------------------------- | ----- | ----- | -------- |
-| Command                           | `/nocontext`                                                         |
-| Request URL                       | `https://app.nocontextbot.com/api/slack/commands` (or ngrok for dev) |
-| Short Description                 | Manage No Context settings and usage                                 |
-| Usage Hint                        | `[status                                                             | style | pause | resume]` |
-| Escape channels, users, and links | Yes                                                                  |
+| Field                             | Value                                                            |
+| --------------------------------- | ---------------------------------------------------------------- | ----- | ----- | -------- |
+| Command                           | `/nocontext`                                                     |
+| Request URL                       | `https://nocontextbot.com/api/slack/commands` (or ngrok for dev) |
+| Short Description                 | Manage No Context settings and usage                             |
+| Usage Hint                        | `[status                                                         | style | pause | resume]` |
+| Escape channels, users, and links | Yes                                                              |
 
 ---
 
@@ -231,7 +231,7 @@ When ready to distribute publicly:
 | Item           | Dev                        | Production                           |
 | -------------- | -------------------------- | ------------------------------------ |
 | Slack App      | Separate "Dev" app         | Production app                       |
-| OAuth redirect | `localhost:3000` via ngrok | `app.nocontextbot.com`               |
+| OAuth redirect | `localhost:3000` via ngrok | `nocontextbot.com`                   |
 | Event URL      | ngrok tunnel               | Production server                    |
 | Bot token      | Single workspace token     | Per-workspace via OAuth              |
 | Stripe keys    | `sk_test_` / `pk_test_`    | `sk_live_` / `pk_live_`              |
