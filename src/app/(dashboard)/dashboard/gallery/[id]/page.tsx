@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -14,9 +15,14 @@ export default async function QuoteDetailPage({
 }) {
   const session = await auth();
   const { id } = await params;
+  const workspaceId = session!.user.workspaceId;
+
+  if (!workspaceId) {
+    redirect("/onboarding");
+  }
 
   const quote = await prisma.quote.findFirst({
-    where: { id, workspaceId: session!.user.workspaceId },
+    where: { id, workspaceId },
     include: { channel: { select: { channelName: true } } },
   });
 
