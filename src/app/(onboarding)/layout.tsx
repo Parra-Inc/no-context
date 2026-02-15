@@ -13,7 +13,17 @@ export default async function OnboardingLayout({
     redirect("/signin");
   }
 
-  const workspaceId = session.user.workspaceId;
+  // The session JWT may not yet reflect a workspace that was just linked.
+  // Fall back to a direct DB lookup for email auth users.
+  let workspaceId = session.user.workspaceId;
+
+  if (!workspaceId && session.user.authType === "email") {
+    const dbUser = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { workspaceId: true },
+    });
+    workspaceId = dbUser?.workspaceId ?? undefined;
+  }
 
   if (workspaceId) {
     const workspace = await prisma.workspace.findUnique({
