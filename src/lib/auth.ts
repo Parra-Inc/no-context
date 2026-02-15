@@ -3,6 +3,7 @@ import type { NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
 import prisma from "./prisma";
+import { findOrCreateUserBySlack } from "./user";
 
 declare module "next-auth" {
   interface Session {
@@ -120,26 +121,11 @@ export const authConfig: NextAuthConfig = {
         token.authType = "slack";
 
         // Find or create a User record for this Slack identity
-        let dbUser = await prisma.user.findFirst({
-          where: {
-            OR: [{ slackUserId }, ...(email ? [{ email }] : [])],
-          },
+        const dbUser = await findOrCreateUserBySlack({
+          slackUserId,
+          email,
+          name,
         });
-
-        if (!dbUser && email) {
-          dbUser = await prisma.user.create({
-            data: {
-              email,
-              slackUserId,
-              name: name || null,
-            },
-          });
-        } else if (dbUser && !dbUser.slackUserId) {
-          dbUser = await prisma.user.update({
-            where: { id: dbUser.id },
-            data: { slackUserId },
-          });
-        }
 
         if (dbUser) {
           token.userId = dbUser.id;

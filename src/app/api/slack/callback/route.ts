@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
 import { encrypt } from "@/lib/encryption";
 import { stripe, TIER_QUOTAS } from "@/lib/stripe";
+import { findOrCreateUserBySlack } from "@/lib/user";
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -72,53 +73,11 @@ export async function GET(request: NextRequest) {
     let userId = linkUserId;
 
     if (!userId) {
-      // Try to find existing user by Slack ID
-      const existingUser = await prisma.user.findUnique({
-        where: { slackUserId: slackInstallerUserId },
+      const user = await findOrCreateUserBySlack({
+        slackUserId: slackInstallerUserId,
+        botToken,
       });
-
-      if (existingUser) {
-        userId = existingUser.id;
-      } else {
-        // Fetch installer's profile from Slack to get their email
-        try {
-          const userInfoResponse = await fetch(
-            `https://slack.com/api/users.info?${new URLSearchParams({ user: slackInstallerUserId })}`,
-            { headers: { Authorization: `Bearer ${botToken}` } },
-          );
-          const userInfo = await userInfoResponse.json();
-
-          if (userInfo.ok && userInfo.user?.profile?.email) {
-            const installerEmail = userInfo.user.profile.email.toLowerCase();
-
-            // Check if a user with this email already exists
-            const emailUser = await prisma.user.findUnique({
-              where: { email: installerEmail },
-            });
-
-            if (emailUser) {
-              // Link Slack identity to existing email user
-              await prisma.user.update({
-                where: { id: emailUser.id },
-                data: { slackUserId: slackInstallerUserId },
-              });
-              userId = emailUser.id;
-            } else {
-              // Create a new user
-              const newUser = await prisma.user.create({
-                data: {
-                  email: installerEmail,
-                  slackUserId: slackInstallerUserId,
-                  name: userInfo.user.real_name || userInfo.user.name || null,
-                },
-              });
-              userId = newUser.id;
-            }
-          }
-        } catch {
-          // Failed to fetch user info — userId remains null
-        }
-      }
+      userId = user?.id ?? null;
     }
 
     if (!userId) {
