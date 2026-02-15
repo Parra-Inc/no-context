@@ -1,8 +1,22 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { z } from "zod/v4";
 import { log } from "@/lib/logger";
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
+});
+
+const QuoteDetectionSchema = z.object({
+  is_quote: z
+    .boolean()
+    .describe("Whether the message is an out-of-context quote"),
+  confidence: z.number().min(0).max(1).describe("Confidence score from 0 to 1"),
+  extracted_quote: z
+    .nullable(z.string())
+    .describe("The extracted quote text, or null"),
+  attributed_to: z
+    .nullable(z.string())
+    .describe("Who the quote is attributed to, or null"),
 });
 
 export interface QuoteDetectionResult {
@@ -36,13 +50,7 @@ CLASSIFY AS NOT A QUOTE (false):
 - Very long messages (multiple paragraphs) — real no-context quotes are short
 - Messages that are clearly jokes/memes rather than overheard quotes
 
-Respond with JSON only:
-{
-  "is_quote": boolean,
-  "confidence": number (0-1),
-  "extracted_quote": string | null,
-  "attributed_to": string | null
-}`;
+Use the classify_quote tool to return your classification.`;
 
 export async function detectQuote(
   messageText: string,
@@ -84,6 +92,17 @@ export async function detectQuote(
     model: "claude-haiku-4-5-20251001",
     max_tokens: 256,
     system: SYSTEM_PROMPT,
+    tools: [
+      {
+        name: "classify_quote",
+        description:
+          "Classify whether a Slack message is an out-of-context quote",
+        input_schema: z.toJSONSchema(
+          QuoteDetectionSchema,
+        ) as Anthropic.Tool["input_schema"],
+      },
+    ],
+    tool_choice: { type: "tool", name: "classify_quote" },
     messages: [
       {
         role: "user",
@@ -92,29 +111,12 @@ export async function detectQuote(
     ],
   });
 
-  const text =
-    response.content[0].type === "text" ? response.content[0].text : "";
+  const toolBlock = response.content.find(
+    (block): block is Anthropic.ToolUseBlock => block.type === "tool_use",
+  );
 
-  log.info(`detectQuote: raw AI response="${text}"`);
-
-  try {
-    const parsed = JSON.parse(text);
-
-    const result = {
-      isQuote: parsed.is_quote === true && parsed.confidence >= 0.7,
-      confidence: parsed.confidence,
-      extractedQuote: parsed.extracted_quote || null,
-      attributedTo: parsed.attributed_to || null,
-    };
-
-    log.info(
-      `detectQuote: parsed result isQuote=${result.isQuote} confidence=${result.confidence}`,
-    );
-
-    return result;
-  } catch {
-    log.warn(`detectQuote: failed to parse AI response as JSON: "${text}"`);
-    // If Claude returns invalid JSON, treat as not a quote
+  if (!toolBlock) {
+    log.warn("detectQuote: no tool_use block in response");
     return {
       isQuote: false,
       confidence: 0,
@@ -122,4 +124,33 @@ export async function detectQuote(
       attributedTo: null,
     };
   }
+
+  log.info(`detectQuote: raw tool input=${JSON.stringify(toolBlock.input)}`);
+
+  const parsed = QuoteDetectionSchema.safeParse(toolBlock.input);
+
+  if (!parsed.success) {
+    log.warn(
+      `detectQuote: Zod validation failed: ${JSON.stringify(parsed.error.issues)}`,
+    );
+    return {
+      isQuote: false,
+      confidence: 0,
+      extractedQuote: null,
+      attributedTo: null,
+    };
+  }
+
+  const result = {
+    isQuote: parsed.data.is_quote === true && parsed.data.confidence >= 0.7,
+    confidence: parsed.data.confidence,
+    extractedQuote: parsed.data.extracted_quote,
+    attributedTo: parsed.data.attributed_to,
+  };
+
+  log.info(
+    `detectQuote: parsed result isQuote=${result.isQuote} confidence=${result.confidence}`,
+  );
+
+  return result;
 }

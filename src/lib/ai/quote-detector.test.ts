@@ -41,13 +41,15 @@ describe("detectQuote", () => {
     mockCreate.mockResolvedValueOnce({
       content: [
         {
-          type: "text",
-          text: JSON.stringify({
+          type: "tool_use",
+          id: "test",
+          name: "classify_quote",
+          input: {
             is_quote: true,
             confidence: 0.95,
             extracted_quote: "I don't think that's how microwaves work",
             attributed_to: "Sarah",
-          }),
+          },
         },
       ],
     });
@@ -67,13 +69,15 @@ describe("detectQuote", () => {
     mockCreate.mockResolvedValueOnce({
       content: [
         {
-          type: "text",
-          text: JSON.stringify({
+          type: "tool_use",
+          id: "test",
+          name: "classify_quote",
+          input: {
             is_quote: false,
             confidence: 0.9,
             extracted_quote: null,
             attributed_to: null,
-          }),
+          },
         },
       ],
     });
@@ -86,13 +90,15 @@ describe("detectQuote", () => {
     mockCreate.mockResolvedValueOnce({
       content: [
         {
-          type: "text",
-          text: JSON.stringify({
+          type: "tool_use",
+          id: "test",
+          name: "classify_quote",
+          input: {
             is_quote: true,
             confidence: 0.5,
             extracted_quote: "maybe a quote",
             attributed_to: null,
-          }),
+          },
         },
       ],
     });
@@ -100,6 +106,21 @@ describe("detectQuote", () => {
     const result = await detectQuote("maybe a quote maybe not really");
     expect(result.isQuote).toBe(false);
     expect(result.confidence).toBe(0.5);
+  });
+
+  it("handles missing tool_use block gracefully", async () => {
+    mockCreate.mockResolvedValueOnce({
+      content: [
+        {
+          type: "text",
+          text: "I could not classify this message.",
+        },
+      ],
+    });
+
+    const result = await detectQuote("some weird message that confuses the AI");
+    expect(result.isQuote).toBe(false);
+    expect(result.confidence).toBe(0);
   });
 
   it("handles Claude API errors gracefully", async () => {

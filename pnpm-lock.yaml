@@ -10,7 +10,7 @@ importers:
     dependencies:
       '@anthropic-ai/sdk':
         specifier: ^0.74.0
-        version: 0.74.0(zod@3.25.76)
+        version: 0.74.0(zod@4.3.6)
       '@prisma/adapter-pg':
         specifier: ^7.4.0
         version: 7.4.0
@@ -79,7 +79,7 @@ importers:
         version: 8.0.1
       openai:
         specifier: ^6.21.0
-        version: 6.22.0(ws@8.19.0)(zod@3.25.76)
+        version: 6.22.0(ws@8.19.0)(zod@4.3.6)
       postcss:
         specifier: ^8.5.6
         version: 8.5.6
@@ -113,6 +113,9 @@ importers:
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
     devDependencies:
       '@testing-library/jest-dom':
         specifier: ^6.9.1
@@ -5857,11 +5860,11 @@ snapshots:
       package-manager-detector: 1.6.0
       tinyexec: 1.0.2
 
-  '@anthropic-ai/sdk@0.74.0(zod@3.25.76)':
+  '@anthropic-ai/sdk@0.74.0(zod@4.3.6)':
     dependencies:
       json-schema-to-ts: 3.1.1
     optionalDependencies:
-      zod: 3.25.76
+      zod: 4.3.6
 
   '@asamuzakjp/css-color@3.2.0':
     dependencies:
@@ -10677,10 +10680,10 @@ snapshots:
       powershell-utils: 0.1.0
       wsl-utils: 0.3.1
 
-  openai@6.22.0(ws@8.19.0)(zod@3.25.76):
+  openai@6.22.0(ws@8.19.0)(zod@4.3.6):
     optionalDependencies:
       ws: 8.19.0
-      zod: 3.25.76
+      zod: 4.3.6
 
   optionator@0.9.4:
     dependencies:
