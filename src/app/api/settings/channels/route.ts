@@ -7,12 +7,11 @@ import { z } from "zod/v4";
 const CreateChannelSchema = z.object({
   slackChannelId: z.string().min(1),
   channelName: z.string().min(1),
-  styleId: z.string().optional(),
 });
 
 const UpdateChannelSchema = z.object({
   channelId: z.string().min(1),
-  styleId: z.string().nullable().optional(),
+  styleMode: z.enum(["RANDOM", "AI"]).optional(),
   postToChannelId: z.string().nullable().optional(),
   postToChannelName: z.string().nullable().optional(),
 });
@@ -49,7 +48,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { slackChannelId, channelName, styleId } = result.data;
+  const { slackChannelId, channelName } = result.data;
 
   // Check channel limit
   const subscription = await prisma.subscription.findUnique({
@@ -79,12 +78,11 @@ export async function POST(request: NextRequest) {
         slackChannelId,
       },
     },
-    update: { channelName, isActive: true, styleId: styleId || null },
+    update: { channelName, isActive: true },
     create: {
       workspaceId: session.user.workspaceId,
       slackChannelId,
       channelName,
-      styleId: styleId || null,
     },
   });
 
@@ -108,13 +106,13 @@ export async function PATCH(request: NextRequest) {
     );
   }
 
-  const { channelId, styleId, postToChannelId, postToChannelName } =
+  const { channelId, styleMode, postToChannelId, postToChannelName } =
     result.data;
 
   const data: Record<string, unknown> = {};
 
-  if (styleId !== undefined) {
-    data.styleId = styleId || null;
+  if (styleMode !== undefined) {
+    data.styleMode = styleMode;
   }
 
   if (postToChannelId !== undefined) {

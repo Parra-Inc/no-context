@@ -1,199 +1,184 @@
-export interface ArtStyle {
-  id: string;
-  displayName: string;
-  promptModifier: string;
-}
+import "dotenv/config";
+import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
 
-export const ART_STYLES: ArtStyle[] = [
+const adapter = new PrismaPg({
+  connectionString:
+    process.env.DATABASE_URL || "postgresql://localhost:5432/nocontext",
+});
+const prisma = new PrismaClient({ adapter });
+
+const BUILT_IN_STYLES = [
   {
-    id: "watercolor",
+    name: "watercolor",
     displayName: "Watercolor",
-    promptModifier:
+    description:
       "soft watercolor painting with gentle washes of color, loose brushstrokes, and white paper showing through",
   },
   {
-    id: "picasso",
+    name: "picasso",
     displayName: "Picasso / Cubism",
-    promptModifier:
+    description:
       "cubist painting in the style of Pablo Picasso, with geometric shapes, multiple perspectives, and bold outlines",
   },
   {
-    id: "vangogh",
+    name: "vangogh",
     displayName: "Van Gogh / Post-Impressionist",
-    promptModifier:
+    description:
       "painting in the style of Vincent van Gogh, with swirling brushstrokes, vivid colors, and emotional intensity",
   },
   {
-    id: "monet",
+    name: "monet",
     displayName: "Monet / Impressionist",
-    promptModifier:
+    description:
       "impressionist painting in the style of Claude Monet, with soft light, dappled colors, and atmospheric effects",
   },
   {
-    id: "warhol",
+    name: "warhol",
     displayName: "Warhol / Pop Art",
-    promptModifier:
+    description:
       "pop art print in the style of Andy Warhol, with bright flat colors, bold outlines, and repeated motifs",
   },
   {
-    id: "hokusai",
+    name: "hokusai",
     displayName: "Hokusai / Ukiyo-e",
-    promptModifier:
+    description:
       "Japanese woodblock print in the style of Hokusai, with flowing lines, flat color areas, and dynamic composition",
   },
   {
-    id: "dali",
+    name: "dali",
     displayName: "Dali / Surrealism",
-    promptModifier:
+    description:
       "surrealist painting in the style of Salvador Dali, with melting forms, dreamlike landscapes, and impossible physics",
   },
   {
-    id: "mondrian",
+    name: "mondrian",
     displayName: "Mondrian / De Stijl",
-    promptModifier:
+    description:
       "abstract geometric composition in the style of Piet Mondrian, with primary colors, black grid lines, and white space",
   },
   {
-    id: "basquiat",
+    name: "basquiat",
     displayName: "Basquiat / Neo-Expressionism",
-    promptModifier:
+    description:
       "raw neo-expressionist painting in the style of Jean-Michel Basquiat, with bold marks, crowns, and street art energy",
   },
   {
-    id: "rockwell",
+    name: "rockwell",
     displayName: "Rockwell / Americana",
-    promptModifier:
+    description:
       "Norman Rockwell-style illustration with warm Americana charm, detailed characters, and storytelling composition",
   },
   {
-    id: "miyazaki",
+    name: "miyazaki",
     displayName: "Miyazaki / Studio Ghibli",
-    promptModifier:
+    description:
       "Studio Ghibli-style illustration with lush environments, whimsical characters, and a sense of wonder",
   },
   {
-    id: "comic",
+    name: "comic",
     displayName: "Comic Book",
-    promptModifier:
+    description:
       "vibrant comic book panel with bold ink lines, halftone dots, dynamic angles, and speech bubbles",
   },
   {
-    id: "pixel",
+    name: "pixel",
     displayName: "Pixel Art",
-    promptModifier:
+    description:
       "detailed pixel art scene with a limited color palette, clean pixel placement, and retro video game aesthetic",
   },
   {
-    id: "sketch",
+    name: "sketch",
     displayName: "Pencil Sketch",
-    promptModifier:
+    description:
       "detailed pencil sketch with cross-hatching, varying line weights, and expressive shading on white paper",
   },
   {
-    id: "stainedglass",
+    name: "stainedglass",
     displayName: "Stained Glass",
-    promptModifier:
+    description:
       "stained glass window design with bold black leading lines, jewel-toned translucent colors, and radiant light",
   },
   {
-    id: "kpop",
+    name: "kpop",
     displayName: "K-Pop Demon Hunters",
-    promptModifier:
+    description:
       "stylish K-pop idol aesthetic fused with dark fantasy demon hunting, featuring characters in sleek idol outfits with glowing weapons, neon-lit supernatural battlegrounds, dramatic poses, vibrant hair colors, and manhwa-inspired linework",
   },
   {
-    id: "fortnite",
+    name: "fortnite",
     displayName: "Fortnite",
-    promptModifier:
+    description:
       "Fortnite-inspired 3D cartoon style with exaggerated proportions, vibrant saturated colors, cel-shaded characters, bold outlines, playful action poses, and a colorful stylized environment",
   },
   {
-    id: "archer",
+    name: "archer",
     displayName: "Archer",
-    promptModifier:
+    description:
       "Illustration in the exact art style of the attached reference image. Create ORIGINAL characters — do NOT copy any existing characters from the reference. The style features clean uniform-weight black outlines, flat cel-shaded fills, muted sophisticated colors, mid-century modern settings, and a cinematic spy-thriller atmosphere. Zero gradients, zero texture, zero painterly effects",
   },
   {
-    id: "southpark",
+    name: "southpark",
     displayName: "South Park",
-    promptModifier:
+    description:
       "Illustration in the exact art style of the attached reference image. Create ORIGINAL characters — do NOT copy any existing characters, settings, or scenes from the reference. The style features clean digital 2D vector animation with flat solid colors, no gradients, no shading, simple geometric shapes, thin black outlines, and a minimal aesthetic",
   },
   {
-    id: "futurama",
+    name: "futurama",
     displayName: "Futurama",
-    promptModifier:
+    description:
       "Illustration in the exact art style of the attached reference image. Create ORIGINAL characters — do NOT copy any existing characters from the reference. The style features clean uniform-weight black outlines, Groening-style large bulging round eyes, overbites, bulbous noses, bold saturated flat fills, and retro-futuristic settings. Colorful, whimsical, flat cel-shaded animation",
   },
   {
-    id: "simpsons",
+    name: "simpsons",
     displayName: "The Simpsons",
-    promptModifier:
+    description:
       "Illustration in the exact art style of the attached reference image. Create ORIGINAL characters — do NOT copy any existing characters from the reference. The style features thick uniform black outlines, bright yellow skin, huge circular white eyes with dot pupils, overbites, four-fingered hands, completely flat solid color fills with zero gradients or shading, and simple pastel-colored suburban settings. Bright, warm, cheerful flat 2D cel animation",
   },
   {
-    id: "fallout",
+    name: "fallout",
     displayName: "Fallout",
-    promptModifier:
+    description:
       "Illustration in the exact art style of the attached reference image. Create ORIGINAL characters — do NOT copy any existing characters from the reference. The style features retro-futuristic 1950s Americana propaganda poster aesthetic, clean retro linework, warm faded colors (mustard yellow, teal, cream, rust red), exaggerated happy expressions, atomic age imagery, and optimistic Cold War-era graphic design",
   },
 ];
 
-export function getStyleById(id: string): ArtStyle | null {
-  return ART_STYLES.find((style) => style.id === id) ?? null;
-}
+async function main() {
+  console.log("Seeding built-in styles...");
 
-export function getStylePrompt(
-  styleId: string,
-  customDescription?: string,
-): string {
-  if (customDescription) {
-    return `Create a workplace-appropriate illustration in the following style: ${customDescription}`;
+  for (const style of BUILT_IN_STYLES) {
+    const existing = await prisma.style.findFirst({
+      where: { workspaceId: null, name: style.name },
+    });
+
+    if (existing) {
+      await prisma.style.update({
+        where: { id: existing.id },
+        data: {
+          displayName: style.displayName,
+          description: style.description,
+        },
+      });
+    } else {
+      await prisma.style.create({
+        data: {
+          name: style.name,
+          displayName: style.displayName,
+          description: style.description,
+          workspaceId: null,
+        },
+      });
+    }
   }
 
-  const style = getStyleById(styleId);
-  if (!style) {
-    // Fall back to watercolor
-    return ART_STYLES[0].promptModifier;
-  }
-
-  return style.promptModifier;
+  console.log("Done seeding built-in styles.");
 }
 
-// DB-backed style types and functions
-
-export interface DbStyle {
-  id: string;
-  workspaceId: string | null;
-  name: string;
-  displayName: string;
-  description: string;
-}
-
-export async function getEnabledStylesForChannel(
-  channelId: string,
-  workspaceId: string,
-): Promise<DbStyle[]> {
-  const { default: prisma } = await import("@/lib/prisma");
-
-  const disabledStyleIds = await prisma.channelStyle.findMany({
-    where: { channelId },
-    select: { styleId: true },
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
   });
-
-  const disabledIds = new Set(disabledStyleIds.map((cs) => cs.styleId));
-
-  const allStyles = await prisma.style.findMany({
-    where: {
-      isActive: true,
-      OR: [{ workspaceId: null }, { workspaceId }],
-    },
-    orderBy: { createdAt: "asc" },
-  });
-
-  return allStyles.filter((s) => !disabledIds.has(s.id));
-}
-
-export function pickRandomStyle<T>(styles: T[]): T {
-  return styles[Math.floor(Math.random() * styles.length)];
-}

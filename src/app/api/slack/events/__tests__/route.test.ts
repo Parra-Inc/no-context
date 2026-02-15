@@ -13,7 +13,8 @@ jest.mock("@/lib/prisma", () => ({
     channel: { findUnique: jest.fn() },
     usageRecord: { findUnique: jest.fn() },
     quote: { create: jest.fn() },
-    customStyle: { findFirst: jest.fn() },
+    style: { findMany: jest.fn() },
+    channelStyle: { findMany: jest.fn() },
   },
 }));
 

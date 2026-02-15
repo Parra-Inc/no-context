@@ -62,8 +62,10 @@ export default async function DashboardLayout({
   return (
     <SidebarProvider>
       <AppSidebar user={session.user} />
-      <main className="flex-1 overflow-auto">
-        <SidebarTrigger className="m-4 md:hidden" />
+      <main className="bg-background flex-1 overflow-auto">
+        <div className="bg-background/80 sticky top-0 z-10 flex h-14 items-center border-b px-6 backdrop-blur-sm md:hidden">
+          <SidebarTrigger />
+        </div>
         <div className="mx-auto max-w-6xl px-6 py-8">{children}</div>
       </main>
     </SidebarProvider>

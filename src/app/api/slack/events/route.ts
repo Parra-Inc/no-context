@@ -11,6 +11,7 @@ import { detectQuote } from "@/lib/ai/quote-detector";
 import { enqueueImageGeneration } from "@/lib/queue/queue";
 import { TIER_QUOTAS } from "@/lib/stripe";
 import { log } from "@/lib/logger";
+import { getEnabledStylesForChannel, pickRandomStyle } from "@/lib/styles";
 
 interface SlackEvent {
   type: string;
@@ -44,14 +45,16 @@ export async function POST(request: NextRequest) {
   const timestamp = request.headers.get("x-slack-request-timestamp") || "";
   const signature = request.headers.get("x-slack-signature") || "";
 
-  if (
-    !verifySlackSignature(
-      process.env.SLACK_SIGNING_SECRET!,
-      body,
-      timestamp,
-      signature,
-    )
-  ) {
+  const signingSecret = process.env.SLACK_SIGNING_SECRET;
+  if (!signingSecret) {
+    log.warn("Slack events: SLACK_SIGNING_SECRET is not configured");
+    return NextResponse.json(
+      { error: "Server misconfigured" },
+      { status: 500 },
+    );
+  }
+
+  if (!verifySlackSignature(signingSecret, body, timestamp, signature)) {
     log.warn("Slack events: invalid signature");
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
@@ -123,9 +126,14 @@ export async function POST(request: NextRequest) {
       `Slack events: processing message from user=${event.user} channel=${event.channel} team=${teamId}`,
     );
 
+    if (!teamId) {
+      log.warn(`Slack events: missing team_id in event_callback payload`);
+      return NextResponse.json({ ok: true });
+    }
+
     // Process async — respond to Slack immediately, but keep function alive
     after(
-      processMessage(event, teamId!).catch((err) =>
+      processMessage(event, teamId).catch((err) =>
         log.error("Slack events: message processing error", err),
       ),
     );
@@ -137,8 +145,20 @@ export async function POST(request: NextRequest) {
 }
 
 async function processMessage(event: SlackEvent, teamId: string) {
+  const slackChannelId = event.channel;
+  const messageTs = event.ts;
+  const text = event.text;
+  const slackUserId = event.user;
+
+  if (!slackChannelId || !messageTs || !text || !slackUserId) {
+    log.warn(
+      `Slack events: processMessage called with missing required fields team=${teamId} channel=${slackChannelId} ts=${messageTs} user=${slackUserId} hasText=${!!text}`,
+    );
+    return;
+  }
+
   log.info(
-    `Slack events: processMessage started team=${teamId} channel=${event.channel} user=${event.user} text="${event.text?.substring(0, 50)}"`,
+    `Slack events: processMessage started team=${teamId} channel=${slackChannelId} user=${slackUserId} text="${text.substring(0, 50)}"`,
   );
 
   // Find workspace
@@ -164,35 +184,35 @@ async function processMessage(event: SlackEvent, teamId: string) {
   }
 
   // Filter self-messages
-  if (event.user === workspace.slackBotUserId) {
+  if (slackUserId === workspace.slackBotUserId) {
     log.info("Slack events: ignoring self-message");
     return;
   }
 
   // Check if channel is connected
-  const channel = await prisma.channel.findUnique({
+  const channelRecord = await prisma.channel.findUnique({
     where: {
       workspaceId_slackChannelId: {
         workspaceId: workspace.id,
-        slackChannelId: event.channel!,
+        slackChannelId,
       },
     },
   });
 
-  if (!channel) {
+  if (!channelRecord) {
     log.warn(
-      `Slack events: no channel record found workspaceId=${workspace.id} slackChannelId=${event.channel}`,
+      `Slack events: no channel record found workspaceId=${workspace.id} slackChannelId=${slackChannelId}`,
     );
     return;
   }
 
   log.info(
-    `Slack events: channel found id=${channel.id} isActive=${channel.isActive} isPaused=${channel.isPaused}`,
+    `Slack events: channel found id=${channelRecord.id} isActive=${channelRecord.isActive} isPaused=${channelRecord.isPaused}`,
   );
 
-  if (!channel.isActive || channel.isPaused) {
+  if (!channelRecord.isActive || channelRecord.isPaused) {
     log.warn(
-      `Slack events: channel not active or paused channel=${event.channel} isActive=${channel.isActive} isPaused=${channel.isPaused}`,
+      `Slack events: channel not active or paused channel=${slackChannelId} isActive=${channelRecord.isActive} isPaused=${channelRecord.isPaused}`,
     );
     return;
   }
@@ -225,19 +245,46 @@ async function processMessage(event: SlackEvent, teamId: string) {
     const slackClient = getSlackClient(workspace.slackBotToken);
     await addReaction(
       slackClient,
-      event.channel!,
-      event.ts!,
+      slackChannelId,
+      messageTs,
       "no-context-limit",
     );
     return;
   }
 
-  // Detect quote
-  log.info(`Slack events: calling detectQuote with text="${event.text}"`);
+  // Get enabled styles for this channel
+  const enabledStyles = await getEnabledStylesForChannel(
+    channelRecord.id,
+    workspace.id,
+  );
+
+  if (enabledStyles.length === 0) {
+    log.warn(
+      `Slack events: no enabled styles for channel=${channelRecord.id} workspace=${workspace.id}`,
+    );
+    return;
+  }
+
+  // Detect quote (with style selection in AI mode)
+  log.info(
+    `Slack events: calling detectQuote with text="${text}" styleMode=${channelRecord.styleMode}`,
+  );
 
   let detection;
   try {
-    detection = await detectQuote(event.text!);
+    if (channelRecord.styleMode === "AI") {
+      detection = await detectQuote(
+        text,
+        enabledStyles.map((s) => ({
+          id: s.id,
+          name: s.name,
+          displayName: s.displayName,
+          description: s.description,
+        })),
+      );
+    } else {
+      detection = await detectQuote(text);
+    }
   } catch (err) {
     log.error("Slack events: detectQuote threw an error", err);
     return;
@@ -249,13 +296,13 @@ async function processMessage(event: SlackEvent, teamId: string) {
 
   if (!detection.isQuote) {
     log.info(
-      `Slack events: message not detected as quote channel=${event.channel} confidence=${detection.confidence}`,
+      `Slack events: message not detected as quote channel=${slackChannelId} confidence=${detection.confidence}`,
     );
     return;
   }
 
   log.info(
-    `Slack events: quote detected confidence=${detection.confidence} channel=${event.channel}`,
+    `Slack events: quote detected confidence=${detection.confidence} channel=${slackChannelId}`,
   );
 
   // Get user display name and avatar
@@ -263,7 +310,7 @@ async function processMessage(event: SlackEvent, teamId: string) {
   let userAvatarUrl: string | undefined;
   try {
     const slackClient = getSlackClient(workspace.slackBotToken);
-    const userInfo = await slackClient.users.info({ user: event.user! });
+    const userInfo = await slackClient.users.info({ user: slackUserId });
     userName =
       userInfo.user?.profile?.display_name ||
       userInfo.user?.real_name ||
@@ -283,7 +330,7 @@ async function processMessage(event: SlackEvent, teamId: string) {
   // Add processing reaction
   const slackClient = getSlackClient(workspace.slackBotToken);
   try {
-    await addReaction(slackClient, event.channel!, event.ts!, "art");
+    await addReaction(slackClient, slackChannelId, messageTs, "eyes");
   } catch (error) {
     if (isSlackTokenError(error)) {
       log.warn(
@@ -295,28 +342,32 @@ async function processMessage(event: SlackEvent, teamId: string) {
     log.error("Slack events: error adding reaction", error);
   }
 
-  // Create quote and image generation records
-  const styleId = channel.styleId || workspace.defaultStyleId;
-
-  // Check for custom style
-  let customStyleDescription: string | undefined;
-  const customStyle = await prisma.customStyle.findFirst({
-    where: { workspaceId: workspace.id, name: styleId, isActive: true },
-  });
-  if (customStyle) {
-    customStyleDescription = customStyle.description;
+  // Select style based on channel mode
+  let selectedStyle;
+  if (channelRecord.styleMode === "AI" && detection.selectedStyleId) {
+    selectedStyle =
+      enabledStyles.find((s) => s.id === detection.selectedStyleId) ||
+      pickRandomStyle(enabledStyles);
+  } else {
+    selectedStyle = pickRandomStyle(enabledStyles);
   }
+
+  const styleId = selectedStyle.name;
+  // Custom styles (with a workspaceId) pass their description for prompt generation
+  const customStyleDescription = selectedStyle.workspaceId
+    ? selectedStyle.description
+    : undefined;
 
   const { quote, imageGeneration } = await prisma.$transaction(async (tx) => {
     const quote = await tx.quote.create({
       data: {
         workspaceId: workspace.id,
-        channelId: channel.id,
-        slackMessageTs: event.ts!,
-        slackUserId: event.user!,
+        channelId: channelRecord.id,
+        slackMessageTs: messageTs,
+        slackUserId,
         slackUserName: userName,
         slackUserAvatarUrl: userAvatarUrl,
-        quoteText: detection.extractedQuote || event.text!,
+        quoteText: detection.extractedQuote || text,
         attributedTo: detection.attributedTo,
         styleId,
         aiConfidence: detection.confidence,
@@ -346,16 +397,16 @@ async function processMessage(event: SlackEvent, teamId: string) {
   try {
     const messageId = await enqueueImageGeneration({
       workspaceId: workspace.id,
-      channelId: channel.id,
+      channelId: channelRecord.id,
       quoteId: quote.id,
       imageGenerationId: imageGeneration.id,
-      messageTs: event.ts!,
-      slackChannelId: event.channel!,
-      quoteText: detection.extractedQuote || event.text!,
+      messageTs,
+      slackChannelId,
+      quoteText: detection.extractedQuote || text,
       styleId,
       customStyleDescription,
       encryptedBotToken: workspace.slackBotToken,
-      postToSlackChannelId: channel.postToChannelId || undefined,
+      postToSlackChannelId: channelRecord.postToChannelId || undefined,
       tier,
       priority: TIER_PRIORITY[tier] || 4,
     });

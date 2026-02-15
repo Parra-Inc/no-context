@@ -5,9 +5,11 @@ import { z } from "zod/v4";
 
 const CreateStyleSchema = z.object({
   name: z.string().min(1),
-  description: z.string().min(1).max(200),
+  displayName: z.string().min(1),
+  description: z.string().min(1).max(500),
 });
 
+// GET: returns all active styles (built-in + workspace custom)
 export async function GET() {
   const session = await auth();
 
@@ -15,14 +17,18 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const customStyles = await prisma.customStyle.findMany({
-    where: { workspaceId: session.user.workspaceId, isActive: true },
+  const styles = await prisma.style.findMany({
+    where: {
+      isActive: true,
+      OR: [{ workspaceId: null }, { workspaceId: session.user.workspaceId }],
+    },
     orderBy: { createdAt: "asc" },
   });
 
-  return NextResponse.json(customStyles);
+  return NextResponse.json(styles);
 }
 
+// POST: create a custom style (Team+ only)
 export async function POST(request: NextRequest) {
   const session = await auth();
 
@@ -52,12 +58,13 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { name, description } = result.data;
+  const { name, displayName, description } = result.data;
 
-  const style = await prisma.customStyle.create({
+  const style = await prisma.style.create({
     data: {
       workspaceId: session.user.workspaceId,
       name,
+      displayName,
       description,
       createdBy: session.user.slackUserId,
     },
@@ -66,6 +73,7 @@ export async function POST(request: NextRequest) {
   return NextResponse.json(style, { status: 201 });
 }
 
+// DELETE: soft-delete a custom style
 export async function DELETE(request: NextRequest) {
   const session = await auth();
 
@@ -80,8 +88,12 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: "Style ID required" }, { status: 400 });
   }
 
-  await prisma.customStyle.update({
-    where: { id: styleId, workspaceId: session.user.workspaceId },
+  // Only allow deleting custom styles (those with a workspaceId)
+  await prisma.style.update({
+    where: {
+      id: styleId,
+      workspaceId: session.user.workspaceId,
+    },
     data: { isActive: false },
   });
 

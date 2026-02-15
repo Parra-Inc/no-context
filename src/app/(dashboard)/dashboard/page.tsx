@@ -169,7 +169,7 @@ export default async function DashboardPage() {
                 </Badge>
               </div>
               <span className="text-xs text-[#4A4A4A]">
-                {channel.styleId || "Default"}
+                {channel.styleMode === "AI" ? "AI Selection" : "Random"}
               </span>
             </div>
           ))}

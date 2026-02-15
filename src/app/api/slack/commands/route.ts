@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { verifySlackSignature } from "@/lib/slack";
 import { TIER_QUOTAS } from "@/lib/stripe";
-import { ART_STYLES, getStyleById } from "@/lib/styles";
+import { ART_STYLES } from "@/lib/styles";
 import { log } from "@/lib/logger";
 
 export async function POST(request: NextRequest) {
@@ -97,19 +97,19 @@ export async function POST(request: NextRequest) {
     }
 
     case "style": {
-      const currentStyle = getStyleById(workspace.defaultStyleId);
-      const styleList = ART_STYLES.map(
-        (s) =>
-          `${s.id === workspace.defaultStyleId ? "→ " : "  "}${s.displayName}`,
-      ).join("\n");
+      const channel = workspace.channels.find(
+        (c) => c.slackChannelId === channelId,
+      );
+      const modeLabel = channel?.styleMode === "AI" ? "AI Selection" : "Random";
+      const styleList = ART_STYLES.map((s) => `  ${s.displayName}`).join("\n");
 
       log.info(
-        `Slack commands: style response team=${teamId} currentStyle=${workspace.defaultStyleId}`,
+        `Slack commands: style response team=${teamId} mode=${channel?.styleMode || "RANDOM"}`,
       );
 
       return NextResponse.json({
         response_type: "ephemeral",
-        text: `*Current Style:* ${currentStyle?.displayName || workspace.defaultStyleId}\n\n*Available Styles:*\n${styleList}\n\nChange styles in the <${appUrl}/dashboard/settings|dashboard>.`,
+        text: `*Style Mode:* ${modeLabel}\n\n*Available Styles:*\n${styleList}\n\nManage styles in the <${appUrl}/dashboard/settings|dashboard>.`,
       });
     }
 

@@ -8,7 +8,13 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import type { ArtStyle } from "@/lib/styles";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Channel {
   id: string;
@@ -16,9 +22,18 @@ interface Channel {
   channelName: string;
   isActive: boolean;
   isPaused: boolean;
-  styleId: string | null;
+  styleMode: "RANDOM" | "AI";
   postToChannelId: string | null;
   postToChannelName: string | null;
+  disabledStyleIds: string[];
+}
+
+interface Style {
+  id: string;
+  name: string;
+  displayName: string;
+  description: string;
+  isBuiltIn: boolean;
 }
 
 interface SlackChannel {
@@ -28,29 +43,25 @@ interface SlackChannel {
 
 interface SettingsGeneralProps {
   workspaceName: string;
-  defaultStyleId: string;
   needsReconnection: boolean;
   channels: Channel[];
-  artStyles: ArtStyle[];
-  customStyles: { id: string; name: string; description: string }[];
+  styles: Style[];
   subscriptionTier: string;
   subscriptionStatus: string;
 }
 
 export default function SettingsGeneral({
   workspaceName,
-  defaultStyleId: initialDefaultStyleId,
   needsReconnection,
   channels: initialChannels,
-  artStyles,
-  customStyles,
+  styles,
   subscriptionTier,
   subscriptionStatus,
 }: SettingsGeneralProps) {
-  const [defaultStyleId, setDefaultStyleId] = useState(initialDefaultStyleId);
   const [channels, setChannels] = useState(initialChannels);
   const [slackChannels, setSlackChannels] = useState<SlackChannel[]>([]);
   const [saving, setSaving] = useState<string | null>(null);
+  const [expandedChannel, setExpandedChannel] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/settings/slack-channels")
@@ -61,40 +72,72 @@ export default function SettingsGeneral({
       .catch(() => {});
   }, []);
 
-  const allStyles = [
-    ...artStyles.map((s) => ({ id: s.id, displayName: s.displayName })),
-    ...customStyles.map((s) => ({ id: s.name, displayName: s.name })),
-  ];
-
-  async function updateDefaultStyle(styleId: string) {
-    setSaving("defaultStyle");
-    setDefaultStyleId(styleId);
-    try {
-      await fetch("/api/settings/workspace", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ defaultStyleId: styleId }),
-      });
-    } catch {
-      setDefaultStyleId(initialDefaultStyleId);
-    } finally {
-      setSaving(null);
-    }
-  }
-
-  async function updateChannelStyle(channelId: string, styleId: string | null) {
-    setSaving(`style-${channelId}`);
+  async function updateChannelStyleMode(
+    channelId: string,
+    styleMode: "RANDOM" | "AI",
+  ) {
+    setSaving(`mode-${channelId}`);
     setChannels((prev) =>
-      prev.map((ch) => (ch.id === channelId ? { ...ch, styleId } : ch)),
+      prev.map((ch) => (ch.id === channelId ? { ...ch, styleMode } : ch)),
     );
     try {
       await fetch("/api/settings/channels", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ channelId, styleId }),
+        body: JSON.stringify({ channelId, styleMode }),
       });
     } finally {
       setSaving(null);
+    }
+  }
+
+  async function toggleChannelStyle(channelId: string, styleId: string) {
+    const channel = channels.find((ch) => ch.id === channelId);
+    if (!channel) return;
+
+    const isCurrentlyDisabled = channel.disabledStyleIds.includes(styleId);
+
+    // Optimistic update
+    setChannels((prev) =>
+      prev.map((ch) => {
+        if (ch.id !== channelId) return ch;
+        return {
+          ...ch,
+          disabledStyleIds: isCurrentlyDisabled
+            ? ch.disabledStyleIds.filter((id) => id !== styleId)
+            : [...ch.disabledStyleIds, styleId],
+        };
+      }),
+    );
+
+    try {
+      if (isCurrentlyDisabled) {
+        // Re-enable: delete the ChannelStyle record
+        await fetch(
+          `/api/settings/channel-styles?channelId=${channelId}&styleId=${styleId}`,
+          { method: "DELETE" },
+        );
+      } else {
+        // Disable: create a ChannelStyle record
+        await fetch("/api/settings/channel-styles", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ channelId, styleId }),
+        });
+      }
+    } catch {
+      // Revert on failure
+      setChannels((prev) =>
+        prev.map((ch) => {
+          if (ch.id !== channelId) return ch;
+          return {
+            ...ch,
+            disabledStyleIds: isCurrentlyDisabled
+              ? [...ch.disabledStyleIds, styleId]
+              : ch.disabledStyleIds.filter((id) => id !== styleId),
+          };
+        }),
+      );
     }
   }
 
@@ -155,26 +198,6 @@ export default function SettingsGeneral({
                 <Badge variant="success">Connected</Badge>
               )}
             </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="text-sm text-[#4A4A4A]">Default Style</span>
-                <p className="text-xs text-[#9A9A9A]">
-                  Used when a channel has no style override
-                </p>
-              </div>
-              <select
-                value={defaultStyleId}
-                onChange={(e) => updateDefaultStyle(e.target.value)}
-                disabled={saving === "defaultStyle"}
-                className="rounded-lg border border-[#E5E5E5] bg-white px-3 py-1.5 text-sm text-[#1A1A1A] focus:border-[#7C3AED] focus:ring-1 focus:ring-[#7C3AED] focus:outline-none"
-              >
-                {allStyles.map((style) => (
-                  <option key={style.id} value={style.id}>
-                    {style.displayName}
-                  </option>
-                ))}
-              </select>
-            </div>
           </div>
 
           <div className="border-t border-[#E5E5E5] pt-4">
@@ -182,76 +205,139 @@ export default function SettingsGeneral({
               Connected Channels
             </h4>
             <p className="mt-1 text-xs text-[#9A9A9A]">
-              Configure style and routing for each channel
+              Configure style mode, enabled styles, and routing for each channel
             </p>
             <div className="mt-3 space-y-3">
-              {channels.map((channel) => (
-                <div
-                  key={channel.id}
-                  className="rounded-lg border border-[#E5E5E5] bg-gray-50 p-4"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-[#1A1A1A]">
-                      # {channel.channelName}
-                    </span>
-                    <Badge variant={channel.isPaused ? "warning" : "success"}>
-                      {channel.isPaused ? "Paused" : "Active"}
-                    </Badge>
-                  </div>
-                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                    <div>
-                      <label className="mb-1 block text-xs text-[#4A4A4A]">
-                        Art Style
-                      </label>
-                      <select
-                        value={channel.styleId || ""}
-                        onChange={(e) =>
-                          updateChannelStyle(channel.id, e.target.value || null)
-                        }
-                        disabled={saving === `style-${channel.id}`}
-                        className="w-full rounded-lg border border-[#E5E5E5] bg-white px-3 py-1.5 text-sm text-[#1A1A1A] focus:border-[#7C3AED] focus:ring-1 focus:ring-[#7C3AED] focus:outline-none"
-                      >
-                        <option value="">
-                          Default (
-                          {
-                            allStyles.find((s) => s.id === defaultStyleId)
-                              ?.displayName
+              {channels.map((channel) => {
+                const enabledCount =
+                  styles.length - channel.disabledStyleIds.length;
+                const isExpanded = expandedChannel === channel.id;
+
+                return (
+                  <div
+                    key={channel.id}
+                    className="rounded-lg border border-[#E5E5E5] bg-gray-50 p-4"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-[#1A1A1A]">
+                        # {channel.channelName}
+                      </span>
+                      <Badge variant={channel.isPaused ? "warning" : "success"}>
+                        {channel.isPaused ? "Paused" : "Active"}
+                      </Badge>
+                    </div>
+                    <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                      <div>
+                        <label className="mb-1 block text-xs text-[#4A4A4A]">
+                          Style Mode
+                        </label>
+                        <Select
+                          value={channel.styleMode}
+                          onValueChange={(v) =>
+                            updateChannelStyleMode(
+                              channel.id,
+                              v as "RANDOM" | "AI",
+                            )
                           }
-                          )
-                        </option>
-                        {allStyles.map((style) => (
-                          <option key={style.id} value={style.id}>
-                            {style.displayName}
-                          </option>
-                        ))}
-                      </select>
+                          disabled={saving === `mode-${channel.id}`}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="RANDOM">Random</SelectItem>
+                            <SelectItem value="AI">AI Selection</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-xs text-[#4A4A4A]">
+                          Post To
+                        </label>
+                        <Select
+                          value={channel.postToChannelId || "same"}
+                          onValueChange={(v) =>
+                            updateChannelRouting(
+                              channel.id,
+                              v === "same" ? null : v,
+                            )
+                          }
+                          disabled={saving === `routing-${channel.id}`}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="same">
+                              Same channel (thread reply)
+                            </SelectItem>
+                            {slackChannels.map((ch) => (
+                              <SelectItem key={ch.id} value={ch.id}>
+                                # {ch.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
-                    <div>
-                      <label className="mb-1 block text-xs text-[#4A4A4A]">
-                        Post To
-                      </label>
-                      <select
-                        value={channel.postToChannelId || ""}
-                        onChange={(e) =>
-                          updateChannelRouting(
-                            channel.id,
-                            e.target.value || null,
-                          )
+
+                    {/* Styles toggle section */}
+                    <div className="mt-3 border-t border-[#E5E5E5] pt-3">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setExpandedChannel(isExpanded ? null : channel.id)
                         }
-                        disabled={saving === `routing-${channel.id}`}
-                        className="w-full rounded-lg border border-[#E5E5E5] bg-white px-3 py-1.5 text-sm text-[#1A1A1A] focus:border-[#7C3AED] focus:ring-1 focus:ring-[#7C3AED] focus:outline-none"
+                        className="flex w-full items-center justify-between text-xs text-[#4A4A4A] hover:text-[#1A1A1A]"
                       >
-                        <option value="">Same channel (thread reply)</option>
-                        {slackChannels.map((ch) => (
-                          <option key={ch.id} value={ch.id}>
-                            # {ch.name}
-                          </option>
-                        ))}
-                      </select>
+                        <span>
+                          {enabledCount} of {styles.length} styles enabled
+                        </span>
+                        <span>{isExpanded ? "Hide" : "Show"}</span>
+                      </button>
+
+                      {isExpanded && (
+                        <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                          {styles.map((style) => {
+                            const isEnabled =
+                              !channel.disabledStyleIds.includes(style.id);
+                            return (
+                              <button
+                                key={style.id}
+                                type="button"
+                                onClick={() =>
+                                  toggleChannelStyle(channel.id, style.id)
+                                }
+                                className={`rounded-lg border p-2 text-left transition-colors ${
+                                  isEnabled
+                                    ? "border-[#7C3AED] bg-white"
+                                    : "border-[#E5E5E5] bg-gray-100 opacity-50"
+                                }`}
+                              >
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs font-medium text-[#1A1A1A]">
+                                    {style.displayName}
+                                  </span>
+                                  <div
+                                    className={`h-3 w-3 rounded-full ${
+                                      isEnabled ? "bg-[#7C3AED]" : "bg-gray-300"
+                                    }`}
+                                  />
+                                </div>
+                                {!style.isBuiltIn && (
+                                  <span className="mt-0.5 text-[10px] text-[#9A9A9A]">
+                                    Custom
+                                  </span>
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </CardContent>

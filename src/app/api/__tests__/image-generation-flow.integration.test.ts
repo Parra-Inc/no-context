@@ -24,7 +24,8 @@ jest.mock("@/lib/prisma", () => ({
     usageRecord: { findUnique: jest.fn(), upsert: jest.fn() },
     quote: { create: jest.fn(), update: jest.fn() },
     imageGeneration: { create: jest.fn(), update: jest.fn() },
-    customStyle: { findFirst: jest.fn() },
+    style: { findMany: jest.fn() },
+    channelStyle: { findMany: jest.fn() },
     subscription: { findUnique: jest.fn() },
     $transaction: jest.fn(),
   },
@@ -133,7 +134,6 @@ const WORKSPACE = {
   slackBotUserId: "U-BOT-001",
   isActive: true,
   needsReconnection: false,
-  defaultStyleId: "watercolor",
   subscription: {
     tier: "FREE",
     monthlyQuota: 5,
@@ -145,7 +145,7 @@ const CHANNEL = {
   id: "channel-456",
   workspaceId: "workspace-123",
   slackChannelId: "C-CHAN-001",
-  styleId: "watercolor",
+  styleMode: "RANDOM",
   postToChannelId: null,
   isActive: true,
   isPaused: false,
@@ -236,7 +236,17 @@ describe("Image Generation Flow: Slack Event → Image → Slack Post", () => {
     (prisma.workspace.findUnique as jest.Mock).mockResolvedValue(WORKSPACE);
     (prisma.channel.findUnique as jest.Mock).mockResolvedValue(CHANNEL);
     (prisma.usageRecord.findUnique as jest.Mock).mockResolvedValue(null);
-    (prisma.customStyle.findFirst as jest.Mock).mockResolvedValue(null);
+    (prisma.style.findMany as jest.Mock).mockResolvedValue([
+      {
+        id: "sty_watercolor",
+        workspaceId: null,
+        name: "watercolor",
+        displayName: "Watercolor",
+        description: "soft watercolor painting with gentle washes of color",
+        isActive: true,
+      },
+    ]);
+    (prisma.channelStyle.findMany as jest.Mock).mockResolvedValue([]);
     (prisma.$transaction as jest.Mock).mockImplementation(
       async (fn: Function) => {
         const tx = {
@@ -260,6 +270,7 @@ describe("Image Generation Flow: Slack Event → Image → Slack Post", () => {
       confidence: 0.95,
       extractedQuote: "I can't believe butter is a personality trait",
       attributedTo: "Sarah",
+      selectedStyleId: null,
     });
 
     // QStash
@@ -332,7 +343,7 @@ describe("Image Generation Flow: Slack Event → Image → Slack Post", () => {
         mockSlackClient,
         "C-CHAN-001",
         "1700000000.000001",
-        "art",
+        "eyes",
       );
 
       // 6. Quote + ImageGeneration created in a transaction
@@ -511,7 +522,7 @@ describe("Image Generation Flow: Slack Event → Image → Slack Post", () => {
         mockSlackClient,
         "C-CHAN-001",
         "1700000000.000001",
-        "art",
+        "eyes",
       );
       expect(addReaction).toHaveBeenCalledWith(
         mockSlackClient,
@@ -676,7 +687,7 @@ describe("Image Generation Flow: Slack Event → Image → Slack Post", () => {
         expect.anything(),
         "C-CHAN-001",
         "1700000000.000001",
-        "art",
+        "eyes",
       );
       expect(addReaction).toHaveBeenCalledWith(
         expect.anything(),

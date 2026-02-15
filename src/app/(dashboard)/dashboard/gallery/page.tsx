@@ -5,15 +5,15 @@ import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
-  Heart,
-  Download,
-  Search,
-  SlidersHorizontal,
-  X,
-  ArrowUpDown,
-} from "lucide-react";
-import { ART_STYLES } from "@/lib/styles";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Heart, Download, Search, SlidersHorizontal, X } from "lucide-react";
 import { Lightbox } from "@/components/marketing/lightbox";
 
 interface Quote {
@@ -32,6 +32,12 @@ interface Channel {
   id: string;
   channelName: string;
   isActive: boolean;
+}
+
+interface Style {
+  id: string;
+  name: string;
+  displayName: string;
 }
 
 interface Pagination {
@@ -56,8 +62,9 @@ export default function GalleryPage() {
   const [sort, setSort] = useState("newest");
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  // Channel list for dropdown
+  // Channel and style lists for dropdowns
   const [channels, setChannels] = useState<Channel[]>([]);
+  const [styles, setStyles] = useState<Style[]>([]);
 
   // Lightbox
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
@@ -68,13 +75,21 @@ export default function GalleryPage() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [debouncedAuthor, setDebouncedAuthor] = useState("");
 
-  // Fetch channels on mount
+  // Fetch channels and styles on mount
   useEffect(() => {
     fetch("/api/settings/channels")
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
           setChannels(data.filter((c: Channel) => c.isActive));
+        }
+      })
+      .catch(() => {});
+    fetch("/api/settings/styles")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setStyles(data);
         }
       })
       .catch(() => {});
@@ -175,13 +190,12 @@ export default function GalleryPage() {
       {/* Search bar */}
       <div className="flex gap-2">
         <div className="relative flex-1">
-          <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-[#4A4A4A]" />
-          <input
-            type="text"
+          <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+          <Input
             placeholder="Search quotes..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-xl border border-[#E5E5E5] bg-white py-2.5 pr-4 pl-10 text-sm text-[#1A1A1A] placeholder-[#4A4A4A] focus:border-[#7C3AED] focus:ring-1 focus:ring-[#7C3AED] focus:outline-none"
+            className="pl-10"
           />
         </div>
         <Button
@@ -206,73 +220,77 @@ export default function GalleryPage() {
           <div className="flex flex-wrap items-end gap-4">
             {/* Channel filter */}
             <div className="min-w-[160px] flex-1">
-              <label className="mb-1 block text-xs font-medium text-[#4A4A4A]">
+              <label className="text-muted-foreground mb-1 block text-xs font-medium">
                 Channel
               </label>
-              <select
-                value={channelId}
-                onChange={(e) => setChannelId(e.target.value)}
-                className="w-full rounded-lg border border-[#E5E5E5] bg-white px-3 py-2 text-sm text-[#1A1A1A] focus:border-[#7C3AED] focus:ring-1 focus:ring-[#7C3AED] focus:outline-none"
+              <Select
+                value={channelId || "all"}
+                onValueChange={(v) => setChannelId(v === "all" ? "" : v)}
               >
-                <option value="">All channels</option>
-                {channels.map((ch) => (
-                  <option key={ch.id} value={ch.id}>
-                    # {ch.channelName}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="All channels" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All channels</SelectItem>
+                  {channels.map((ch) => (
+                    <SelectItem key={ch.id} value={ch.id}>
+                      # {ch.channelName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Style filter */}
             <div className="min-w-[160px] flex-1">
-              <label className="mb-1 block text-xs font-medium text-[#4A4A4A]">
+              <label className="text-muted-foreground mb-1 block text-xs font-medium">
                 Style
               </label>
-              <select
-                value={styleId}
-                onChange={(e) => setStyleId(e.target.value)}
-                className="w-full rounded-lg border border-[#E5E5E5] bg-white px-3 py-2 text-sm text-[#1A1A1A] focus:border-[#7C3AED] focus:ring-1 focus:ring-[#7C3AED] focus:outline-none"
+              <Select
+                value={styleId || "all"}
+                onValueChange={(v) => setStyleId(v === "all" ? "" : v)}
               >
-                <option value="">All styles</option>
-                {ART_STYLES.map((style) => (
-                  <option key={style.id} value={style.id}>
-                    {style.displayName}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="All styles" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All styles</SelectItem>
+                  {styles.map((style) => (
+                    <SelectItem key={style.name} value={style.name}>
+                      {style.displayName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Author filter */}
             <div className="min-w-[160px] flex-1">
-              <label className="mb-1 block text-xs font-medium text-[#4A4A4A]">
+              <label className="text-muted-foreground mb-1 block text-xs font-medium">
                 Author
               </label>
-              <input
-                type="text"
+              <Input
                 placeholder="Filter by author..."
                 value={author}
                 onChange={(e) => setAuthor(e.target.value)}
-                className="w-full rounded-lg border border-[#E5E5E5] bg-white px-3 py-2 text-sm text-[#1A1A1A] placeholder-[#4A4A4A] focus:border-[#7C3AED] focus:ring-1 focus:ring-[#7C3AED] focus:outline-none"
               />
             </div>
 
             {/* Sort */}
             <div className="min-w-[140px]">
-              <label className="mb-1 block text-xs font-medium text-[#4A4A4A]">
+              <label className="text-muted-foreground mb-1 block text-xs font-medium">
                 Sort
               </label>
-              <div className="relative">
-                <ArrowUpDown className="pointer-events-none absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2 text-[#4A4A4A]" />
-                <select
-                  value={sort}
-                  onChange={(e) => setSort(e.target.value)}
-                  className="w-full rounded-lg border border-[#E5E5E5] bg-white py-2 pr-3 pl-9 text-sm text-[#1A1A1A] focus:border-[#7C3AED] focus:ring-1 focus:ring-[#7C3AED] focus:outline-none"
-                >
-                  <option value="newest">Newest first</option>
-                  <option value="oldest">Oldest first</option>
-                  <option value="favorites">Favorites first</option>
-                </select>
-              </div>
+              <Select value={sort} onValueChange={setSort}>
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="newest">Newest first</SelectItem>
+                  <SelectItem value="oldest">Oldest first</SelectItem>
+                  <SelectItem value="favorites">Favorites first</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Favorites toggle */}
@@ -427,7 +445,7 @@ export default function GalleryPage() {
             quote: q.quoteText,
             author: q.attributedTo || "Unknown",
             style:
-              ART_STYLES.find((s) => s.id === q.styleId)?.displayName ||
+              styles.find((s) => s.name === q.styleId)?.displayName ||
               q.styleId,
             image: q.imageUrl || "",
           }))}

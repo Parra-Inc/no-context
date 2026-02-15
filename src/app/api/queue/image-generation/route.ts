@@ -101,7 +101,7 @@ async function handler(request: NextRequest) {
         data: { status: "FAILED" },
       });
 
-      await removeReaction(slackClient, slackChannelId, messageTs, "art");
+      await removeReaction(slackClient, slackChannelId, messageTs, "eyes");
       return NextResponse.json({ ok: true });
     }
 
@@ -154,7 +154,7 @@ async function handler(request: NextRequest) {
     });
 
     // Update reactions
-    await removeReaction(slackClient, slackChannelId, messageTs, "art");
+    await removeReaction(slackClient, slackChannelId, messageTs, "eyes");
     await addReaction(
       slackClient,
       slackChannelId,
@@ -218,7 +218,7 @@ async function handler(request: NextRequest) {
       data: { status: "FAILED" },
     });
 
-    await removeReaction(slackClient, slackChannelId, messageTs, "art");
+    await removeReaction(slackClient, slackChannelId, messageTs, "eyes");
 
     await postThreadReply(
       slackClient,

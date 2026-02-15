@@ -18,14 +18,13 @@ model Workspace {
   isActive           Boolean  @default(true)
   needsReconnection   Boolean  @default(false)
   onboardingCompleted Boolean  @default(false)
-  defaultStyleId     String   @default("watercolor")
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
   channels     Channel[]
   subscription Subscription?
   quotes       Quote[]
-  customStyles CustomStyle[]
+  styles       Style[]
   users        User[]
 
 }
@@ -72,13 +71,14 @@ model Channel {
   channelName    String
   isActive       Boolean   @default(true)
   isPaused       Boolean   @default(false)
-  styleId           String?
+  styleMode         StyleMode @default(RANDOM)
   postToChannelId   String?
   postToChannelName String?
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
-  quotes Quote[]
+  quotes        Quote[]
+  channelStyles ChannelStyle[]
 
   @@unique([workspaceId, slackChannelId])
 }
@@ -148,18 +148,37 @@ enum ImageGenerationStatus {
   FAILED
 }
 
-model CustomStyle {
-  id          String    @id @default(cuid())
-  workspaceId String
-  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+enum StyleMode {
+  RANDOM
+  AI
+}
+
+model Style {
+  id          String     @id @default(cuid())
+  workspaceId String?
+  workspace   Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   name        String
+  displayName String
   description String
-  createdBy   String
-  isActive    Boolean   @default(true)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdBy   String?
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  channelStyles ChannelStyle[]
 
   @@unique([workspaceId, name])
+}
+
+model ChannelStyle {
+  id        String   @id @default(cuid())
+  channelId String
+  channel   Channel  @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  styleId   String
+  style     Style    @relation(fields: [styleId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([channelId, styleId])
 }
 
 model UsageRecord {

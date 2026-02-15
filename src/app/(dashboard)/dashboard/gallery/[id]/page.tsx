@@ -5,7 +5,6 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { getStyleById } from "@/lib/styles";
 import { ArrowLeft, Heart, Download, Link2 } from "lucide-react";
 
 export default async function QuoteDetailPage({
@@ -28,7 +27,9 @@ export default async function QuoteDetailPage({
 
   if (!quote) notFound();
 
-  const style = getStyleById(quote.styleId);
+  const style = await prisma.style.findFirst({
+    where: { name: quote.styleId, isActive: true },
+  });
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
