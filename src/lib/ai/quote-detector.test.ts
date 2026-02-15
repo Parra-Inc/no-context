@@ -1,28 +1,24 @@
 import { detectQuote } from "./quote-detector";
 
-// Mock Anthropic SDK
-jest.mock("@anthropic-ai/sdk", () => ({
-  __esModule: true,
-  default: jest.fn().mockImplementation(() => ({
-    messages: {
-      create: jest.fn(),
-    },
-  })),
-}));
+// Mock Anthropic SDK — define mockCreate inside factory to avoid hoisting TDZ issue
+jest.mock("@anthropic-ai/sdk", () => {
+  const mockFn = jest.fn();
+  const MockAnthropic = jest.fn().mockImplementation(() => ({
+    messages: { create: mockFn },
+  }));
+  (MockAnthropic as any).__mockCreate = mockFn;
+  return { __esModule: true, default: MockAnthropic };
+});
 
 import Anthropic from "@anthropic-ai/sdk";
 
-const mockCreate =
-  (Anthropic as unknown as jest.Mock).mock.results[0]?.value?.messages
-    ?.create || jest.fn();
-
-// Get reference to mocked create function
-function getMockCreate() {
-  const instance = new (Anthropic as unknown as jest.Mock)();
-  return instance.messages.create as jest.Mock;
-}
+const mockCreate = (Anthropic as any).__mockCreate as jest.Mock;
 
 describe("detectQuote", () => {
+  beforeEach(() => {
+    mockCreate.mockReset();
+  });
+
   it("rejects messages under 3 words", async () => {
     const result = await detectQuote("hi there");
     expect(result.isQuote).toBe(false);
@@ -42,8 +38,7 @@ describe("detectQuote", () => {
   });
 
   it("classifies a valid out-of-context quote", async () => {
-    const create = getMockCreate();
-    create.mockResolvedValueOnce({
+    mockCreate.mockResolvedValueOnce({
       content: [
         {
           type: "text",
@@ -69,8 +64,7 @@ describe("detectQuote", () => {
   });
 
   it("rejects a regular conversation message", async () => {
-    const create = getMockCreate();
-    create.mockResolvedValueOnce({
+    mockCreate.mockResolvedValueOnce({
       content: [
         {
           type: "text",
@@ -89,8 +83,7 @@ describe("detectQuote", () => {
   });
 
   it("skips when confidence is below 0.7", async () => {
-    const create = getMockCreate();
-    create.mockResolvedValueOnce({
+    mockCreate.mockResolvedValueOnce({
       content: [
         {
           type: "text",
@@ -110,8 +103,7 @@ describe("detectQuote", () => {
   });
 
   it("handles Claude API errors gracefully", async () => {
-    const create = getMockCreate();
-    create.mockRejectedValueOnce(new Error("API error"));
+    mockCreate.mockRejectedValueOnce(new Error("API error"));
 
     await expect(
       detectQuote("some valid looking quote here — Bob"),

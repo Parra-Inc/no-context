@@ -2,9 +2,6 @@ import { render, screen } from "@testing-library/react";
 import MarketingPage from "../page";
 
 // Mock all marketing components
-jest.mock("@/components/marketing/navbar", () => ({
-  Navbar: () => <nav data-testid="navbar">Navbar</nav>,
-}));
 jest.mock("@/components/marketing/hero", () => ({
   Hero: () => <section data-testid="hero">Hero</section>,
 }));
@@ -35,14 +32,10 @@ jest.mock("@/components/marketing/faq", () => ({
 jest.mock("@/components/marketing/final-cta", () => ({
   FinalCTA: () => <section data-testid="final-cta">FinalCTA</section>,
 }));
-jest.mock("@/components/marketing/footer", () => ({
-  Footer: () => <footer data-testid="footer">Footer</footer>,
-}));
 
 describe("Marketing Landing Page", () => {
   it("renders all page sections", () => {
     render(<MarketingPage />);
-    expect(screen.getByTestId("navbar")).toBeInTheDocument();
     expect(screen.getByTestId("hero")).toBeInTheDocument();
     expect(screen.getByTestId("social-proof")).toBeInTheDocument();
     expect(screen.getByTestId("how-it-works")).toBeInTheDocument();
@@ -53,6 +46,5 @@ describe("Marketing Landing Page", () => {
     expect(screen.getByTestId("pricing")).toBeInTheDocument();
     expect(screen.getByTestId("faq")).toBeInTheDocument();
     expect(screen.getByTestId("final-cta")).toBeInTheDocument();
-    expect(screen.getByTestId("footer")).toBeInTheDocument();
   });
 });

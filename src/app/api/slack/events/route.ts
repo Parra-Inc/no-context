@@ -293,28 +293,8 @@ async function processMessage(event: SlackEvent, teamId: string) {
     log.error("Slack events: error adding reaction", error);
   }
 
-  // Create quote record
+  // Create quote and image generation records
   const styleId = channel.styleId || workspace.defaultStyleId;
-
-  const quote = await prisma.quote.create({
-    data: {
-      workspaceId: workspace.id,
-      channelId: channel.id,
-      slackMessageTs: event.ts!,
-      slackUserId: event.user!,
-      slackUserName: userName,
-      slackUserAvatarUrl: userAvatarUrl,
-      quoteText: detection.extractedQuote || event.text!,
-      attributedTo: detection.attributedTo,
-      styleId,
-      aiConfidence: detection.confidence,
-      status: "PENDING",
-    },
-  });
-
-  log.info(
-    `Slack events: quote created id=${quote.id} style=${styleId} workspace=${workspace.id}`,
-  );
 
   // Check for custom style
   let customStyleDescription: string | undefined;
@@ -325,12 +305,48 @@ async function processMessage(event: SlackEvent, teamId: string) {
     customStyleDescription = customStyle.description;
   }
 
+  const { quote, imageGeneration } = await prisma.$transaction(async (tx) => {
+    const quote = await tx.quote.create({
+      data: {
+        workspaceId: workspace.id,
+        channelId: channel.id,
+        slackMessageTs: event.ts!,
+        slackUserId: event.user!,
+        slackUserName: userName,
+        slackUserAvatarUrl: userAvatarUrl,
+        quoteText: detection.extractedQuote || event.text!,
+        attributedTo: detection.attributedTo,
+        styleId,
+        aiConfidence: detection.confidence,
+        status: "PENDING",
+      },
+    });
+
+    const imageGeneration = await tx.imageGeneration.create({
+      data: {
+        quoteId: quote.id,
+        workspaceId: workspace.id,
+        styleId,
+        customStyleDescription,
+        status: "PENDING",
+        attemptNumber: 1,
+      },
+    });
+
+    return { quote, imageGeneration };
+  });
+
+  log.info(
+    `Slack events: quote created id=${quote.id} imageGeneration=${imageGeneration.id} style=${styleId} workspace=${workspace.id}`,
+  );
+
   // Enqueue image generation
   try {
     const messageId = await enqueueImageGeneration({
       workspaceId: workspace.id,
       channelId: channel.id,
       quoteId: quote.id,
+      imageGenerationId: imageGeneration.id,
       messageTs: event.ts!,
       slackChannelId: event.channel!,
       quoteText: detection.extractedQuote || event.text!,
@@ -342,13 +358,31 @@ async function processMessage(event: SlackEvent, teamId: string) {
       priority: TIER_PRIORITY[tier] || 4,
     });
 
+    await prisma.imageGeneration.update({
+      where: { id: imageGeneration.id },
+      data: { qstashMessageId: messageId },
+    });
+
     log.info(
-      `Slack events: image generation enqueued quote=${quote.id} qstashMessageId=${messageId}`,
+      `Slack events: image generation enqueued imageGeneration=${imageGeneration.id} qstashMessageId=${messageId}`,
     );
   } catch (err) {
     log.error(
-      `Slack events: failed to enqueue image generation quote=${quote.id}`,
+      `Slack events: failed to enqueue image generation imageGeneration=${imageGeneration.id}`,
       err,
     );
+    await prisma.imageGeneration.update({
+      where: { id: imageGeneration.id },
+      data: {
+        status: "FAILED",
+        processingError:
+          err instanceof Error ? err.message : "Failed to enqueue",
+        completedAt: new Date(),
+      },
+    });
+    await prisma.quote.update({
+      where: { id: quote.id },
+      data: { status: "FAILED" },
+    });
   }
 }

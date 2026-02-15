@@ -8,6 +8,7 @@ export interface ImageGenerationJob {
   workspaceId: string;
   channelId: string;
   quoteId: string;
+  imageGenerationId: string;
   messageTs: string;
   slackChannelId: string;
   quoteText: string;
@@ -28,7 +29,7 @@ export async function enqueueImageGeneration(
     url: `${baseUrl}/api/queue/image-generation`,
     body: job,
     retries: 2,
-    deduplicationId: `quote-${job.quoteId}`,
+    deduplicationId: `img-gen-${job.imageGenerationId}`,
   });
 
   return result.messageId;

@@ -1,26 +1,26 @@
 import { generateImage } from "./image-generator";
 
-// Mock OpenAI SDK
-jest.mock("openai", () => ({
-  __esModule: true,
-  default: jest.fn().mockImplementation(() => ({
-    images: {
-      generate: jest.fn(),
-    },
-  })),
-}));
+// Mock OpenAI SDK — define mockGenerate inside factory to avoid hoisting TDZ issue
+jest.mock("openai", () => {
+  const mockFn = jest.fn();
+  const MockOpenAI = jest.fn().mockImplementation(() => ({
+    images: { generate: mockFn },
+  }));
+  (MockOpenAI as any).__mockGenerate = mockFn;
+  return { __esModule: true, default: MockOpenAI };
+});
 
 import OpenAI from "openai";
 
-function getMockGenerate() {
-  const instance = new (OpenAI as unknown as jest.Mock)();
-  return instance.images.generate as jest.Mock;
-}
+const mockGenerate = (OpenAI as any).__mockGenerate as jest.Mock;
 
 describe("generateImage", () => {
+  beforeEach(() => {
+    mockGenerate.mockReset();
+  });
+
   it("returns the image URL on success", async () => {
-    const generate = getMockGenerate();
-    generate.mockResolvedValueOnce({
+    mockGenerate.mockResolvedValueOnce({
       data: [{ url: "https://example.com/image.png" }],
     });
 
@@ -32,50 +32,46 @@ describe("generateImage", () => {
   });
 
   it("constructs the correct DALL-E prompt from quote and style", async () => {
-    const generate = getMockGenerate();
-    generate.mockResolvedValueOnce({
+    mockGenerate.mockResolvedValueOnce({
       data: [{ url: "https://example.com/image.png" }],
     });
 
     await generateImage("test quote", "picasso");
 
-    expect(generate).toHaveBeenCalledWith(
+    expect(mockGenerate).toHaveBeenCalledWith(
       expect.objectContaining({
         model: "dall-e-3",
         size: "1792x1024",
       }),
     );
 
-    const callArgs = generate.mock.calls[0][0];
+    const callArgs = mockGenerate.mock.calls[0][0];
     expect(callArgs.prompt).toContain("cubist");
     expect(callArgs.prompt).toContain("test quote");
   });
 
   it("retries with softened prompt on content policy rejection", async () => {
-    const generate = getMockGenerate();
     const error = new Error("content_policy_violation");
-    generate.mockRejectedValueOnce(error).mockResolvedValueOnce({
+    mockGenerate.mockRejectedValueOnce(error).mockResolvedValueOnce({
       data: [{ url: "https://example.com/retry.png" }],
     });
 
     const result = await generateImage("a kill quote", "watercolor");
     expect(result).not.toBeNull();
     expect(result!.imageUrl).toBe("https://example.com/retry.png");
-    expect(generate).toHaveBeenCalledTimes(2);
+    expect(mockGenerate).toHaveBeenCalledTimes(2);
   });
 
   it("returns null after two content policy rejections", async () => {
-    const generate = getMockGenerate();
     const error = new Error("content_policy_violation");
-    generate.mockRejectedValueOnce(error).mockRejectedValueOnce(error);
+    mockGenerate.mockRejectedValueOnce(error).mockRejectedValueOnce(error);
 
     const result = await generateImage("problematic quote", "watercolor");
     expect(result).toBeNull();
   });
 
   it("throws on unexpected API errors", async () => {
-    const generate = getMockGenerate();
-    generate.mockRejectedValueOnce(new Error("rate limit exceeded"));
+    mockGenerate.mockRejectedValueOnce(new Error("rate limit exceeded"));
 
     await expect(generateImage("test quote", "watercolor")).rejects.toThrow(
       "rate limit exceeded",

@@ -32,6 +32,22 @@ async function handler(request: NextRequest) {
     encryptedBotToken,
   } = job;
 
+  // Backward compatibility: old in-flight jobs may lack imageGenerationId
+  let imageGenerationId = job.imageGenerationId;
+  if (!imageGenerationId) {
+    const gen = await prisma.imageGeneration.create({
+      data: {
+        quoteId,
+        workspaceId,
+        styleId,
+        customStyleDescription,
+        status: "PENDING",
+        attemptNumber: 1,
+      },
+    });
+    imageGenerationId = gen.id;
+  }
+
   // Fall back to looking up the tier from the database if not provided in the job
   // (handles old jobs already in the queue before this feature was deployed)
   let tier = job.tier;
@@ -45,7 +61,11 @@ async function handler(request: NextRequest) {
 
   const slackClient = getSlackClient(encryptedBotToken);
 
-  // Update quote status to PROCESSING
+  // Update statuses to PROCESSING
+  await prisma.imageGeneration.update({
+    where: { id: imageGenerationId },
+    data: { status: "PROCESSING", startedAt: new Date() },
+  });
   await prisma.quote.update({
     where: { id: quoteId },
     data: { status: "PROCESSING" },
@@ -68,12 +88,17 @@ async function handler(request: NextRequest) {
         "This quote was too powerful for art. It's been saved to your gallery as text-only.",
       );
 
-      await prisma.quote.update({
-        where: { id: quoteId },
+      await prisma.imageGeneration.update({
+        where: { id: imageGenerationId },
         data: {
           status: "FAILED",
           processingError: "Content policy rejection after retry",
+          completedAt: new Date(),
         },
+      });
+      await prisma.quote.update({
+        where: { id: quoteId },
+        data: { status: "FAILED" },
       });
 
       await removeReaction(slackClient, slackChannelId, messageTs, "art");
@@ -108,13 +133,23 @@ async function handler(request: NextRequest) {
       );
     }
 
-    // Update database
+    // Update ImageGeneration as completed
+    await prisma.imageGeneration.update({
+      where: { id: imageGenerationId },
+      data: {
+        status: "COMPLETED",
+        imageUrl: storedUrl,
+        imagePrompt: result.prompt,
+        completedAt: new Date(),
+      },
+    });
+
+    // Update Quote with winning image
     await prisma.quote.update({
       where: { id: quoteId },
       data: {
         status: "COMPLETED",
         imageUrl: storedUrl,
-        imagePrompt: result.prompt,
       },
     });
 
@@ -154,23 +189,33 @@ async function handler(request: NextRequest) {
     // If the Slack token is invalid, mark workspace as disconnected and don't retry
     if (isSlackTokenError(error)) {
       await markWorkspaceDisconnected(workspaceId);
-      await prisma.quote.update({
-        where: { id: quoteId },
+      await prisma.imageGeneration.update({
+        where: { id: imageGenerationId },
         data: {
           status: "FAILED",
           processingError:
             "Slack connection lost. Please reconnect your workspace.",
+          completedAt: new Date(),
         },
+      });
+      await prisma.quote.update({
+        where: { id: quoteId },
+        data: { status: "FAILED" },
       });
       return NextResponse.json({ ok: true });
     }
 
-    await prisma.quote.update({
-      where: { id: quoteId },
+    await prisma.imageGeneration.update({
+      where: { id: imageGenerationId },
       data: {
         status: "FAILED",
         processingError: errorMessage,
+        completedAt: new Date(),
       },
+    });
+    await prisma.quote.update({
+      where: { id: quoteId },
+      data: { status: "FAILED" },
     });
 
     await removeReaction(slackClient, slackChannelId, messageTs, "art");

@@ -1,15 +1,47 @@
+/**
+ * @jest-environment node
+ */
+
 import { POST } from "../route";
 import { NextRequest } from "next/server";
-import prisma from "@/lib/prisma";
-import { verifySlackSignature } from "@/lib/slack";
+
+jest.mock("@/lib/prisma", () => ({
+  __esModule: true,
+  default: {
+    slackEvent: { create: jest.fn().mockResolvedValue({}) },
+    workspace: { findUnique: jest.fn(), updateMany: jest.fn() },
+    channel: { findUnique: jest.fn() },
+    usageRecord: { findUnique: jest.fn() },
+    quote: { create: jest.fn() },
+    customStyle: { findFirst: jest.fn() },
+  },
+}));
+
+jest.mock("@/lib/stripe", () => ({
+  TIER_QUOTAS: { FREE: 5, STARTER: 25, TEAM: 100, BUSINESS: 500 },
+}));
+
+jest.mock("@/lib/slack", () => ({
+  verifySlackSignature: jest.fn(),
+  getSlackClient: jest.fn(),
+  addReaction: jest.fn(),
+  isSlackTokenError: jest.fn(),
+  markWorkspaceDisconnected: jest.fn(),
+}));
 
 jest.mock("@/lib/ai/quote-detector");
 jest.mock("@/lib/queue/queue");
+jest.mock("@/lib/logger", () => ({
+  log: {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+  },
+}));
 
-const mockPrisma = prisma as unknown as Record<
-  string,
-  Record<string, jest.Mock>
->;
+import { verifySlackSignature } from "@/lib/slack";
+
 const mockVerify = verifySlackSignature as jest.Mock;
 
 function createRequest(body: object) {

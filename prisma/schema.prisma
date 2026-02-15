@@ -97,13 +97,13 @@ model Quote {
   attributedTo    String?
   styleId         String
   imageUrl        String?
-  imagePrompt     String?
   status          QuoteStatus @default(PENDING)
   aiConfidence    Float?
-  processingError String?
   isFavorited     Boolean     @default(false)
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
+
+  imageGenerations ImageGeneration[]
 
   @@unique([workspaceId, slackMessageTs])
   @@index([workspaceId, createdAt])
@@ -116,6 +116,36 @@ enum QuoteStatus {
   COMPLETED
   FAILED
   SKIPPED
+}
+
+model ImageGeneration {
+  id                     String                @id @default(cuid())
+  quoteId                String
+  quote                  Quote                 @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  workspaceId            String
+  styleId                String
+  customStyleDescription String?
+  imagePrompt            String?
+  imageUrl               String?
+  status                 ImageGenerationStatus @default(PENDING)
+  processingError        String?
+  qstashMessageId        String?
+  attemptNumber          Int                   @default(1)
+  startedAt              DateTime?
+  completedAt            DateTime?
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
+
+  @@index([quoteId])
+  @@index([workspaceId, status])
+  @@index([workspaceId, createdAt])
+}
+
+enum ImageGenerationStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
 }
 
 model CustomStyle {
