@@ -17,6 +17,7 @@ declare module "next-auth" {
       workspaceId?: string;
       workspaceName?: string;
       isEmailVerified?: boolean;
+      isAdmin?: boolean;
       authType: "slack" | "email";
     };
   }
@@ -188,6 +189,15 @@ export const authConfig: NextAuthConfig = {
         }
       }
 
+      // Lazy admin flag resolution
+      if (token.userId && token.isAdmin === undefined) {
+        const adminCheck = await prisma.user.findUnique({
+          where: { id: token.userId as string },
+          select: { isAdmin: true },
+        });
+        token.isAdmin = adminCheck?.isAdmin ?? false;
+      }
+
       return token;
     },
     async session({ session, token }) {
@@ -213,6 +223,7 @@ export const authConfig: NextAuthConfig = {
         // Common: both auth types can have workspace after linking
         session.user.workspaceId = token.workspaceId as string | undefined;
         session.user.workspaceName = token.workspaceName as string | undefined;
+        session.user.isAdmin = (token.isAdmin as boolean) ?? false;
       }
       return session;
     },

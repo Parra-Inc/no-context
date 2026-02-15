@@ -160,9 +160,10 @@ model Style {
   name        String
   displayName String
   description String
-  createdBy   String?
-  isActive    Boolean    @default(true)
-  createdAt   DateTime   @default(now())
+  createdBy        String?
+  isActive         Boolean    @default(true)
+  enabledByDefault Boolean    @default(true)
+  createdAt        DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 
   channelStyles ChannelStyle[]
@@ -215,6 +216,7 @@ model User {
   name           String?
   emailVerified  DateTime?
   workspaceId    String?
+  isAdmin        Boolean   @default(false)
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 

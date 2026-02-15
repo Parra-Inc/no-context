@@ -3,12 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  LayoutDashboard,
-  Image,
-  Settings,
+  Palette,
   LogOut,
   ChevronsUpDown,
-  Building2,
+  ArrowLeft,
   ShieldCheck,
 } from "lucide-react";
 import {
@@ -30,63 +28,52 @@ import {
 } from "@/components/ui/popover";
 import { Logo } from "@/components/logo";
 
-interface AppSidebarProps {
+interface AdminSidebarProps {
   user: {
     name: string;
     image?: string;
-    workspaceName?: string;
-    isAdmin?: boolean;
   };
 }
 
-const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/dashboard/gallery", label: "Gallery", icon: Image },
-  { href: "/dashboard/settings", label: "Settings", icon: Settings },
-];
+const navItems = [{ href: "/admin/styles", label: "Styles", icon: Palette }];
 
-export function AppSidebar({ user }: AppSidebarProps) {
+export function AdminSidebar({ user }: AdminSidebarProps) {
   const pathname = usePathname();
 
   return (
     <Sidebar>
-      {/* Logo */}
       <SidebarHeader className="p-4 pb-2">
-        <Link href="/dashboard" className="inline-flex">
+        <Link href="/admin" className="inline-flex">
           <Logo size="sm" />
         </Link>
       </SidebarHeader>
 
-      {/* Workspace */}
       <div className="px-4 py-3">
         <div className="bg-sidebar-accent/50 flex items-center gap-2.5 rounded-lg border px-3 py-2">
-          <div className="bg-primary/10 text-primary flex h-7 w-7 shrink-0 items-center justify-center rounded-md">
-            <Building2 className="h-3.5 w-3.5" />
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-red-500/10 text-red-600">
+            <ShieldCheck className="h-3.5 w-3.5" />
           </div>
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm leading-tight font-medium">
-              {user.workspaceName || "Workspace"}
+              Admin Portal
             </p>
             <p className="text-muted-foreground text-[11px] leading-tight">
-              Free plan
+              Platform Management
             </p>
           </div>
         </div>
       </div>
 
-      {/* Navigation */}
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel className="text-muted-foreground/60 text-[11px] font-semibold tracking-wider uppercase">
-            Menu
+            Management
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navItems.map((item) => {
                 const isActive =
-                  pathname === item.href ||
-                  (item.href !== "/dashboard" &&
-                    pathname.startsWith(item.href));
+                  pathname === item.href || pathname.startsWith(item.href);
                 return (
                   <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton asChild isActive={isActive}>
@@ -101,29 +88,16 @@ export function AppSidebar({ user }: AppSidebarProps) {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        {user.isAdmin && (
-          <SidebarGroup>
-            <SidebarGroupLabel className="text-muted-foreground/60 text-[11px] font-semibold tracking-wider uppercase">
-              Admin
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <Link href="/admin">
-                      <ShieldCheck className="h-4 w-4" />
-                      <span>Admin Portal</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
       </SidebarContent>
 
-      {/* User */}
       <SidebarFooter className="p-3">
+        <Link
+          href="/dashboard"
+          className="text-muted-foreground hover:bg-sidebar-accent flex items-center gap-2.5 rounded-lg p-2 text-sm transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Dashboard
+        </Link>
         <Popover>
           <PopoverTrigger asChild>
             <button className="hover:bg-sidebar-accent flex w-full items-center gap-2.5 rounded-lg p-2 text-left transition-colors">
@@ -147,11 +121,6 @@ export function AppSidebar({ user }: AppSidebarProps) {
           <PopoverContent side="top" align="start" className="w-56 p-1">
             <div className="px-3 py-2">
               <p className="text-sm font-medium">{user.name}</p>
-              {user.workspaceName && (
-                <p className="text-muted-foreground text-xs">
-                  {user.workspaceName}
-                </p>
-              )}
             </div>
             <div className="bg-border my-1 h-px" />
             <Link
