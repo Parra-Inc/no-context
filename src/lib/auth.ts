@@ -21,16 +21,18 @@ export const authConfig: NextAuthConfig = {
     {
       id: "slack",
       name: "Slack",
-      type: "oidc",
-      issuer: "https://slack.com",
+      type: "oauth",
       clientId: process.env.SLACK_CLIENT_ID!,
       clientSecret: process.env.SLACK_CLIENT_SECRET!,
       checks: ["state"],
       authorization: {
+        url: "https://slack.com/openid/connect/authorize",
         params: {
           scope: "openid profile email",
         },
       },
+      token: "https://slack.com/api/openid.connect.token",
+      userinfo: "https://slack.com/api/openid.connect.userInfo",
       profile(profile) {
         return {
           id: profile.sub,
