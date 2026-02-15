@@ -20,7 +20,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   const session = await auth();
 
-  if (!session?.user?.workspaceId) {
+  if (!session?.user?.workspaceId || !session?.user?.slackUserId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
