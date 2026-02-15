@@ -31,7 +31,18 @@ export const authConfig: NextAuthConfig = {
           scope: "openid profile email",
         },
       },
-      token: "https://slack.com/api/openid.connect.token",
+      token: {
+        url: "https://slack.com/api/openid.connect.token",
+        async conform(response: Response) {
+          const data = await response.json();
+          // Strip id_token — Slack's OIDC returns a broken nonce, and Auth.js
+          // tries to validate it even with type "oauth". Removing it forces
+          // Auth.js to use the userinfo endpoint instead.
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { id_token, ...rest } = data;
+          return Response.json(rest);
+        },
+      },
       userinfo: "https://slack.com/api/openid.connect.userInfo",
       profile(profile) {
         return {
