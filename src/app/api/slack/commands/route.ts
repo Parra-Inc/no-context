@@ -173,11 +173,47 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    case "help": {
+      log.info(`Slack commands: help response team=${teamId}`);
+
+      return NextResponse.json({
+        response_type: "ephemeral",
+        text: [
+          `*No Context — Help & Best Practices*`,
+          ``,
+          `No Context listens for out-of-context quotes in your Slack channels and turns them into AI-generated artwork. Here's how to get the most out of it:`,
+          ``,
+          `*How it works*`,
+          `1. Someone says something funny or absurd in a connected channel`,
+          `2. The bot detects it as an out-of-context quote`,
+          `3. An AI-generated image inspired by the quote is posted in a thread`,
+          ``,
+          `*Best practices*`,
+          `• *Keep it natural* — No Context works best when people talk normally. It picks up on genuinely funny, absurd, or out-of-context moments.`,
+          `• *Don't force it* — Trying to game the bot usually produces worse results. The best quotes happen organically.`,
+          `• *Connect the right channels* — Add it to casual or social channels where funny moments happen. It's less useful in focused work channels.`,
+          `• *Use pause/resume* — Having a serious discussion? Use \`/nocontext pause\` to temporarily disable the bot and \`/nocontext resume\` when you're ready.`,
+          `• *Check your quota* — Use \`/nocontext status\` to see how many images you have left this month. Upgrade your plan if you need more.`,
+          `• *Explore styles* — Use \`/nocontext style\` to see the available art styles, or manage them in the dashboard.`,
+          ``,
+          `*Commands*`,
+          `\`/nocontext help\` — Show this help message`,
+          `\`/nocontext status\` — View usage, plan info, and connected channels`,
+          `\`/nocontext style\` — See current style mode and available art styles`,
+          `\`/nocontext pause\` — Pause the bot in this channel`,
+          `\`/nocontext resume\` — Resume the bot in this channel`,
+          ``,
+          `*Need more help?*`,
+          `Visit the <${appUrl}/dashboard|Dashboard> to manage channels, styles, and billing.`,
+        ].join("\n"),
+      });
+    }
+
     default:
       log.info(`Slack commands: unknown command=${command} team=${teamId}`);
       return NextResponse.json({
         response_type: "ephemeral",
-        text: "Usage: `/nocontext [status | style | pause | resume]`",
+        text: "Unknown command. Try `/nocontext help` for usage and best practices.",
       });
   }
 }

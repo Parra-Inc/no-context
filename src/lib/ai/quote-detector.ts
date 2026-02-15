@@ -90,14 +90,26 @@ export async function detectQuote(
   messageText: string,
   availableStyles?: StyleOption[],
 ): Promise<QuoteDetectionResult> {
-  // Pre-filters
-  const wordCount = messageText.trim().split(/\s+/).length;
-  if (wordCount < 3) return NOT_QUOTE;
-  if (messageText.length > 280) return NOT_QUOTE;
+  // Check for explicit Slack blockquote syntax (> text)
+  const blockquoteLines = messageText
+    .split("\n")
+    .filter((line) => line.startsWith("&gt; ") || line.startsWith("> "))
+    .map((line) => line.replace(/^(?:&gt;|>) /, ""));
+  const hasExplicitBlockquote =
+    blockquoteLines.length > 0 && blockquoteLines.join(" ").trim().length > 0;
+  const blockquoteText = blockquoteLines.join("\n").trim();
 
-  // Check for emoji-only messages
-  const emojiOnlyRegex = /^[\s\p{Emoji_Presentation}\p{Emoji}\uFE0F\u200D]*$/u;
-  if (emojiOnlyRegex.test(messageText)) return NOT_QUOTE;
+  // Pre-filters (skip for explicit blockquotes)
+  if (!hasExplicitBlockquote) {
+    const wordCount = messageText.trim().split(/\s+/).length;
+    if (wordCount < 3) return NOT_QUOTE;
+    if (messageText.length > 280) return NOT_QUOTE;
+
+    // Check for emoji-only messages
+    const emojiOnlyRegex =
+      /^[\s\p{Emoji_Presentation}\p{Emoji}\uFE0F\u200D]*$/u;
+    if (emojiOnlyRegex.test(messageText)) return NOT_QUOTE;
+  }
 
   const useStyleSelection = availableStyles && availableStyles.length > 0;
 
@@ -174,9 +186,13 @@ ${styleList}`;
 
   const data = parsed.data as z.infer<typeof QuoteDetectionWithStyleSchema>;
   const result: QuoteDetectionResult = {
-    isQuote: data.is_quote === true && data.confidence >= 0.7,
-    confidence: data.confidence,
-    extractedQuote: data.extracted_quote,
+    isQuote:
+      hasExplicitBlockquote ||
+      (data.is_quote === true && data.confidence >= 0.5),
+    confidence: hasExplicitBlockquote ? 1 : data.confidence,
+    extractedQuote: hasExplicitBlockquote
+      ? blockquoteText
+      : data.extracted_quote,
     attributedTo: data.attributed_to,
     selectedStyleId: data.selected_style_id ?? null,
   };

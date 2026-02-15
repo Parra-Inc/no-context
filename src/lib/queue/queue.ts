@@ -17,6 +17,7 @@ export interface ImageGenerationJob {
   encryptedBotToken: string;
   postToSlackChannelId?: string;
   tier: string;
+  hasWatermark: boolean;
   priority: number;
 }
 

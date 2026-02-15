@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import SettingsGeneral from "@/components/dashboard/settings-general";
+import { TIER_MAX_CHANNELS } from "@/lib/stripe";
 
 export default async function SettingsPage() {
   const session = await auth();
@@ -51,6 +52,7 @@ export default async function SettingsPage() {
       }))}
       subscriptionTier={subscription?.tier || "FREE"}
       subscriptionStatus={subscription?.status || "ACTIVE"}
+      maxChannels={TIER_MAX_CHANNELS[subscription?.tier || "FREE"] || 1}
     />
   );
 }

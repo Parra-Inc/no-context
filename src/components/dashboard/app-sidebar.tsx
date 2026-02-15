@@ -29,6 +29,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Logo } from "@/components/logo";
+import { Progress } from "@/components/ui/progress";
 
 interface AppSidebarProps {
   user: {
@@ -37,7 +38,17 @@ interface AppSidebarProps {
     workspaceName?: string;
     isAdmin?: boolean;
   };
+  subscriptionTier?: string;
+  usageQuota?: number;
+  usageUsed?: number;
 }
+
+const TIER_LABELS: Record<string, string> = {
+  FREE: "Free plan",
+  STARTER: "Starter plan",
+  TEAM: "Team plan",
+  BUSINESS: "Business plan",
+};
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -45,8 +56,15 @@ const navItems = [
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
-export function AppSidebar({ user }: AppSidebarProps) {
+export function AppSidebar({
+  user,
+  subscriptionTier = "FREE",
+  usageQuota = 5,
+  usageUsed = 0,
+}: AppSidebarProps) {
   const pathname = usePathname();
+  const planLabel = TIER_LABELS[subscriptionTier] || "Free plan";
+  const usagePercent = usageQuota > 0 ? (usageUsed / usageQuota) * 100 : 0;
 
   return (
     <Sidebar>
@@ -59,17 +77,34 @@ export function AppSidebar({ user }: AppSidebarProps) {
 
       {/* Workspace */}
       <div className="px-4 py-3">
-        <div className="bg-sidebar-accent/50 flex items-center gap-2.5 rounded-lg border px-3 py-2">
-          <div className="bg-primary/10 text-primary flex h-7 w-7 shrink-0 items-center justify-center rounded-md">
-            <Building2 className="h-3.5 w-3.5" />
+        <div className="bg-sidebar-accent/50 flex flex-col gap-2.5 rounded-lg border px-3 py-2.5">
+          <div className="flex items-center gap-2.5">
+            <div className="bg-primary/10 text-primary flex h-7 w-7 shrink-0 items-center justify-center rounded-md">
+              <Building2 className="h-3.5 w-3.5" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm leading-tight font-medium">
+                {user.workspaceName || "Workspace"}
+              </p>
+              <p className="text-muted-foreground text-[11px] leading-tight">
+                {planLabel}
+              </p>
+            </div>
           </div>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm leading-tight font-medium">
-              {user.workspaceName || "Workspace"}
-            </p>
-            <p className="text-muted-foreground text-[11px] leading-tight">
-              Free plan
-            </p>
+          <div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground text-[10px]">
+                {usageUsed} / {usageQuota} images
+              </span>
+              <span className="text-muted-foreground text-[10px]">
+                {Math.round(usagePercent)}%
+              </span>
+            </div>
+            <Progress
+              value={usageUsed}
+              max={usageQuota}
+              className={`mt-1 h-1.5 ${usagePercent >= 90 ? "[&>div]:bg-red-500" : usagePercent >= 70 ? "[&>div]:bg-yellow-500" : ""}`}
+            />
           </div>
         </div>
       </div>

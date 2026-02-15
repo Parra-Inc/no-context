@@ -4,17 +4,20 @@ import {
   verifySlackSignature,
   getSlackClient,
   addReaction,
+  postEphemeral,
+  getParentMessage,
   isSlackTokenError,
   markWorkspaceDisconnected,
 } from "@/lib/slack";
 import { detectQuote } from "@/lib/ai/quote-detector";
 import { enqueueImageGeneration } from "@/lib/queue/queue";
-import { TIER_QUOTAS } from "@/lib/stripe";
+import { TIER_QUOTAS, TIER_PRIORITY } from "@/lib/stripe";
 import { log } from "@/lib/logger";
 import {
   getEnabledStylesForChannel,
   pickRandomStyle,
 } from "@/lib/styles.server";
+import type { DbStyle } from "@/lib/styles.server";
 
 interface SlackEvent {
   type: string;
@@ -33,13 +36,6 @@ interface SlackEventPayload {
   event?: SlackEvent;
   team_id?: string;
 }
-
-const TIER_PRIORITY: Record<string, number> = {
-  BUSINESS: 1,
-  TEAM: 2,
-  STARTER: 3,
-  FREE: 4,
-};
 
 export async function POST(request: NextRequest) {
   const body = await request.text();
@@ -117,10 +113,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: true });
     }
 
-    // Filter out bot messages, thread replies, edits
-    if (event.bot_id || event.subtype || event.thread_ts) {
+    // Filter out bot messages and edits
+    if (event.bot_id || event.subtype) {
       log.debug(
-        `Slack events: filtering out message bot_id=${event.bot_id} subtype=${event.subtype} thread_ts=${event.thread_ts}`,
+        `Slack events: filtering out message bot_id=${event.bot_id} subtype=${event.subtype}`,
+      );
+      return NextResponse.json({ ok: true });
+    }
+
+    // Filter out thread replies that don't contain a potential @mention
+    if (event.thread_ts && !event.text?.includes("<@")) {
+      log.debug(
+        `Slack events: filtering out thread reply without mention thread_ts=${event.thread_ts}`,
       );
       return NextResponse.json({ ok: true });
     }
@@ -134,18 +138,30 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: true });
     }
 
-    // Process async — respond to Slack immediately, but keep function alive
-    after(
-      processMessage(event, teamId).catch((err) =>
-        log.error("Slack events: message processing error", err),
-      ),
-    );
+    // Route thread replies to mention handler, top-level messages to normal flow
+    if (event.thread_ts) {
+      after(
+        processMentionInThread(event, teamId).catch((err) =>
+          log.error("Slack events: thread mention processing error", err),
+        ),
+      );
+    } else {
+      after(
+        processMessage(event, teamId).catch((err) =>
+          log.error("Slack events: message processing error", err),
+        ),
+      );
+    }
 
     return NextResponse.json({ ok: true });
   }
 
   return NextResponse.json({ ok: true });
 }
+
+// ---------------------------------------------------------------------------
+// Top-level message processing (existing auto-detection flow)
+// ---------------------------------------------------------------------------
 
 async function processMessage(event: SlackEvent, teamId: string) {
   const slackChannelId = event.channel;
@@ -246,11 +262,20 @@ async function processMessage(event: SlackEvent, teamId: string) {
       `Slack events: quota exceeded for workspace=${workspace.id} used=${used}/${quota}`,
     );
     const slackClient = getSlackClient(workspace.slackBotToken);
-    await addReaction(
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const resetDate = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    const resetDateStr = resetDate.toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+    });
+    await postEphemeral(
       slackClient,
       slackChannelId,
-      messageTs,
-      "no-context-limit",
+      slackUserId,
+      [
+        `You've used all ${used}/${quota} No Context images for this month. Your usage resets on *${resetDateStr}*.`,
+        `<${appUrl}/dashboard/settings/billing|Manage your plan> · Bug your workspace admin to add more usage!`,
+      ].join("\n"),
     );
     return;
   }
@@ -411,6 +436,7 @@ async function processMessage(event: SlackEvent, teamId: string) {
       encryptedBotToken: workspace.slackBotToken,
       postToSlackChannelId: channelRecord.postToChannelId || undefined,
       tier,
+      hasWatermark: workspace.subscription?.hasWatermark ?? true,
       priority: TIER_PRIORITY[tier] || 4,
     });
 
@@ -441,4 +467,471 @@ async function processMessage(event: SlackEvent, teamId: string) {
       data: { status: "FAILED" },
     });
   }
+}
+
+// ---------------------------------------------------------------------------
+// @Mention in thread reply — extract quote from parent, generate with new style
+// ---------------------------------------------------------------------------
+
+async function processMentionInThread(event: SlackEvent, teamId: string) {
+  const slackChannelId = event.channel;
+  const text = event.text;
+  const slackUserId = event.user;
+  const threadTs = event.thread_ts;
+
+  if (!slackChannelId || !text || !slackUserId || !threadTs) {
+    log.warn("Slack events: processMentionInThread missing fields");
+    return;
+  }
+
+  // Look up workspace to verify the @mention is for our bot
+  const workspace = await prisma.workspace.findUnique({
+    where: { slackTeamId: teamId },
+    include: { subscription: true },
+  });
+
+  if (!workspace || !workspace.isActive || workspace.needsReconnection) {
+    return;
+  }
+
+  if (slackUserId === workspace.slackBotUserId) {
+    return;
+  }
+
+  // Verify this is actually a mention of our bot
+  const botMentionPattern = `<@${workspace.slackBotUserId}>`;
+  if (!text.includes(botMentionPattern)) {
+    log.debug("Slack events: thread reply does not mention our bot, ignoring");
+    return;
+  }
+
+  log.info(
+    `Slack events: bot mentioned in thread channel=${slackChannelId} thread=${threadTs} user=${slackUserId}`,
+  );
+
+  // Look up channel
+  const channelRecord = await prisma.channel.findUnique({
+    where: {
+      workspaceId_slackChannelId: {
+        workspaceId: workspace.id,
+        slackChannelId,
+      },
+    },
+  });
+
+  if (!channelRecord || !channelRecord.isActive || channelRecord.isPaused) {
+    return;
+  }
+
+  // Quota check
+  const now = new Date();
+  const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const usage = await prisma.usageRecord.findUnique({
+    where: {
+      workspaceId_periodStart: {
+        workspaceId: workspace.id,
+        periodStart,
+      },
+    },
+  });
+
+  const tier = workspace.subscription?.tier || "FREE";
+  const quota = workspace.subscription?.monthlyQuota || TIER_QUOTAS.FREE;
+  const used = usage?.quotesUsed || 0;
+
+  if (used >= quota) {
+    const slackClient = getSlackClient(workspace.slackBotToken);
+    await addReaction(
+      slackClient,
+      slackChannelId,
+      threadTs,
+      "no-context-limit",
+    );
+    return;
+  }
+
+  // Fetch parent message text
+  const slackClient = getSlackClient(workspace.slackBotToken);
+  let parentText: string | null;
+  try {
+    parentText = await getParentMessage(slackClient, slackChannelId, threadTs);
+  } catch (error) {
+    if (isSlackTokenError(error)) {
+      await markWorkspaceDisconnected(workspace.id);
+      return;
+    }
+    log.error("Slack events: error fetching parent message", error);
+    return;
+  }
+
+  if (!parentText) {
+    await slackClient.chat.postMessage({
+      channel: slackChannelId,
+      thread_ts: threadTs,
+      text: "I couldn't read the original message. Try quoting it directly.",
+    });
+    return;
+  }
+
+  // Look up existing Quote + ImageGenerations for this parent message
+  const existingQuote = await prisma.quote.findUnique({
+    where: {
+      workspaceId_slackMessageTs: {
+        workspaceId: workspace.id,
+        slackMessageTs: threadTs,
+      },
+    },
+    include: { imageGenerations: true },
+  });
+
+  // Get enabled styles
+  const enabledStyles = await getEnabledStylesForChannel(
+    channelRecord.id,
+    workspace.id,
+  );
+
+  if (enabledStyles.length === 0) {
+    log.warn("Slack events: no enabled styles for mention thread");
+    return;
+  }
+
+  // Check if user said "retry" to show style picker
+  const cleanText = text.replace(botMentionPattern, "").trim().toLowerCase();
+  const isRetry = cleanText.includes("retry");
+
+  if (isRetry) {
+    await postStylePicker(
+      slackClient,
+      slackChannelId,
+      threadTs,
+      parentText,
+      existingQuote,
+      enabledStyles,
+      workspace,
+      channelRecord,
+      slackUserId,
+    );
+  } else {
+    await generateFromMention(
+      slackClient,
+      slackChannelId,
+      threadTs,
+      parentText,
+      existingQuote,
+      enabledStyles,
+      workspace,
+      channelRecord,
+      slackUserId,
+      tier,
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Generate image from @mention (auto-select unused style)
+// ---------------------------------------------------------------------------
+
+async function generateFromMention(
+  slackClient: ReturnType<typeof getSlackClient>,
+  slackChannelId: string,
+  parentTs: string,
+  parentText: string,
+  existingQuote: Awaited<ReturnType<typeof findQuoteWithGenerations>>,
+  enabledStyles: DbStyle[],
+  workspace: NonNullable<Awaited<ReturnType<typeof findWorkspace>>>,
+  channelRecord: NonNullable<Awaited<ReturnType<typeof findChannel>>>,
+  slackUserId: string,
+  tier: string,
+) {
+  // Find styles already used
+  const usedStyleIds = new Set(
+    existingQuote?.imageGenerations.map((ig) => ig.styleId) ?? [],
+  );
+
+  // Pick an unused style, fall back to any if all used
+  const unusedStyles = enabledStyles.filter((s) => !usedStyleIds.has(s.name));
+  const selectedStyle =
+    unusedStyles.length > 0
+      ? pickRandomStyle(unusedStyles)
+      : pickRandomStyle(enabledStyles);
+
+  const styleId = selectedStyle.name;
+  const customStyleDescription = selectedStyle.workspaceId
+    ? selectedStyle.description
+    : undefined;
+
+  // Add processing reaction
+  try {
+    await addReaction(slackClient, slackChannelId, parentTs, "eyes");
+  } catch (error) {
+    if (isSlackTokenError(error)) {
+      await markWorkspaceDisconnected(workspace.id);
+      return;
+    }
+  }
+
+  // Get user display info for the parent message author
+  let userName = "Unknown";
+  let userAvatarUrl: string | undefined;
+  try {
+    // Fetch the parent message author, not the person who @mentioned
+    const repliesResult = await slackClient.conversations.replies({
+      channel: slackChannelId,
+      ts: parentTs,
+      limit: 1,
+      inclusive: true,
+    });
+    const parentUserId = repliesResult.messages?.[0]?.user;
+    if (parentUserId) {
+      const userInfo = await slackClient.users.info({ user: parentUserId });
+      userName =
+        userInfo.user?.profile?.display_name ||
+        userInfo.user?.real_name ||
+        "Unknown";
+      userAvatarUrl = userInfo.user?.profile?.image_72 || undefined;
+    }
+  } catch (error) {
+    if (isSlackTokenError(error)) {
+      await markWorkspaceDisconnected(workspace.id);
+      return;
+    }
+    log.error("Slack events: error fetching parent user info", error);
+  }
+
+  // Create or reuse Quote, create new ImageGeneration
+  let quoteId: string;
+  let imageGenerationId: string;
+
+  if (existingQuote) {
+    const maxAttempt = Math.max(
+      ...existingQuote.imageGenerations.map((ig) => ig.attemptNumber),
+      0,
+    );
+
+    const imageGeneration = await prisma.imageGeneration.create({
+      data: {
+        quoteId: existingQuote.id,
+        workspaceId: workspace.id,
+        styleId,
+        customStyleDescription,
+        status: "PENDING",
+        attemptNumber: maxAttempt + 1,
+      },
+    });
+
+    quoteId = existingQuote.id;
+    imageGenerationId = imageGeneration.id;
+
+    await prisma.quote.update({
+      where: { id: existingQuote.id },
+      data: { status: "PENDING" },
+    });
+  } else {
+    const result = await prisma.$transaction(async (tx) => {
+      const quote = await tx.quote.create({
+        data: {
+          workspaceId: workspace.id,
+          channelId: channelRecord.id,
+          slackMessageTs: parentTs,
+          slackUserId,
+          slackUserName: userName,
+          slackUserAvatarUrl: userAvatarUrl,
+          quoteText: parentText,
+          attributedTo: null,
+          styleId,
+          aiConfidence: 1.0,
+          status: "PENDING",
+        },
+      });
+
+      const imageGeneration = await tx.imageGeneration.create({
+        data: {
+          quoteId: quote.id,
+          workspaceId: workspace.id,
+          styleId,
+          customStyleDescription,
+          status: "PENDING",
+          attemptNumber: 1,
+        },
+      });
+
+      return { quote, imageGeneration };
+    });
+
+    quoteId = result.quote.id;
+    imageGenerationId = result.imageGeneration.id;
+  }
+
+  log.info(
+    `Slack events: mention generation created quote=${quoteId} imageGeneration=${imageGenerationId} style=${styleId}`,
+  );
+
+  // Enqueue image generation
+  try {
+    const messageId = await enqueueImageGeneration({
+      workspaceId: workspace.id,
+      channelId: channelRecord.id,
+      quoteId,
+      imageGenerationId,
+      messageTs: parentTs,
+      slackChannelId,
+      quoteText: parentText,
+      styleId,
+      customStyleDescription,
+      encryptedBotToken: workspace.slackBotToken,
+      postToSlackChannelId: channelRecord.postToChannelId || undefined,
+      tier,
+      hasWatermark: workspace.subscription?.hasWatermark ?? true,
+      priority: TIER_PRIORITY[tier] || 4,
+    });
+
+    await prisma.imageGeneration.update({
+      where: { id: imageGenerationId },
+      data: { qstashMessageId: messageId },
+    });
+  } catch (err) {
+    log.error("Slack events: failed to enqueue from mention", err);
+    await prisma.imageGeneration.update({
+      where: { id: imageGenerationId },
+      data: {
+        status: "FAILED",
+        processingError:
+          err instanceof Error ? err.message : "Failed to enqueue",
+        completedAt: new Date(),
+      },
+    });
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Post style picker dropdown for "retry" flow
+// ---------------------------------------------------------------------------
+
+async function postStylePicker(
+  slackClient: ReturnType<typeof getSlackClient>,
+  slackChannelId: string,
+  threadTs: string,
+  parentText: string,
+  existingQuote: Awaited<ReturnType<typeof findQuoteWithGenerations>>,
+  enabledStyles: DbStyle[],
+  workspace: NonNullable<Awaited<ReturnType<typeof findWorkspace>>>,
+  channelRecord: NonNullable<Awaited<ReturnType<typeof findChannel>>>,
+  slackUserId: string,
+) {
+  const usedStyleIds = new Set(
+    existingQuote?.imageGenerations.map((ig) => ig.styleId) ?? [],
+  );
+
+  // Build style options for the dropdown
+  const styleOptions = enabledStyles.map((style) => ({
+    text: {
+      type: "plain_text" as const,
+      text: usedStyleIds.has(style.name)
+        ? `${style.displayName} \u2714`
+        : style.displayName,
+    },
+    value: style.name,
+  }));
+
+  // Ensure we have a Quote record for the action_id reference
+  let quoteId: string;
+  if (existingQuote) {
+    quoteId = existingQuote.id;
+  } else {
+    let userName = "Unknown";
+    let userAvatarUrl: string | undefined;
+    try {
+      const repliesResult = await slackClient.conversations.replies({
+        channel: slackChannelId,
+        ts: threadTs,
+        limit: 1,
+        inclusive: true,
+      });
+      const parentUserId = repliesResult.messages?.[0]?.user;
+      if (parentUserId) {
+        const userInfo = await slackClient.users.info({ user: parentUserId });
+        userName =
+          userInfo.user?.profile?.display_name ||
+          userInfo.user?.real_name ||
+          "Unknown";
+        userAvatarUrl = userInfo.user?.profile?.image_72 || undefined;
+      }
+    } catch {
+      // proceed with defaults
+    }
+
+    const quote = await prisma.quote.create({
+      data: {
+        workspaceId: workspace.id,
+        channelId: channelRecord.id,
+        slackMessageTs: threadTs,
+        slackUserId,
+        slackUserName: userName,
+        slackUserAvatarUrl: userAvatarUrl,
+        quoteText: parentText,
+        attributedTo: null,
+        styleId: "pending",
+        aiConfidence: 1.0,
+        status: "PENDING",
+      },
+    });
+    quoteId = quote.id;
+  }
+
+  const truncatedText =
+    parentText.length > 150 ? parentText.substring(0, 150) + "..." : parentText;
+
+  await slackClient.chat.postMessage({
+    channel: slackChannelId,
+    thread_ts: threadTs,
+    text: "Pick a style for this quote:",
+    blocks: [
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: `:art: *Pick a style for this quote:*\n> ${truncatedText}`,
+        },
+      },
+      {
+        type: "actions",
+        block_id: "style_picker_block",
+        elements: [
+          {
+            type: "static_select",
+            action_id: `style_select:${quoteId}`,
+            placeholder: {
+              type: "plain_text",
+              text: "Choose a style...",
+            },
+            options: styleOptions,
+          },
+        ],
+      },
+    ],
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Type helpers for Prisma query return types
+// ---------------------------------------------------------------------------
+
+function findQuoteWithGenerations(workspaceId: string, slackMessageTs: string) {
+  return prisma.quote.findUnique({
+    where: { workspaceId_slackMessageTs: { workspaceId, slackMessageTs } },
+    include: { imageGenerations: true },
+  });
+}
+
+function findWorkspace(teamId: string) {
+  return prisma.workspace.findUnique({
+    where: { slackTeamId: teamId },
+    include: { subscription: true },
+  });
+}
+
+function findChannel(workspaceId: string, slackChannelId: string) {
+  return prisma.channel.findUnique({
+    where: { workspaceId_slackChannelId: { workspaceId, slackChannelId } },
+  });
 }

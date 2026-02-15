@@ -12,6 +12,8 @@ export const PRICE_IDS: Record<string, string> = {
   TEAM_ANNUAL: process.env.STRIPE_PRICE_TEAM_ANNUAL || "",
   BUSINESS_MONTHLY: process.env.STRIPE_PRICE_BUSINESS_MONTHLY || "",
   BUSINESS_ANNUAL: process.env.STRIPE_PRICE_BUSINESS_ANNUAL || "",
+  ENTERPRISE_MONTHLY: process.env.STRIPE_PRICE_ENTERPRISE_MONTHLY || "",
+  ENTERPRISE_ANNUAL: process.env.STRIPE_PRICE_ENTERPRISE_ANNUAL || "",
 };
 
 export const TIER_QUOTAS: Record<string, number> = {
@@ -19,6 +21,7 @@ export const TIER_QUOTAS: Record<string, number> = {
   STARTER: 25,
   TEAM: 100,
   BUSINESS: 500,
+  ENTERPRISE: 2000,
 };
 
 export const TIER_MAX_CHANNELS: Record<string, number> = {
@@ -26,6 +29,7 @@ export const TIER_MAX_CHANNELS: Record<string, number> = {
   STARTER: 1,
   TEAM: 3,
   BUSINESS: Infinity,
+  ENTERPRISE: Infinity,
 };
 
 export const TIER_IMAGE_SIZE: Record<string, string> = {
@@ -33,6 +37,7 @@ export const TIER_IMAGE_SIZE: Record<string, string> = {
   STARTER: "1792x1024",
   TEAM: "1792x1024",
   BUSINESS: "1792x1024",
+  ENTERPRISE: "1792x1024",
 };
 
 export const TIER_HAS_WATERMARK: Record<string, boolean> = {
@@ -40,6 +45,14 @@ export const TIER_HAS_WATERMARK: Record<string, boolean> = {
   STARTER: false,
   TEAM: false,
   BUSINESS: false,
+  ENTERPRISE: false,
+};
+
+export const TIER_PRIORITY: Record<string, number> = {
+  BUSINESS: 1,
+  TEAM: 2,
+  STARTER: 3,
+  FREE: 4,
 };
 
 export async function createCheckoutSession(

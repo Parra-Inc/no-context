@@ -2,7 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
 import { encrypt } from "@/lib/encryption";
-import { stripe, TIER_QUOTAS } from "@/lib/stripe";
+import {
+  stripe,
+  TIER_QUOTAS,
+  TIER_MAX_CHANNELS,
+  TIER_HAS_WATERMARK,
+  TIER_IMAGE_SIZE,
+} from "@/lib/stripe";
 import { findOrCreateUserBySlack } from "@/lib/user";
 import { log } from "@/lib/logger";
 
@@ -183,6 +189,9 @@ export async function GET(request: NextRequest) {
           tier: "FREE",
           status: "ACTIVE",
           monthlyQuota: TIER_QUOTAS.FREE,
+          maxChannels: TIER_MAX_CHANNELS.FREE,
+          hasWatermark: TIER_HAS_WATERMARK.FREE,
+          imageSize: TIER_IMAGE_SIZE.FREE,
         },
       });
 

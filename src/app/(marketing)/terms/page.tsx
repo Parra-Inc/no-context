@@ -44,6 +44,17 @@ export default function TermsPage() {
           ownership of generated artwork.
         </p>
         <h2 className="text-xl font-semibold text-[#1A1A1A]">
+          User-Generated Content
+        </h2>
+        <p>
+          All images produced by No Context are generated based on quotes and
+          prompts submitted by users. Because this content is user-directed, we
+          are not responsible for the nature, accuracy, or appropriateness of
+          any generated images or the underlying text used to create them. You
+          are solely responsible for the content you submit and the resulting
+          output.
+        </p>
+        <h2 className="text-xl font-semibold text-[#1A1A1A]">
           Limitation of Liability
         </h2>
         <p>

@@ -1,6 +1,69 @@
 import prisma from "@/lib/prisma";
 
 /**
+ * Assert that a User record exists in the DB for the given session.
+ * If the user doesn't exist, create them from the session data.
+ * Returns the DB user's id.
+ */
+export async function assertUser(session: {
+  id: string;
+  email?: string | null;
+  name?: string | null;
+  slackUserId?: string | null;
+  authType: "slack" | "email";
+}): Promise<string> {
+  // 1. Try by session ID (the happy path)
+  const byId = await prisma.user.findUnique({
+    where: { id: session.id },
+    select: { id: true },
+  });
+  if (byId) return byId.id;
+
+  // 2. Try by slackUserId (Slack users whose token.sub differs from DB id)
+  if (session.slackUserId) {
+    const bySlack = await prisma.user.findUnique({
+      where: { slackUserId: session.slackUserId },
+      select: { id: true },
+    });
+    if (bySlack) return bySlack.id;
+  }
+
+  // 3. Try by email
+  const email = session.email?.toLowerCase();
+  if (email) {
+    const byEmail = await prisma.user.findUnique({
+      where: { email },
+      select: { id: true },
+    });
+    if (byEmail) {
+      // Link Slack identity if present
+      if (session.slackUserId) {
+        await prisma.user.update({
+          where: { id: byEmail.id },
+          data: { slackUserId: session.slackUserId },
+        });
+      }
+      return byEmail.id;
+    }
+  }
+
+  // 4. Create the user — need at least an email
+  if (!email) {
+    throw new Error("Cannot create user: no email available from session");
+  }
+
+  const created = await prisma.user.create({
+    data: {
+      email,
+      name: session.name ?? undefined,
+      slackUserId: session.slackUserId ?? undefined,
+    },
+  });
+
+  return created.id;
+}
+
+/**
  * Find or create a User record for a Slack identity.
  *
  * Resolution order:

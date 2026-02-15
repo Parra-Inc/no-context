@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { TIER_MAX_CHANNELS } from "@/lib/stripe";
+
 import { z } from "zod/v4";
 
 const CreateChannelSchema = z.object({
@@ -12,6 +13,7 @@ const CreateChannelSchema = z.object({
 const UpdateChannelSchema = z.object({
   channelId: z.string().min(1),
   styleMode: z.enum(["RANDOM", "AI"]).optional(),
+  isPaused: z.boolean().optional(),
   postToChannelId: z.string().nullable().optional(),
   postToChannelName: z.string().nullable().optional(),
 });
@@ -56,7 +58,7 @@ export async function POST(request: NextRequest) {
   });
 
   const tier = subscription?.tier || "FREE";
-  const maxChannels = TIER_MAX_CHANNELS[tier] || 1;
+  const maxChannels = subscription?.maxChannels ?? TIER_MAX_CHANNELS[tier] ?? 1;
 
   const currentCount = await prisma.channel.count({
     where: { workspaceId: session.user.workspaceId, isActive: true },
@@ -106,13 +108,17 @@ export async function PATCH(request: NextRequest) {
     );
   }
 
-  const { channelId, styleMode, postToChannelId, postToChannelName } =
+  const { channelId, styleMode, isPaused, postToChannelId, postToChannelName } =
     result.data;
 
   const data: Record<string, unknown> = {};
 
   if (styleMode !== undefined) {
     data.styleMode = styleMode;
+  }
+
+  if (isPaused !== undefined) {
+    data.isPaused = isPaused;
   }
 
   if (postToChannelId !== undefined) {

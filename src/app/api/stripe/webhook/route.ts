@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { stripe, TIER_QUOTAS } from "@/lib/stripe";
+import {
+  stripe,
+  TIER_QUOTAS,
+  TIER_MAX_CHANNELS,
+  TIER_HAS_WATERMARK,
+  TIER_IMAGE_SIZE,
+} from "@/lib/stripe";
 import prisma from "@/lib/prisma";
 import type { SubscriptionTier, SubscriptionStatus } from "@prisma/client";
 import type Stripe from "stripe";
@@ -21,6 +27,8 @@ function tierFromPriceId(priceId: string): SubscriptionTier {
     [process.env.STRIPE_PRICE_TEAM_ANNUAL || ""]: "TEAM",
     [process.env.STRIPE_PRICE_BUSINESS_MONTHLY || ""]: "BUSINESS",
     [process.env.STRIPE_PRICE_BUSINESS_ANNUAL || ""]: "BUSINESS",
+    [process.env.STRIPE_PRICE_ENTERPRISE_MONTHLY || ""]: "ENTERPRISE",
+    [process.env.STRIPE_PRICE_ENTERPRISE_ANNUAL || ""]: "ENTERPRISE",
   };
   return priceToTier[priceId] || "FREE";
 }
@@ -68,6 +76,9 @@ export async function POST(request: NextRequest) {
           tier,
           status: "ACTIVE",
           monthlyQuota: TIER_QUOTAS[tier] || 5,
+          maxChannels: TIER_MAX_CHANNELS[tier] ?? 1,
+          hasWatermark: TIER_HAS_WATERMARK[tier] ?? true,
+          imageSize: TIER_IMAGE_SIZE[tier] || "1792x1024",
           currentPeriodStart: sub.current_period_start
             ? new Date(sub.current_period_start * 1000)
             : null,
@@ -98,6 +109,9 @@ export async function POST(request: NextRequest) {
           tier,
           status,
           monthlyQuota: TIER_QUOTAS[tier] || 5,
+          maxChannels: TIER_MAX_CHANNELS[tier] ?? 1,
+          hasWatermark: TIER_HAS_WATERMARK[tier] ?? true,
+          imageSize: TIER_IMAGE_SIZE[tier] || "1792x1024",
           currentPeriodStart: sub.current_period_start
             ? new Date(sub.current_period_start * 1000)
             : null,
@@ -120,6 +134,9 @@ export async function POST(request: NextRequest) {
           tier: "FREE",
           status: "CANCELED",
           monthlyQuota: TIER_QUOTAS.FREE,
+          maxChannels: TIER_MAX_CHANNELS.FREE,
+          hasWatermark: TIER_HAS_WATERMARK.FREE,
+          imageSize: TIER_IMAGE_SIZE.FREE,
           stripeSubscriptionId: null,
           stripePriceId: null,
         },

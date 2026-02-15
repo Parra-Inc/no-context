@@ -19,13 +19,20 @@ jest.mock("@/lib/prisma", () => ({
 }));
 
 jest.mock("@/lib/stripe", () => ({
-  TIER_QUOTAS: { FREE: 5, STARTER: 25, TEAM: 100, BUSINESS: 500 },
+  TIER_QUOTAS: {
+    FREE: 5,
+    STARTER: 25,
+    TEAM: 100,
+    BUSINESS: 500,
+    ENTERPRISE: 2000,
+  },
 }));
 
 jest.mock("@/lib/slack", () => ({
   verifySlackSignature: jest.fn(),
   getSlackClient: jest.fn(),
   addReaction: jest.fn(),
+  postEphemeral: jest.fn(),
   isSlackTokenError: jest.fn(),
   markWorkspaceDisconnected: jest.fn(),
 }));

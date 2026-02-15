@@ -105,11 +105,14 @@ async function handler(request: NextRequest) {
       return NextResponse.json({ ok: true });
     }
 
-    // Download, apply watermark for free tier, and upload to Vercel Blob
+    // Download, apply watermark if enabled, and upload to Vercel Blob
     let imageBuffer = await downloadImage(
       result.imageBuffer ?? result.imageUrl,
     );
-    if (TIER_HAS_WATERMARK[tier]) {
+    // Use job.hasWatermark; fall back to tier lookup for old in-flight jobs
+    const shouldWatermark =
+      job.hasWatermark ?? TIER_HAS_WATERMARK[tier] ?? true;
+    if (shouldWatermark) {
       imageBuffer = await applyWatermark(imageBuffer);
     }
     const storedUrl = await uploadImage(imageBuffer, workspaceId, quoteId);

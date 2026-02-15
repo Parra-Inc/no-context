@@ -1,7 +1,45 @@
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Palette, Lock } from "lucide-react";
+import { CustomStylesManager } from "@/components/dashboard/custom-styles-manager";
+
+const STYLE_GRADIENTS: Record<string, string> = {
+  watercolor: "from-blue-200 via-pink-100 to-yellow-100",
+  picasso: "from-amber-200 via-red-200 to-blue-300",
+  "van-gogh": "from-yellow-300 via-blue-400 to-indigo-400",
+  monet: "from-green-200 via-blue-200 to-pink-200",
+  warhol: "from-pink-400 via-yellow-300 to-cyan-300",
+  hokusai: "from-blue-300 via-slate-200 to-sky-400",
+  dali: "from-orange-200 via-amber-100 to-purple-300",
+  mondrian: "from-red-400 via-yellow-300 to-blue-500",
+  basquiat: "from-yellow-300 via-red-300 to-black",
+  rockwell: "from-amber-200 via-orange-100 to-brown-200",
+  ghibli: "from-green-300 via-sky-200 to-blue-200",
+  "comic-book": "from-red-300 via-yellow-200 to-blue-300",
+  "pixel-art": "from-emerald-300 via-cyan-200 to-purple-300",
+  "pencil-sketch": "from-gray-200 via-gray-100 to-gray-300",
+  "stained-glass": "from-purple-300 via-rose-200 to-amber-300",
+  "kpop-demon-hunters": "from-pink-400 via-purple-400 to-indigo-400",
+  fortnite: "from-blue-400 via-purple-300 to-pink-300",
+  archer: "from-gray-300 via-red-200 to-gray-400",
+  "south-park": "from-green-300 via-blue-200 to-orange-200",
+  futurama: "from-purple-300 via-gray-200 to-green-300",
+  simpsons: "from-yellow-300 via-yellow-200 to-blue-200",
+  fallout: "from-green-400 via-yellow-200 to-amber-300",
+};
+
+function getGradient(styleName: string): string {
+  return (
+    STYLE_GRADIENTS[styleName] || "from-violet-200 via-purple-100 to-pink-200"
+  );
+}
 
 export default async function StylesPage() {
   const session = await auth();
@@ -27,24 +65,40 @@ export default async function StylesPage() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-bold text-[#1A1A1A]">Art Styles</h1>
+      <div>
+        <h1 className="text-2xl font-bold text-[#1A1A1A]">Art Styles</h1>
+        <p className="mt-1 text-sm text-[#4A4A4A]">
+          {builtInStyles.length + customStyles.length} styles available
+        </p>
+      </div>
 
       <Card>
         <CardContent className="space-y-4 pt-6">
-          <CardTitle>Built-in Styles</CardTitle>
+          <div>
+            <CardTitle>Built-in Styles</CardTitle>
+            <CardDescription className="mt-1">
+              Pre-configured art styles available to all plans
+            </CardDescription>
+          </div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {builtInStyles.map((style) => (
               <div
                 key={style.id}
-                className="rounded-xl border border-[#E5E5E5] p-4"
+                className="group overflow-hidden rounded-xl border border-[#E5E5E5] transition-shadow hover:shadow-md"
               >
-                <div className="mb-3 aspect-square rounded-lg bg-gradient-to-br from-gray-50 to-gray-100" />
-                <p className="text-sm font-medium text-[#1A1A1A]">
-                  {style.displayName}
-                </p>
-                <p className="mt-1 line-clamp-2 text-xs text-[#4A4A4A]">
-                  {style.description}
-                </p>
+                <div
+                  className={`flex aspect-[3/2] items-center justify-center bg-gradient-to-br ${getGradient(style.name)}`}
+                >
+                  <Palette className="h-8 w-8 text-white/60" />
+                </div>
+                <div className="p-4">
+                  <p className="text-sm font-medium text-[#1A1A1A]">
+                    {style.displayName}
+                  </p>
+                  <p className="mt-1 line-clamp-2 text-xs text-[#4A4A4A]">
+                    {style.description}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
@@ -54,38 +108,41 @@ export default async function StylesPage() {
       <Card>
         <CardContent className="space-y-4 pt-6">
           <div className="flex items-center justify-between">
-            <CardTitle>Custom Styles</CardTitle>
+            <div>
+              <CardTitle>Custom Styles</CardTitle>
+              <CardDescription className="mt-1">
+                Create your own art styles with custom prompts
+              </CardDescription>
+            </div>
             {!canCreateCustom && (
-              <Badge variant="secondary">Team+ plan required</Badge>
+              <Badge variant="secondary">
+                <Lock className="mr-1 h-3 w-3" />
+                Team+ required
+              </Badge>
             )}
           </div>
           {canCreateCustom ? (
-            <div className="space-y-3">
-              {customStyles.map((style) => (
-                <div
-                  key={style.id}
-                  className="flex items-center justify-between rounded-lg bg-gray-50 p-3"
-                >
-                  <div>
-                    <p className="text-sm font-medium text-[#1A1A1A]">
-                      {style.displayName}
-                    </p>
-                    <p className="text-xs text-[#4A4A4A]">
-                      {style.description}
-                    </p>
-                  </div>
-                </div>
-              ))}
-              {customStyles.length === 0 && (
-                <p className="text-sm text-[#4A4A4A]">
-                  No custom styles yet. Create one to get started!
-                </p>
-              )}
-            </div>
+            <CustomStylesManager
+              customStyles={customStyles.map((s) => ({
+                id: s.id,
+                name: s.name,
+                displayName: s.displayName,
+                description: s.description,
+              }))}
+            />
           ) : (
-            <p className="text-sm text-[#4A4A4A]">
-              Upgrade to Team or Business to create custom art styles.
-            </p>
+            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#E5E5E5] py-8">
+              <Palette className="h-8 w-8 text-[#D4D4D4]" />
+              <p className="mt-2 text-sm text-[#4A4A4A]">
+                Custom styles are available on Team and Business plans.
+              </p>
+              <a
+                href="/dashboard/settings/billing"
+                className="mt-2 text-sm text-[#7C3AED] hover:underline"
+              >
+                View plans
+              </a>
+            </div>
           )}
         </CardContent>
       </Card>

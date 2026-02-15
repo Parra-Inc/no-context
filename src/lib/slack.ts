@@ -134,6 +134,19 @@ export async function postToChannel(
   });
 }
 
+export async function postEphemeral(
+  client: WebClient,
+  channel: string,
+  user: string,
+  text: string,
+) {
+  return client.chat.postEphemeral({
+    channel,
+    user,
+    text,
+  });
+}
+
 export async function addReaction(
   client: WebClient,
   channel: string,
@@ -166,4 +179,19 @@ export async function removeReaction(
   } catch {
     // Reaction may not exist — ignore
   }
+}
+
+export async function getParentMessage(
+  client: WebClient,
+  channel: string,
+  threadTs: string,
+): Promise<string | null> {
+  const result = await client.conversations.replies({
+    channel,
+    ts: threadTs,
+    limit: 1,
+    inclusive: true,
+  });
+
+  return result.messages?.[0]?.text || null;
 }

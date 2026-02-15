@@ -43,12 +43,19 @@ jest.mock("@/lib/slack", () => ({
 }));
 
 jest.mock("@/lib/stripe", () => ({
-  TIER_QUOTAS: { FREE: 5, STARTER: 25, TEAM: 100, BUSINESS: 500 },
+  TIER_QUOTAS: {
+    FREE: 5,
+    STARTER: 25,
+    TEAM: 100,
+    BUSINESS: 500,
+    ENTERPRISE: 2000,
+  },
   TIER_HAS_WATERMARK: {
     FREE: true,
     STARTER: false,
     TEAM: false,
     BUSINESS: false,
+    ENTERPRISE: false,
   },
 }));
 
