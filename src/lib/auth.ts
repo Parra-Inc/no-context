@@ -77,7 +77,7 @@ export const authConfig: NextAuthConfig = {
           where: { email: email.toLowerCase() },
         });
 
-        if (!user) return null;
+        if (!user || !user.hashedPassword) return null;
 
         const isValid = await compare(password, user.hashedPassword);
         if (!isValid) return null;
@@ -112,10 +112,38 @@ export const authConfig: NextAuthConfig = {
         const slackUserId = (profile as Record<string, unknown>)[
           "https://slack.com/user_id"
         ] as string;
+        const email = (profile.email as string | undefined)?.toLowerCase();
+        const name = profile.name as string | undefined;
 
         token.slackUserId = slackUserId;
         token.slackTeamId = slackTeamId;
         token.authType = "slack";
+
+        // Find or create a User record for this Slack identity
+        let dbUser = await prisma.user.findFirst({
+          where: {
+            OR: [{ slackUserId }, ...(email ? [{ email }] : [])],
+          },
+        });
+
+        if (!dbUser && email) {
+          dbUser = await prisma.user.create({
+            data: {
+              email,
+              slackUserId,
+              name: name || null,
+            },
+          });
+        } else if (dbUser && !dbUser.slackUserId) {
+          dbUser = await prisma.user.update({
+            where: { id: dbUser.id },
+            data: { slackUserId },
+          });
+        }
+
+        if (dbUser) {
+          token.userId = dbUser.id;
+        }
 
         const workspace = await prisma.workspace.findUnique({
           where: { slackTeamId },
@@ -166,13 +194,16 @@ export const authConfig: NextAuthConfig = {
         session.user.authType =
           (token.authType as "slack" | "email") || "slack";
 
+        if (token.userId) {
+          session.user.id = token.userId as string;
+        }
+
         if (token.authType === "slack") {
           session.user.slackUserId = token.slackUserId as string;
           session.user.slackTeamId = token.slackTeamId as string;
         }
 
         if (token.authType === "email") {
-          session.user.id = token.userId as string;
           session.user.isEmailVerified = token.isEmailVerified as
             | boolean
             | undefined;

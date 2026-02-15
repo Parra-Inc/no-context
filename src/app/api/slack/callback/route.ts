@@ -65,8 +65,65 @@ export async function GET(request: NextRequest) {
       access_token: botToken,
       team: { id: slackTeamId, name: slackTeamName },
       bot_user_id: slackBotUserId,
-      authed_user: { id: installedByUserId },
+      authed_user: { id: slackInstallerUserId },
     } = tokenData;
+
+    // Resolve or create a database User for the installer
+    let userId = linkUserId;
+
+    if (!userId) {
+      // Try to find existing user by Slack ID
+      const existingUser = await prisma.user.findUnique({
+        where: { slackUserId: slackInstallerUserId },
+      });
+
+      if (existingUser) {
+        userId = existingUser.id;
+      } else {
+        // Fetch installer's profile from Slack to get their email
+        try {
+          const userInfoResponse = await fetch(
+            `https://slack.com/api/users.info?${new URLSearchParams({ user: slackInstallerUserId })}`,
+            { headers: { Authorization: `Bearer ${botToken}` } },
+          );
+          const userInfo = await userInfoResponse.json();
+
+          if (userInfo.ok && userInfo.user?.profile?.email) {
+            const installerEmail = userInfo.user.profile.email.toLowerCase();
+
+            // Check if a user with this email already exists
+            const emailUser = await prisma.user.findUnique({
+              where: { email: installerEmail },
+            });
+
+            if (emailUser) {
+              // Link Slack identity to existing email user
+              await prisma.user.update({
+                where: { id: emailUser.id },
+                data: { slackUserId: slackInstallerUserId },
+              });
+              userId = emailUser.id;
+            } else {
+              // Create a new user
+              const newUser = await prisma.user.create({
+                data: {
+                  email: installerEmail,
+                  slackUserId: slackInstallerUserId,
+                  name: userInfo.user.real_name || userInfo.user.name || null,
+                },
+              });
+              userId = newUser.id;
+            }
+          }
+        } catch {
+          // Failed to fetch user info — userId remains null
+        }
+      }
+    }
+
+    if (!userId) {
+      return NextResponse.redirect(`${appUrl}/?error=user_required`);
+    }
 
     // Encrypt bot token
     const encryptedToken = encrypt(botToken);
@@ -86,7 +143,7 @@ export async function GET(request: NextRequest) {
       // Non-critical — skip
     }
 
-    // Upsert workspace
+    // Upsert workspace with the database User ID as installer
     const workspace = await prisma.workspace.upsert({
       where: { slackTeamId },
       update: {
@@ -94,6 +151,7 @@ export async function GET(request: NextRequest) {
         slackTeamIcon,
         slackBotToken: encryptedToken,
         slackBotUserId,
+        installedByUserId: userId,
         isActive: true,
         needsReconnection: false,
         updatedAt: new Date(),
@@ -104,7 +162,7 @@ export async function GET(request: NextRequest) {
         slackTeamIcon,
         slackBotToken: encryptedToken,
         slackBotUserId,
-        installedByUserId,
+        installedByUserId: userId,
       },
     });
 
@@ -133,13 +191,11 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Link email auth user to workspace if userId was passed through state
-    if (linkUserId) {
-      await prisma.user.update({
-        where: { id: linkUserId },
-        data: { workspaceId: workspace.id },
-      });
-    }
+    // Link the user to the workspace
+    await prisma.user.update({
+      where: { id: userId },
+      data: { workspaceId: workspace.id },
+    });
 
     return NextResponse.redirect(`${appUrl}${returnTo}`);
   } catch (error) {

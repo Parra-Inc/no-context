@@ -161,7 +161,8 @@ model ContactFormSubmission {
 model User {
   id             String    @id @default(cuid())
   email          String    @unique
-  hashedPassword String
+  hashedPassword String?
+  slackUserId    String?   @unique
   name           String?
   emailVerified  DateTime?
   workspaceId    String?

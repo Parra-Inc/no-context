@@ -61,6 +61,7 @@ const tiers = [
     annualPrice: 66,
     images: 500,
     popular: false,
+    description: "For really big teams or excessively ridiculous small ones.",
     cta: "Try Business Free",
     features: [
       "500 generated images/month",
@@ -133,6 +134,11 @@ export function Pricing() {
                 <h3 className="text-lg font-semibold text-[#1A1A1A]">
                   {tier.name}
                 </h3>
+                {"description" in tier && tier.description && (
+                  <p className="mt-1 text-sm text-[#4A4A4A]">
+                    {tier.description}
+                  </p>
+                )}
                 <div className="mt-4">
                   <span className="text-4xl font-bold text-[#1A1A1A]">
                     ${isAnnual ? tier.annualPrice : tier.monthlyPrice}
