@@ -11,7 +11,10 @@ import { detectQuote } from "@/lib/ai/quote-detector";
 import { enqueueImageGeneration } from "@/lib/queue/queue";
 import { TIER_QUOTAS } from "@/lib/stripe";
 import { log } from "@/lib/logger";
-import { getEnabledStylesForChannel, pickRandomStyle } from "@/lib/styles";
+import {
+  getEnabledStylesForChannel,
+  pickRandomStyle,
+} from "@/lib/styles.server";
 
 interface SlackEvent {
   type: string;
