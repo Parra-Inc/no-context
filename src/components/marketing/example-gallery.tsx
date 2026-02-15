@@ -195,17 +195,8 @@ export function ExampleGallery() {
         <div className="mx-auto max-w-6xl">
           <FadeIn>
             <h2 className="font-display text-center text-3xl text-[#1A1A1A] md:text-4xl">
-              23+ styles.{" "}
-              <span className="relative inline-block">
-                <span className="relative z-10">Random every time.</span>
-                <span className="absolute inset-0 -skew-x-2 rounded-lg bg-[#EDE9FE]" />
-              </span>
+              Real quotes. Sick art.
             </h2>
-            <p className="mx-auto mt-4 max-w-xl text-center text-base text-[#4A4A4A] sm:text-lg">
-              Every quote gets a surprise art style from the full collection.
-              Configure which styles are in the rotation, or create your own
-              from scratch.
-            </p>
           </FadeIn>
 
           <div className="relative mt-12">

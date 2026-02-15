@@ -13,14 +13,15 @@ export function StylesShowcase() {
       <div className="mx-auto max-w-5xl text-center">
         <FadeIn>
           <h2 className="font-display text-3xl text-[#1A1A1A] md:text-4xl">
-            Choose your team&apos;s{" "}
+            23+ styles.{" "}
             <span className="relative inline-block">
-              <span className="relative z-10">aesthetic.</span>
+              <span className="relative z-10">Randomly picked.</span>
               <span className="absolute bottom-1 left-0 -z-0 h-3 w-full bg-[#EDE9FE]" />
             </span>
           </h2>
-          <p className="mt-4 text-lg text-[#4A4A4A]">
-            Pick from 23+ art styles
+          <p className="mx-auto mt-4 max-w-xl text-lg text-[#4A4A4A]">
+            Each quote gets a random style from the full collection. Configure
+            which ones are in the rotation, or create your own from scratch.
           </p>
         </FadeIn>
 
