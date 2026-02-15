@@ -14,6 +14,18 @@ export const TIER_MAX_CHANNELS = {
   TEAM: 3,
   BUSINESS: Infinity,
 };
+export const TIER_IMAGE_SIZE = {
+  FREE: "1792x1024",
+  STARTER: "1792x1024",
+  TEAM: "1792x1024",
+  BUSINESS: "1792x1024",
+};
+export const TIER_HAS_WATERMARK = {
+  FREE: true,
+  STARTER: false,
+  TEAM: false,
+  BUSINESS: false,
+};
 export const PRICE_IDS = {};
 export const createCheckoutSession = jest.fn();
 export const createCustomerPortalSession = jest.fn();

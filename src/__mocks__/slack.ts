@@ -10,5 +10,8 @@ export const mockSlackClient = {
 export const getSlackClient = jest.fn(() => mockSlackClient);
 export const verifySlackSignature = jest.fn(() => true);
 export const postThreadReply = jest.fn();
+export const postToChannel = jest.fn();
 export const addReaction = jest.fn();
 export const removeReaction = jest.fn();
+export const isSlackTokenError = jest.fn(() => false);
+export const markWorkspaceDisconnected = jest.fn();
