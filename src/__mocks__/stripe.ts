@@ -38,3 +38,42 @@ export const TIER_HAS_WATERMARK = {
 export const PRICE_IDS = {};
 export const createCheckoutSession = jest.fn();
 export const createCustomerPortalSession = jest.fn();
+export const TOKEN_PACKS = [
+  {
+    id: "SMALL",
+    name: "Small Pack",
+    credits: 10,
+    priceUsd: 5,
+    priceCents: 500,
+    pricePerImage: "$0.50",
+    stripePriceId: "price_test_small",
+  },
+  {
+    id: "MEDIUM",
+    name: "Medium Pack",
+    credits: 30,
+    priceUsd: 12,
+    priceCents: 1200,
+    pricePerImage: "$0.40",
+    stripePriceId: "price_test_medium",
+  },
+  {
+    id: "LARGE",
+    name: "Large Pack",
+    credits: 75,
+    priceUsd: 25,
+    priceCents: 2500,
+    pricePerImage: "$0.33",
+    stripePriceId: "price_test_large",
+  },
+  {
+    id: "XL",
+    name: "XL Pack",
+    credits: 200,
+    priceUsd: 50,
+    priceCents: 5000,
+    pricePerImage: "$0.25",
+    stripePriceId: "price_test_xl",
+  },
+];
+export const createTokenPackCheckoutSession = jest.fn();

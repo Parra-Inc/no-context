@@ -2,7 +2,6 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { Card, CardContent } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import Image from "next/image";
@@ -12,7 +11,6 @@ import {
   ImageIcon,
   Heart,
   Settings,
-  ArrowUpRight,
   AlertTriangle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -27,7 +25,6 @@ export default async function DashboardPage() {
 
   const [
     workspace,
-    subscription,
     channels,
     totalQuotes,
     totalFavorites,
@@ -36,9 +33,6 @@ export default async function DashboardPage() {
   ] = await Promise.all([
     prisma.workspace.findUnique({
       where: { id: workspaceId },
-    }),
-    prisma.subscription.findUnique({
-      where: { workspaceId },
     }),
     prisma.channel.findMany({
       where: { workspaceId, isActive: true },
@@ -70,11 +64,7 @@ export default async function DashboardPage() {
     }),
   ]);
 
-  const tier = subscription?.tier || "FREE";
-  const quota = subscription?.monthlyQuota || 5;
   const used = usage?.quotesUsed || 0;
-  const remaining = Math.max(quota - used, 0);
-  const usagePercent = quota > 0 ? (used / quota) * 100 : 0;
 
   const stats = [
     {
@@ -128,57 +118,18 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      {/* Header with usage */}
-      <div>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {workspace?.slackTeamIcon && (
-              <img
-                src={workspace.slackTeamIcon}
-                alt={workspace.slackTeamName ?? ""}
-                className="h-10 w-10 rounded-lg"
-              />
-            )}
-            <div>
-              <h1 className="text-2xl font-bold text-[#1A1A1A]">
-                {workspace?.slackTeamName}
-              </h1>
-              <div className="mt-0.5 flex items-center gap-2">
-                <Badge variant="outline">{tier}</Badge>
-                <span className="text-sm text-[#4A4A4A]">
-                  {remaining} images remaining this month
-                </span>
-              </div>
-            </div>
-          </div>
-          {usagePercent >= 80 && tier === "FREE" && (
-            <Link href="/dashboard/settings/billing">
-              <Button size="sm">
-                Upgrade
-                <ArrowUpRight className="ml-1 h-3.5 w-3.5" />
-              </Button>
-            </Link>
-          )}
-        </div>
-        <div className="mt-4">
-          <div className="mb-1.5 flex items-center justify-between text-sm">
-            <span className="text-[#4A4A4A]">Monthly usage</span>
-            <span className="font-medium text-[#1A1A1A]">
-              {used} / {quota}
-            </span>
-          </div>
-          <Progress
-            value={used}
-            max={quota}
-            className={
-              usagePercent >= 90
-                ? "[&>div]:bg-red-500"
-                : usagePercent >= 70
-                  ? "[&>div]:bg-yellow-500"
-                  : ""
-            }
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        {workspace?.slackTeamIcon && (
+          <img
+            src={workspace.slackTeamIcon}
+            alt={workspace.slackTeamName ?? ""}
+            className="h-10 w-10 rounded-lg"
           />
-        </div>
+        )}
+        <h1 className="text-2xl font-bold text-[#1A1A1A]">
+          {workspace?.slackTeamName}
+        </h1>
       </div>
 
       {/* Stat cards */}

@@ -8,8 +8,8 @@ import {
   Settings,
   LogOut,
   ChevronsUpDown,
-  Building2,
   ShieldCheck,
+  ArrowUpRight,
 } from "lucide-react";
 import {
   Sidebar,
@@ -41,6 +41,8 @@ interface AppSidebarProps {
   subscriptionTier?: string;
   usageQuota?: number;
   usageUsed?: number;
+  workspaceIcon?: string;
+  periodEnd?: string;
 }
 
 const TIER_LABELS: Record<string, string> = {
@@ -61,10 +63,21 @@ export function AppSidebar({
   subscriptionTier = "FREE",
   usageQuota = 5,
   usageUsed = 0,
+  workspaceIcon,
+  periodEnd,
 }: AppSidebarProps) {
   const pathname = usePathname();
   const planLabel = TIER_LABELS[subscriptionTier] || "Free plan";
   const usagePercent = usageQuota > 0 ? (usageUsed / usageQuota) * 100 : 0;
+
+  // Calculate reset date
+  const resetDate = periodEnd
+    ? new Date(periodEnd)
+    : new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1);
+  const resetLabel = resetDate.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
 
   return (
     <Sidebar>
@@ -77,35 +90,21 @@ export function AppSidebar({
 
       {/* Workspace */}
       <div className="px-4 py-3">
-        <div className="bg-sidebar-accent/50 flex flex-col gap-2.5 rounded-lg border px-3 py-2.5">
-          <div className="flex items-center gap-2.5">
-            <div className="bg-primary/10 text-primary flex h-7 w-7 shrink-0 items-center justify-center rounded-md">
-              <Building2 className="h-3.5 w-3.5" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm leading-tight font-medium">
-                {user.workspaceName || "Workspace"}
-              </p>
-              <p className="text-muted-foreground text-[11px] leading-tight">
-                {planLabel}
-              </p>
-            </div>
-          </div>
-          <div>
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground text-[10px]">
-                {usageUsed} / {usageQuota} images
-              </span>
-              <span className="text-muted-foreground text-[10px]">
-                {Math.round(usagePercent)}%
-              </span>
-            </div>
-            <Progress
-              value={usageUsed}
-              max={usageQuota}
-              className={`mt-1 h-1.5 ${usagePercent >= 90 ? "[&>div]:bg-red-500" : usagePercent >= 70 ? "[&>div]:bg-yellow-500" : ""}`}
+        <div className="flex items-center gap-2.5">
+          {workspaceIcon ? (
+            <img
+              src={workspaceIcon}
+              alt={user.workspaceName || "Workspace"}
+              className="h-7 w-7 shrink-0 rounded-md"
             />
-          </div>
+          ) : (
+            <div className="bg-primary/10 text-primary flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-xs font-semibold">
+              {user.workspaceName?.[0]?.toUpperCase() || "W"}
+            </div>
+          )}
+          <p className="truncate text-sm leading-tight font-medium">
+            {user.workspaceName || "Workspace"}
+          </p>
         </div>
       </div>
 
@@ -157,8 +156,39 @@ export function AppSidebar({
         )}
       </SidebarContent>
 
-      {/* User */}
-      <SidebarFooter className="p-3">
+      <SidebarFooter className="space-y-3 p-3">
+        {/* Usage indicator */}
+        <div className="bg-sidebar-accent/50 space-y-3 rounded-lg border px-3 py-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium">{planLabel}</span>
+            <span className="text-muted-foreground text-[10px]">
+              Resets {resetLabel}
+            </span>
+          </div>
+          <div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground text-[10px]">
+                {usageUsed} / {usageQuota} generations
+              </span>
+              <span className="text-muted-foreground text-[10px]">
+                {Math.round(usagePercent)}%
+              </span>
+            </div>
+            <Progress
+              value={usageUsed}
+              max={usageQuota}
+              className={`mt-1 h-1.5 ${usagePercent >= 90 ? "[&>div]:bg-red-500" : usagePercent >= 70 ? "[&>div]:bg-yellow-500" : ""}`}
+            />
+          </div>
+          <Link href="/dashboard/settings?tab=billing" className="block">
+            <button className="bg-primary text-primary-foreground hover:bg-primary/90 flex w-full items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors">
+              Upgrade plan
+              <ArrowUpRight className="h-3 w-3" />
+            </button>
+          </Link>
+        </div>
+
+        {/* User */}
         <Popover>
           <PopoverTrigger asChild>
             <button className="hover:bg-sidebar-accent flex w-full items-center gap-2.5 rounded-lg p-2 text-left transition-colors">

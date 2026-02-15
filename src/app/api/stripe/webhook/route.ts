@@ -59,6 +59,51 @@ export async function POST(request: NextRequest) {
     case "checkout.session.completed": {
       const session = event.data.object as Stripe.Checkout.Session;
       const customerId = session.customer as string;
+
+      // Handle token pack one-time payments
+      if (
+        session.metadata?.type === "token_pack" &&
+        session.mode === "payment"
+      ) {
+        const packId = session.metadata.tokenPackId;
+        const creditsToAdd = parseInt(session.metadata.creditsToAdd || "0", 10);
+        const workspaceId = session.metadata.workspaceId;
+
+        if (!creditsToAdd || !workspaceId) {
+          console.error(
+            "Token pack webhook: missing metadata",
+            session.metadata,
+          );
+          break;
+        }
+
+        // Idempotency: skip if already processed
+        const existing = await prisma.tokenPurchase.findUnique({
+          where: { stripeSessionId: session.id },
+        });
+        if (existing) break;
+
+        await prisma.$transaction([
+          prisma.subscription.update({
+            where: { stripeCustomerId: customerId },
+            data: { bonusCredits: { increment: creditsToAdd } },
+          }),
+          prisma.tokenPurchase.create({
+            data: {
+              workspaceId,
+              stripeSessionId: session.id,
+              stripeCustomerId: customerId,
+              packType: packId || "UNKNOWN",
+              creditsAdded: creditsToAdd,
+              amountPaid: session.amount_total || 0,
+            },
+          }),
+        ]);
+
+        break;
+      }
+
+      // Handle subscription checkout
       const subscriptionId = session.subscription as string;
 
       if (!subscriptionId) break;

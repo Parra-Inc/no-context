@@ -251,15 +251,17 @@ async function processMessage(event: SlackEvent, teamId: string) {
 
   const tier = workspace.subscription?.tier || "FREE";
   const quota = workspace.subscription?.monthlyQuota || TIER_QUOTAS.FREE;
+  const bonusCredits = workspace.subscription?.bonusCredits || 0;
   const used = usage?.quotesUsed || 0;
+  const effectiveQuota = quota + bonusCredits;
 
   log.info(
-    `Slack events: quota check tier=${tier} used=${used}/${quota} workspace=${workspace.id}`,
+    `Slack events: quota check tier=${tier} used=${used}/${quota} bonus=${bonusCredits} workspace=${workspace.id}`,
   );
 
-  if (used >= quota) {
+  if (used >= effectiveQuota) {
     log.info(
-      `Slack events: quota exceeded for workspace=${workspace.id} used=${used}/${quota}`,
+      `Slack events: quota exceeded for workspace=${workspace.id} used=${used}/${quota} bonus=${bonusCredits}`,
     );
     const slackClient = getSlackClient(workspace.slackBotToken);
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
@@ -273,8 +275,8 @@ async function processMessage(event: SlackEvent, teamId: string) {
       slackChannelId,
       slackUserId,
       [
-        `You've used all ${used}/${quota} No Context images for this month. Your usage resets on *${resetDateStr}*.`,
-        `<${appUrl}/dashboard/settings/billing|Manage your plan> · Bug your workspace admin to add more usage!`,
+        `You've used all ${used}/${quota} monthly images${bonusCredits === 0 ? "" : " and bonus credits"} for No Context. Your monthly usage resets on *${resetDateStr}*.`,
+        `<${appUrl}/dashboard/settings?tab=billing|Upgrade your plan> or <${appUrl}/dashboard/settings?tab=billing|buy a token pack> to keep generating!`,
       ].join("\n"),
     );
     return;
@@ -537,9 +539,11 @@ async function processMentionInThread(event: SlackEvent, teamId: string) {
 
   const tier = workspace.subscription?.tier || "FREE";
   const quota = workspace.subscription?.monthlyQuota || TIER_QUOTAS.FREE;
+  const bonusCredits = workspace.subscription?.bonusCredits || 0;
   const used = usage?.quotesUsed || 0;
+  const effectiveQuota = quota + bonusCredits;
 
-  if (used >= quota) {
+  if (used >= effectiveQuota) {
     const slackClient = getSlackClient(workspace.slackBotToken);
     await addReaction(
       slackClient,

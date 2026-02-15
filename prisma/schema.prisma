@@ -39,6 +39,7 @@ model Subscription {
   tier                 SubscriptionTier   @default(FREE)
   status               SubscriptionStatus @default(ACTIVE)
   monthlyQuota         Int                @default(5)
+  bonusCredits         Int                @default(0)
   maxChannels          Int                @default(1)
   hasWatermark         Boolean            @default(true)
   imageSize            String             @default("1792x1024")
@@ -198,6 +199,20 @@ model UsageRecord {
 
   @@unique([workspaceId, periodStart])
   @@index([workspaceId, periodStart])
+}
+
+model TokenPurchase {
+  id                String   @id @default(cuid())
+  workspaceId       String
+  stripeSessionId   String   @unique
+  stripeCustomerId  String
+  packType          String
+  creditsAdded      Int
+  amountPaid        Int
+  purchasedByUserId String?
+  createdAt         DateTime @default(now())
+
+  @@index([workspaceId, createdAt])
 }
 
 model ContactFormSubmission {

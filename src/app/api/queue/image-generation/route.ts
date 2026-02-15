@@ -170,7 +170,7 @@ async function handler(request: NextRequest) {
     const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
     const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
-    await prisma.usageRecord.upsert({
+    const usageRecord = await prisma.usageRecord.upsert({
       where: {
         workspaceId_periodStart: { workspaceId, periodStart },
       },
@@ -183,6 +183,24 @@ async function handler(request: NextRequest) {
         quotaLimit: 5,
       },
     });
+
+    // If usage exceeds monthly quota, decrement bonus credits
+    const subscription = await prisma.subscription.findUnique({
+      where: { workspaceId },
+      select: { monthlyQuota: true, bonusCredits: true },
+    });
+
+    if (
+      usageRecord.quotesUsed > (subscription?.monthlyQuota || 5) &&
+      (subscription?.bonusCredits || 0) > 0
+    ) {
+      await prisma.$executeRaw`
+        UPDATE "Subscription"
+        SET "bonusCredits" = "bonusCredits" - 1
+        WHERE "workspaceId" = ${workspaceId}
+          AND "bonusCredits" > 0
+      `;
+    }
 
     return NextResponse.json({ ok: true });
   } catch (error) {

@@ -54,11 +54,11 @@ export default async function DashboardLayout({
   const [workspace, subscription, usage] = await Promise.all([
     prisma.workspace.findUnique({
       where: { id: workspaceId },
-      select: { onboardingCompleted: true },
+      select: { onboardingCompleted: true, slackTeamIcon: true },
     }),
     prisma.subscription.findUnique({
       where: { workspaceId },
-      select: { tier: true, monthlyQuota: true },
+      select: { tier: true, monthlyQuota: true, currentPeriodEnd: true },
     }),
     prisma.usageRecord.findFirst({
       where: {
@@ -88,6 +88,8 @@ export default async function DashboardLayout({
         subscriptionTier={tier}
         usageQuota={quota}
         usageUsed={used}
+        workspaceIcon={workspace?.slackTeamIcon ?? undefined}
+        periodEnd={subscription?.currentPeriodEnd?.toISOString()}
       />
       <main className="bg-background flex-1 overflow-auto">
         <div className="bg-background/80 sticky top-0 z-10 flex h-14 items-center border-b px-6 backdrop-blur-sm md:hidden">

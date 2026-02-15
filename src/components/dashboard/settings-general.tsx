@@ -67,8 +67,8 @@ interface SettingsGeneralProps {
   channels: Channel[];
   styles: Style[];
   subscriptionTier: string;
-  subscriptionStatus: string;
   maxChannels: number;
+  onNavigateTab?: (tab: string) => void;
 }
 
 export default function SettingsGeneral({
@@ -77,8 +77,8 @@ export default function SettingsGeneral({
   channels: initialChannels,
   styles,
   subscriptionTier,
-  subscriptionStatus,
   maxChannels,
+  onNavigateTab,
 }: SettingsGeneralProps) {
   const [channels, setChannels] = useState(initialChannels);
   const [slackChannels, setSlackChannels] = useState<SlackChannel[]>([]);
@@ -288,8 +288,6 @@ export default function SettingsGeneral({
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-bold text-[#1A1A1A]">Settings</h1>
-
       <Card>
         <CardContent className="space-y-4 pt-6">
           <CardTitle>General</CardTitle>
@@ -392,12 +390,13 @@ export default function SettingsGeneral({
               <p className="mt-2 text-xs text-[#9A9A9A]">
                 You&apos;ve reached the channel limit for your{" "}
                 {subscriptionTier} plan.{" "}
-                <a
-                  href="/dashboard/settings/billing"
+                <button
+                  type="button"
+                  onClick={() => onNavigateTab?.("billing")}
                   className="text-[#7C3AED] hover:underline"
                 >
                   Upgrade
-                </a>{" "}
+                </button>{" "}
                 to add more.
               </p>
             )}
@@ -588,52 +587,6 @@ export default function SettingsGeneral({
               )}
             </div>
           </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="space-y-4 pt-6">
-          <CardTitle>Billing</CardTitle>
-          <CardDescription>
-            Manage your subscription and billing
-          </CardDescription>
-          <div className="space-y-3 pt-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-[#4A4A4A]">Current Plan</span>
-              <Badge>{subscriptionTier}</Badge>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-[#4A4A4A]">Status</span>
-              <Badge
-                variant={
-                  subscriptionStatus === "ACTIVE" ? "success" : "warning"
-                }
-              >
-                {subscriptionStatus}
-              </Badge>
-            </div>
-          </div>
-          <a
-            href="/dashboard/settings/billing"
-            className="text-sm text-[#7C3AED] hover:underline"
-          >
-            Manage Billing
-          </a>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="space-y-4 pt-6">
-          <CardTitle>Art Styles</CardTitle>
-          <CardDescription>
-            Browse available styles and manage custom styles
-          </CardDescription>
-          <a
-            href="/dashboard/settings/styles"
-            className="text-sm text-[#7C3AED] hover:underline"
-          >
-            Manage Styles
-          </a>
         </CardContent>
       </Card>
 
