@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     template: "%s | No Context",
   },
   description:
-    "No Context is a Slack app that turns your team's funniest out-of-context quotes into AI-generated paintings. 15+ art styles. Zero effort. Boost team morale.",
+    "No Context is a Slack app that turns your team's funniest out-of-context quotes into AI-generated paintings. 20+ art styles. Zero effort. Boost team morale.",
   applicationName: "No Context",
   authors: [{ name: "No Context" }],
   creator: "No Context",

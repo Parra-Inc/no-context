@@ -169,6 +169,7 @@ model Style {
   prompt      String     @default("")
   createdBy        String?
   isActive         Boolean    @default(true)
+  isFree           Boolean    @default(false)
   enabledByDefault Boolean    @default(true)
   createdAt        DateTime   @default(now())
   updatedAt   DateTime   @updatedAt

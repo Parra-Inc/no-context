@@ -2,6 +2,7 @@
 
 import { Brain, Palette, Image, Zap, Shield, Sparkles } from "lucide-react";
 import { FadeIn } from "@/components/marketing/fade-in";
+import { ART_STYLES, roundedStyleCount } from "@/lib/styles";
 
 const features = [
   {
@@ -14,7 +15,7 @@ const features = [
   },
   {
     icon: Palette,
-    title: "17+ Art Styles",
+    title: `${roundedStyleCount(ART_STYLES.length)}+ Art Styles`,
     description:
       "From Picasso to Pixel Art. Set a default or let each channel have its own vibe.",
     gradient: "from-rose-100 to-pink-50",

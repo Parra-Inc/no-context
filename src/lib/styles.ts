@@ -3,6 +3,7 @@ export interface ArtStyle {
   displayName: string;
   description: string;
   promptModifier: string;
+  isFree: boolean;
 }
 
 export const ART_STYLES: ArtStyle[] = [
@@ -13,6 +14,7 @@ export const ART_STYLES: ArtStyle[] = [
       "Soft, flowing paintings with gentle color washes and visible brushstrokes",
     promptModifier:
       "soft watercolor painting with gentle washes of color, loose brushstrokes, and white paper showing through",
+    isFree: true,
   },
   {
     id: "picasso",
@@ -21,6 +23,7 @@ export const ART_STYLES: ArtStyle[] = [
       "Abstract geometric shapes showing multiple perspectives at once",
     promptModifier:
       "cubist painting in the style of Pablo Picasso, with geometric shapes, multiple perspectives, and bold outlines",
+    isFree: false,
   },
   {
     id: "vangogh",
@@ -29,6 +32,7 @@ export const ART_STYLES: ArtStyle[] = [
       "Swirling brushstrokes with vivid colors and emotional intensity",
     promptModifier:
       "painting in the style of Vincent van Gogh, with swirling brushstrokes, vivid colors, and emotional intensity",
+    isFree: true,
   },
   {
     id: "monet",
@@ -37,6 +41,7 @@ export const ART_STYLES: ArtStyle[] = [
       "Soft light and dappled colors capturing fleeting atmospheric moments",
     promptModifier:
       "impressionist painting in the style of Claude Monet, with soft light, dappled colors, and atmospheric effects",
+    isFree: true,
   },
   {
     id: "warhol",
@@ -45,6 +50,7 @@ export const ART_STYLES: ArtStyle[] = [
       "Bold, flat colors with graphic outlines inspired by pop culture",
     promptModifier:
       "pop art print in the style of Andy Warhol, with bright flat colors, bold outlines, and repeated motifs",
+    isFree: true,
   },
   {
     id: "hokusai",
@@ -53,6 +59,7 @@ export const ART_STYLES: ArtStyle[] = [
       "Japanese woodblock prints with flowing lines and flat color areas",
     promptModifier:
       "Japanese woodblock print in the style of Hokusai, with flowing lines, flat color areas, and dynamic composition",
+    isFree: true,
   },
   {
     id: "dali",
@@ -61,6 +68,7 @@ export const ART_STYLES: ArtStyle[] = [
       "Dreamlike landscapes with melting forms and impossible physics",
     promptModifier:
       "surrealist painting in the style of Salvador Dali, with melting forms, dreamlike landscapes, and impossible physics",
+    isFree: false,
   },
   {
     id: "mondrian",
@@ -69,6 +77,7 @@ export const ART_STYLES: ArtStyle[] = [
       "Abstract grids of primary colors separated by bold black lines",
     promptModifier:
       "abstract geometric composition in the style of Piet Mondrian, with primary colors, black grid lines, and white space",
+    isFree: false,
   },
   {
     id: "basquiat",
@@ -77,6 +86,7 @@ export const ART_STYLES: ArtStyle[] = [
       "Raw, energetic street art with bold marks and expressive symbols",
     promptModifier:
       "raw neo-expressionist painting in the style of Jean-Michel Basquiat, with bold marks, crowns, and street art energy",
+    isFree: false,
   },
   {
     id: "rockwell",
@@ -85,6 +95,7 @@ export const ART_STYLES: ArtStyle[] = [
       "Warm, detailed illustrations with classic American storytelling charm",
     promptModifier:
       "Norman Rockwell-style illustration with warm Americana charm, detailed characters, and storytelling composition",
+    isFree: true,
   },
   {
     id: "miyazaki",
@@ -92,6 +103,7 @@ export const ART_STYLES: ArtStyle[] = [
     description: "Lush, whimsical anime landscapes with a sense of wonder",
     promptModifier:
       "Studio Ghibli-style illustration with lush environments, whimsical characters, and a sense of wonder",
+    isFree: false,
   },
   {
     id: "comic",
@@ -100,6 +112,7 @@ export const ART_STYLES: ArtStyle[] = [
       "Bold ink lines, halftone dots, and dynamic comic panel compositions",
     promptModifier:
       "vibrant comic book panel with bold ink lines, halftone dots, dynamic angles, and speech bubbles",
+    isFree: false,
   },
   {
     id: "pixel",
@@ -108,6 +121,7 @@ export const ART_STYLES: ArtStyle[] = [
       "Retro video game aesthetic with clean pixels and limited color palettes",
     promptModifier:
       "detailed pixel art scene with a limited color palette, clean pixel placement, and retro video game aesthetic",
+    isFree: false,
   },
   {
     id: "sketch",
@@ -116,6 +130,7 @@ export const ART_STYLES: ArtStyle[] = [
       "Hand-drawn pencil illustrations with cross-hatching and expressive shading",
     promptModifier:
       "detailed pencil sketch with cross-hatching, varying line weights, and expressive shading on white paper",
+    isFree: true,
   },
   {
     id: "stainedglass",
@@ -123,6 +138,7 @@ export const ART_STYLES: ArtStyle[] = [
     description: "Jewel-toned translucent colors with bold black leading lines",
     promptModifier:
       "stained glass window design with bold black leading lines, jewel-toned translucent colors, and radiant light",
+    isFree: true,
   },
   {
     id: "kpop",
@@ -131,6 +147,7 @@ export const ART_STYLES: ArtStyle[] = [
       "Stylish K-pop idol aesthetic fused with dark fantasy demon hunting",
     promptModifier:
       "stylish K-pop idol aesthetic fused with dark fantasy demon hunting, featuring characters in sleek idol outfits with glowing weapons, neon-lit supernatural battlegrounds, dramatic poses, vibrant hair colors, and manhwa-inspired linework",
+    isFree: false,
   },
   {
     id: "fortnite",
@@ -139,6 +156,7 @@ export const ART_STYLES: ArtStyle[] = [
       "Vibrant 3D cartoon style with exaggerated proportions and bold outlines",
     promptModifier:
       "Fortnite-inspired 3D cartoon style with exaggerated proportions, vibrant saturated colors, cel-shaded characters, bold outlines, playful action poses, and a colorful stylized environment",
+    isFree: false,
   },
   {
     id: "archer",
@@ -147,6 +165,7 @@ export const ART_STYLES: ArtStyle[] = [
       "Clean cel-shaded spy-thriller style with muted, sophisticated colors",
     promptModifier:
       "Illustration in the exact art style of the attached reference image. Create ORIGINAL characters — do NOT copy any existing characters from the reference. The style features clean uniform-weight black outlines, flat cel-shaded fills, muted sophisticated colors, mid-century modern settings, and a cinematic spy-thriller atmosphere. Zero gradients, zero texture, zero painterly effects",
+    isFree: false,
   },
   {
     id: "southpark",
@@ -155,6 +174,7 @@ export const ART_STYLES: ArtStyle[] = [
       "Simple flat 2D animation with geometric shapes and minimal aesthetic",
     promptModifier:
       "Illustration in the exact art style of the attached reference image. Create ORIGINAL characters — do NOT copy any existing characters, settings, or scenes from the reference. The style features clean digital 2D vector animation with flat solid colors, no gradients, no shading, simple geometric shapes, thin black outlines, and a minimal aesthetic",
+    isFree: false,
   },
   {
     id: "futurama",
@@ -163,6 +183,7 @@ export const ART_STYLES: ArtStyle[] = [
       "Colorful retro-futuristic cartoon style with Groening-style characters",
     promptModifier:
       "Illustration in the exact art style of the attached reference image. Create ORIGINAL characters — do NOT copy any existing characters from the reference. The style features clean uniform-weight black outlines, Groening-style large bulging round eyes, overbites, bulbous noses, bold saturated flat fills, and retro-futuristic settings. Colorful, whimsical, flat cel-shaded animation",
+    isFree: false,
   },
   {
     id: "simpsons",
@@ -171,6 +192,7 @@ export const ART_STYLES: ArtStyle[] = [
       "Bright, cheerful flat animation with yellow skin and overbites",
     promptModifier:
       "Illustration in the exact art style of the attached reference image. Create ORIGINAL characters — do NOT copy any existing characters from the reference. The style features thick uniform black outlines, bright yellow skin, huge circular white eyes with dot pupils, overbites, four-fingered hands, completely flat solid color fills with zero gradients or shading, and simple pastel-colored suburban settings. Bright, warm, cheerful flat 2D cel animation",
+    isFree: false,
   },
   {
     id: "fallout",
@@ -179,8 +201,17 @@ export const ART_STYLES: ArtStyle[] = [
       "Retro-futuristic 1950s Americana with atomic age propaganda poster vibes",
     promptModifier:
       "Illustration in the exact art style of the attached reference image. Create ORIGINAL characters — do NOT copy any existing characters from the reference. The style features retro-futuristic 1950s Americana propaganda poster aesthetic, clean retro linework, warm faded colors (mustard yellow, teal, cream, rust red), exaggerated happy expressions, atomic age imagery, and optimistic Cold War-era graphic design",
+    isFree: false,
   },
 ];
+
+export const FREE_STYLES = ART_STYLES.filter((s) => s.isFree);
+export const PREMIUM_STYLES = ART_STYLES.filter((s) => !s.isFree);
+
+/** Round down to the nearest multiple of 5 (e.g. 22 → 20, 8 → 5) */
+export function roundedStyleCount(count: number): number {
+  return Math.floor(count / 5) * 5;
+}
 
 export function getStyleById(id: string): ArtStyle | null {
   return ART_STYLES.find((style) => style.id === id) ?? null;

@@ -34,7 +34,7 @@ const softwareAppSchema = {
   operatingSystem: "Web",
   applicationCategory: "BusinessApplication",
   description:
-    "A Slack app that turns out-of-context team quotes into AI-generated paintings. 15+ art styles.",
+    "A Slack app that turns out-of-context team quotes into AI-generated paintings. 20+ art styles.",
   offers: [
     {
       "@type": "Offer",
@@ -116,7 +116,7 @@ const faqSchema = {
       name: "What art styles are available?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "We have 15+ styles including Watercolor, Picasso (Cubism), Van Gogh, Pop Art, Hokusai, Dali, Studio Ghibli, Pixel Art, and more. On Team plans and above, you can write your own custom style prompts.",
+        text: "We have 20+ styles including Watercolor, Picasso (Cubism), Van Gogh, Pop Art, Hokusai, Dali, Studio Ghibli, Pixel Art, and more. Free plans include 5+ basic styles. Paid plans unlock all styles, and on Team plans and above you can write your own custom style prompts.",
       },
     },
     {

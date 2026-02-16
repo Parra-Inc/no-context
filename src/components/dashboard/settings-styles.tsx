@@ -31,6 +31,7 @@ interface BuiltInStyle {
   displayName: string;
   description: string;
   prompt: string;
+  isFree: boolean;
   enabledByDefault: boolean;
 }
 
@@ -49,7 +50,13 @@ interface SettingsStylesProps {
   canCreateCustom: boolean;
 }
 
-function StyleCard({ style }: { style: BuiltInStyle }) {
+function StyleCard({
+  style,
+  locked,
+}: {
+  style: BuiltInStyle;
+  locked: boolean;
+}) {
   const [isPending, startTransition] = useTransition();
   const [optimisticEnabled, setOptimisticEnabled] = useOptimistic(
     style.enabledByDefault,
@@ -60,6 +67,37 @@ function StyleCard({ style }: { style: BuiltInStyle }) {
       setOptimisticEnabled(checked);
       await toggleStyleEnabled(style.id, checked);
     });
+  }
+
+  if (locked) {
+    return (
+      <div className="border-border/50 bg-muted/30 relative overflow-hidden rounded-lg border opacity-60">
+        <div className="bg-muted relative aspect-[3/2]">
+          <Image
+            src={getStyleImagePath(style.name)}
+            alt={`${style.displayName} preview`}
+            fill
+            className="object-cover grayscale"
+            sizes="(max-width: 640px) 50vw, 33vw"
+          />
+          <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+            <Lock className="h-5 w-5 text-white drop-shadow" />
+          </div>
+        </div>
+        <div className="flex items-center justify-between gap-2 px-2.5 py-2">
+          <div className="flex min-w-0 items-center gap-1">
+            <p className="truncate text-xs font-medium">{style.displayName}</p>
+            <Badge
+              variant="secondary"
+              className="shrink-0 px-1 py-0 text-[10px] leading-tight"
+            >
+              PRO
+            </Badge>
+          </div>
+          <Switch checked={false} disabled />
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -109,6 +147,8 @@ export function SettingsStyles({
   customStyles,
   canCreateCustom,
 }: SettingsStylesProps) {
+  const isFreeTier = subscriptionTier === "FREE";
+
   return (
     <div className="space-y-8">
       <Card>
@@ -151,12 +191,18 @@ export function SettingsStyles({
           <div>
             <CardTitle>Built-in Styles</CardTitle>
             <CardDescription className="mt-1">
-              Pre-configured art styles available to all plans
+              {isFreeTier
+                ? "Upgrade to a paid plan to unlock all styles"
+                : "Pre-configured art styles included with your plan"}
             </CardDescription>
           </div>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             {builtInStyles.map((style) => (
-              <StyleCard key={style.id} style={style} />
+              <StyleCard
+                key={style.id}
+                style={style}
+                locked={isFreeTier && !style.isFree}
+              />
             ))}
           </div>
         </CardContent>

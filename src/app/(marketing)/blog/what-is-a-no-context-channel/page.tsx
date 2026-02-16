@@ -685,7 +685,7 @@ export default function WhatIsNoContextChannelPage() {
                 </Link>{" "}
                 does. It lives in your #no-context channel, automatically
                 detects when someone posts a quote, and generates a unique AI
-                painting inspired by the quote. Choose from 15+ art styles — Van
+                painting inspired by the quote. Choose from 20+ art styles — Van
                 Gogh, Picasso, Watercolor, Pop Art, Pixel Art, Studio Ghibli,
                 and more.
               </p>

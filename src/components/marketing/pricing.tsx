@@ -5,6 +5,10 @@ import { MarketingButton } from "@/components/marketing/marketing-button";
 import { Badge } from "@/components/ui/badge";
 import { Check } from "lucide-react";
 import { FadeIn } from "@/components/marketing/fade-in";
+import { ART_STYLES, FREE_STYLES, roundedStyleCount } from "@/lib/styles";
+
+const allStyleCount = `${roundedStyleCount(ART_STYLES.length)}+`;
+const freeStyleCount = `${roundedStyleCount(FREE_STYLES.length)}+`;
 
 const tiers = [
   {
@@ -17,7 +21,7 @@ const tiers = [
     features: [
       "5 generated images/month",
       "1 connected channel",
-      "Default watercolor style",
+      `${freeStyleCount} basic art styles`,
       "7-day image history",
     ],
   },
@@ -31,7 +35,7 @@ const tiers = [
     features: [
       "25 generated images/month",
       "1 connected channel",
-      "5 art style options",
+      `All ${allStyleCount} art styles`,
       "No watermark",
       "Full image history",
       "Download images",
@@ -47,7 +51,7 @@ const tiers = [
     features: [
       "100 generated images/month",
       "3 connected channels",
-      "All 17+ art styles",
+      `All ${allStyleCount} art styles`,
       "Custom style prompts",
       "Full gallery with search",
       "Weekly digest",

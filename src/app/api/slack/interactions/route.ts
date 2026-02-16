@@ -270,7 +270,8 @@ async function handleStyleSelection(payload: any, action: any) {
       encryptedBotToken: workspace.slackBotToken,
       postToSlackChannelId: channelRecord.postToChannelId || undefined,
       tier,
-      hasWatermark: workspace.subscription?.hasWatermark ?? true,
+      hasWatermark:
+        (workspace.subscription?.hasWatermark ?? true) && used < quota,
       priority: TIER_PRIORITY[tier] || 4,
     });
 

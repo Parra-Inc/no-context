@@ -16,6 +16,7 @@ const BUILT_IN_STYLES = [
       "Soft, flowing paintings with gentle color washes and visible brushstrokes",
     prompt:
       "soft watercolor painting with gentle washes of color, loose brushstrokes, and white paper showing through",
+    isFree: true,
   },
   {
     name: "picasso",
@@ -24,6 +25,7 @@ const BUILT_IN_STYLES = [
       "Abstract geometric shapes showing multiple perspectives at once",
     prompt:
       "cubist painting in the style of Pablo Picasso, with geometric shapes, multiple perspectives, and bold outlines",
+    isFree: false,
   },
   {
     name: "vangogh",
@@ -32,6 +34,7 @@ const BUILT_IN_STYLES = [
       "Swirling brushstrokes with vivid colors and emotional intensity",
     prompt:
       "painting in the style of Vincent van Gogh, with swirling brushstrokes, vivid colors, and emotional intensity",
+    isFree: true,
   },
   {
     name: "monet",
@@ -40,6 +43,7 @@ const BUILT_IN_STYLES = [
       "Soft light and dappled colors capturing fleeting atmospheric moments",
     prompt:
       "impressionist painting in the style of Claude Monet, with soft light, dappled colors, and atmospheric effects",
+    isFree: true,
   },
   {
     name: "warhol",
@@ -48,6 +52,7 @@ const BUILT_IN_STYLES = [
       "Bold, flat colors with graphic outlines inspired by pop culture",
     prompt:
       "pop art print in the style of Andy Warhol, with bright flat colors, bold outlines, and repeated motifs",
+    isFree: true,
   },
   {
     name: "hokusai",
@@ -56,6 +61,7 @@ const BUILT_IN_STYLES = [
       "Japanese woodblock prints with flowing lines and flat color areas",
     prompt:
       "Japanese woodblock print in the style of Hokusai, with flowing lines, flat color areas, and dynamic composition",
+    isFree: true,
   },
   {
     name: "dali",
@@ -64,6 +70,7 @@ const BUILT_IN_STYLES = [
       "Dreamlike landscapes with melting forms and impossible physics",
     prompt:
       "surrealist painting in the style of Salvador Dali, with melting forms, dreamlike landscapes, and impossible physics",
+    isFree: false,
   },
   {
     name: "mondrian",
@@ -72,6 +79,7 @@ const BUILT_IN_STYLES = [
       "Abstract grids of primary colors separated by bold black lines",
     prompt:
       "abstract geometric composition in the style of Piet Mondrian, with primary colors, black grid lines, and white space",
+    isFree: false,
   },
   {
     name: "basquiat",
@@ -80,6 +88,7 @@ const BUILT_IN_STYLES = [
       "Raw, energetic street art with bold marks and expressive symbols",
     prompt:
       "raw neo-expressionist painting in the style of Jean-Michel Basquiat, with bold marks, crowns, and street art energy",
+    isFree: false,
   },
   {
     name: "rockwell",
@@ -88,6 +97,7 @@ const BUILT_IN_STYLES = [
       "Warm, detailed illustrations with classic American storytelling charm",
     prompt:
       "Norman Rockwell-style illustration with warm Americana charm, detailed characters, and storytelling composition",
+    isFree: true,
   },
   {
     name: "miyazaki",
@@ -95,6 +105,7 @@ const BUILT_IN_STYLES = [
     description: "Lush, whimsical anime landscapes with a sense of wonder",
     prompt:
       "Studio Ghibli-style illustration with lush environments, whimsical characters, and a sense of wonder",
+    isFree: false,
   },
   {
     name: "comic",
@@ -103,6 +114,7 @@ const BUILT_IN_STYLES = [
       "Bold ink lines, halftone dots, and dynamic comic panel compositions",
     prompt:
       "vibrant comic book panel with bold ink lines, halftone dots, dynamic angles, and speech bubbles",
+    isFree: false,
   },
   {
     name: "pixel",
@@ -111,6 +123,7 @@ const BUILT_IN_STYLES = [
       "Retro video game aesthetic with clean pixels and limited color palettes",
     prompt:
       "detailed pixel art scene with a limited color palette, clean pixel placement, and retro video game aesthetic",
+    isFree: false,
   },
   {
     name: "sketch",
@@ -119,6 +132,7 @@ const BUILT_IN_STYLES = [
       "Hand-drawn pencil illustrations with cross-hatching and expressive shading",
     prompt:
       "detailed pencil sketch with cross-hatching, varying line weights, and expressive shading on white paper",
+    isFree: true,
   },
   {
     name: "stainedglass",
@@ -126,6 +140,7 @@ const BUILT_IN_STYLES = [
     description: "Jewel-toned translucent colors with bold black leading lines",
     prompt:
       "stained glass window design with bold black leading lines, jewel-toned translucent colors, and radiant light",
+    isFree: true,
   },
   {
     name: "kpop",
@@ -134,6 +149,7 @@ const BUILT_IN_STYLES = [
       "Stylish K-pop idol aesthetic fused with dark fantasy demon hunting",
     prompt:
       "stylish K-pop idol aesthetic fused with dark fantasy demon hunting, featuring characters in sleek idol outfits with glowing weapons, neon-lit supernatural battlegrounds, dramatic poses, vibrant hair colors, and manhwa-inspired linework",
+    isFree: false,
   },
   {
     name: "fortnite",
@@ -142,6 +158,7 @@ const BUILT_IN_STYLES = [
       "Vibrant 3D cartoon style with exaggerated proportions and bold outlines",
     prompt:
       "Fortnite-inspired 3D cartoon style with exaggerated proportions, vibrant saturated colors, cel-shaded characters, bold outlines, playful action poses, and a colorful stylized environment",
+    isFree: false,
   },
   {
     name: "archer",
@@ -150,6 +167,7 @@ const BUILT_IN_STYLES = [
       "Clean cel-shaded spy-thriller style with muted, sophisticated colors",
     prompt:
       "Illustration in the exact art style of the attached reference image. Create ORIGINAL characters — do NOT copy any existing characters from the reference. The style features clean uniform-weight black outlines, flat cel-shaded fills, muted sophisticated colors, mid-century modern settings, and a cinematic spy-thriller atmosphere. Zero gradients, zero texture, zero painterly effects",
+    isFree: false,
   },
   {
     name: "southpark",
@@ -158,6 +176,7 @@ const BUILT_IN_STYLES = [
       "Simple flat 2D animation with geometric shapes and minimal aesthetic",
     prompt:
       "Illustration in the exact art style of the attached reference image. Create ORIGINAL characters — do NOT copy any existing characters, settings, or scenes from the reference. The style features clean digital 2D vector animation with flat solid colors, no gradients, no shading, simple geometric shapes, thin black outlines, and a minimal aesthetic",
+    isFree: false,
   },
   {
     name: "futurama",
@@ -166,6 +185,7 @@ const BUILT_IN_STYLES = [
       "Colorful retro-futuristic cartoon style with Groening-style characters",
     prompt:
       "Illustration in the exact art style of the attached reference image. Create ORIGINAL characters — do NOT copy any existing characters from the reference. The style features clean uniform-weight black outlines, Groening-style large bulging round eyes, overbites, bulbous noses, bold saturated flat fills, and retro-futuristic settings. Colorful, whimsical, flat cel-shaded animation",
+    isFree: false,
   },
   {
     name: "simpsons",
@@ -174,6 +194,7 @@ const BUILT_IN_STYLES = [
       "Bright, cheerful flat animation with yellow skin and overbites",
     prompt:
       "Illustration in the exact art style of the attached reference image. Create ORIGINAL characters — do NOT copy any existing characters from the reference. The style features thick uniform black outlines, bright yellow skin, huge circular white eyes with dot pupils, overbites, four-fingered hands, completely flat solid color fills with zero gradients or shading, and simple pastel-colored suburban settings. Bright, warm, cheerful flat 2D cel animation",
+    isFree: false,
   },
   {
     name: "fallout",
@@ -182,6 +203,7 @@ const BUILT_IN_STYLES = [
       "Retro-futuristic 1950s Americana with atomic age propaganda poster vibes",
     prompt:
       "Illustration in the exact art style of the attached reference image. Create ORIGINAL characters — do NOT copy any existing characters from the reference. The style features retro-futuristic 1950s Americana propaganda poster aesthetic, clean retro linework, warm faded colors (mustard yellow, teal, cream, rust red), exaggerated happy expressions, atomic age imagery, and optimistic Cold War-era graphic design",
+    isFree: false,
   },
 ];
 
@@ -200,6 +222,7 @@ async function main() {
           displayName: style.displayName,
           description: style.description,
           prompt: style.prompt,
+          isFree: style.isFree,
         },
       });
     } else {
@@ -209,6 +232,7 @@ async function main() {
           displayName: style.displayName,
           description: style.description,
           prompt: style.prompt,
+          isFree: style.isFree,
           workspaceId: null,
         },
       });

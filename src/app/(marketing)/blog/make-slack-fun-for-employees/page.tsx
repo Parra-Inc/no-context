@@ -423,7 +423,7 @@ export default function MakeSlackFunPage() {
                   </Link>{" "}
                   to your #no-context channel to automatically turn every
                   out-of-context quote into a unique AI-generated painting.
-                  Choose from 15+ art styles — Van Gogh, Watercolor, Pop Art,
+                  Choose from 20+ art styles — Van Gogh, Watercolor, Pop Art,
                   Pixel Art, and more. Your #no-context channel becomes a
                   gallery of inside jokes turned into art.
                 </p>

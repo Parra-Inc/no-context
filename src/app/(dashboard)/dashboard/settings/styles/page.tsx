@@ -35,6 +35,7 @@ export default async function StylesPage() {
     displayName: s.displayName,
     description: s.description,
     prompt: s.prompt,
+    isFree: s.isFree,
     enabledByDefault: s.enabledByDefault,
   }));
 

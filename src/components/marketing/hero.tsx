@@ -25,45 +25,47 @@ export function Hero() {
             into one-of-a-kind AI paintings. The best team culture tool is the
             one nobody has to manage.
           </p>
-          <div className="mt-10 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-center sm:gap-4 lg:justify-start">
-            <a href="/api/slack/install" className="w-full sm:w-auto">
-              <MarketingButton
-                size="lg"
-                className="w-full text-sm sm:h-14 sm:px-10 sm:text-base"
-              >
-                Add to Slack — Free
-              </MarketingButton>
-            </a>
-            <Link href="#how-it-works" className="w-full sm:w-auto">
-              <MarketingButton
-                variant="secondary"
-                size="lg"
-                className="group w-full text-sm sm:h-14 sm:px-10 sm:text-base"
-              >
-                How it Works
-                <svg
-                  className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-y-1"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
+          <div className="lg:inline-block">
+            <div className="mt-10 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-center sm:gap-4 lg:justify-start">
+              <a href="/api/slack/install" className="w-full sm:w-auto">
+                <MarketingButton
+                  size="lg"
+                  className="w-full text-sm sm:h-14 sm:px-10 sm:text-base"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </MarketingButton>
-            </Link>
-          </div>
-          <div className="mt-4 text-center">
-            <Link
-              href="/blog/what-is-a-no-context-channel"
-              className="text-sm text-[#4A4A4A] underline decoration-[#4A4A4A]/40 underline-offset-2 transition-colors hover:text-[#7C3AED] hover:decoration-[#7C3AED]/40"
-            >
-              What&apos;s a #no-context channel?
-            </Link>
+                  Add to Slack — Free
+                </MarketingButton>
+              </a>
+              <Link href="#how-it-works" className="w-full sm:w-auto">
+                <MarketingButton
+                  variant="secondary"
+                  size="lg"
+                  className="group w-full text-sm sm:h-14 sm:px-10 sm:text-base"
+                >
+                  How it Works
+                  <svg
+                    className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-y-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </MarketingButton>
+              </Link>
+            </div>
+            <div className="mt-4 text-center lg:text-right">
+              <Link
+                href="/blog/what-is-a-no-context-channel"
+                className="text-sm text-[#4A4A4A] underline decoration-[#4A4A4A]/40 underline-offset-2 transition-colors hover:text-[#7C3AED] hover:decoration-[#7C3AED]/40"
+              >
+                What&apos;s a #no-context channel?
+              </Link>
+            </div>
           </div>
         </div>
 

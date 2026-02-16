@@ -438,7 +438,8 @@ async function processMessage(event: SlackEvent, teamId: string) {
       encryptedBotToken: workspace.slackBotToken,
       postToSlackChannelId: channelRecord.postToChannelId || undefined,
       tier,
-      hasWatermark: workspace.subscription?.hasWatermark ?? true,
+      hasWatermark:
+        (workspace.subscription?.hasWatermark ?? true) && used < quota,
       priority: TIER_PRIORITY[tier] || 4,
     });
 
@@ -625,6 +626,8 @@ async function processMentionInThread(event: SlackEvent, teamId: string) {
       channelRecord,
       slackUserId,
       tier,
+      used,
+      quota,
     );
   }
 }
@@ -644,6 +647,8 @@ async function generateFromMention(
   channelRecord: NonNullable<Awaited<ReturnType<typeof findChannel>>>,
   slackUserId: string,
   tier: string,
+  used: number,
+  quota: number,
 ) {
   // Find styles already used
   const usedStyleIds = new Set(
@@ -783,7 +788,8 @@ async function generateFromMention(
       encryptedBotToken: workspace.slackBotToken,
       postToSlackChannelId: channelRecord.postToChannelId || undefined,
       tier,
-      hasWatermark: workspace.subscription?.hasWatermark ?? true,
+      hasWatermark:
+        (workspace.subscription?.hasWatermark ?? true) && used < quota,
       priority: TIER_PRIORITY[tier] || 4,
     });
 

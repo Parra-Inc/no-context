@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { ART_STYLES } from "@/lib/styles";
+import { ART_STYLES, roundedStyleCount } from "@/lib/styles";
 import { FadeIn } from "@/components/marketing/fade-in";
 
 export function StylesShowcase() {
@@ -13,7 +13,7 @@ export function StylesShowcase() {
       <div className="mx-auto max-w-5xl text-center">
         <FadeIn>
           <h2 className="font-display text-3xl text-[#1A1A1A] md:text-4xl">
-            23+ styles.{" "}
+            {roundedStyleCount(ART_STYLES.length)}+ styles.{" "}
             <span className="relative inline-block">
               <span className="relative z-10">Randomly picked.</span>
               <span className="absolute bottom-1 left-0 -z-0 h-3 w-full bg-[#EDE9FE]" />
@@ -37,6 +37,9 @@ export function StylesShowcase() {
                     : "border-2 border-[#1A1A1A] bg-white text-[#4A4A4A] shadow-[3px_3px_0px_0px_#1A1A1A] hover:translate-x-[1px] hover:translate-y-[1px] hover:text-[#7C3AED] hover:shadow-[2px_2px_0px_0px_#1A1A1A]"
                 }`}
               >
+                {!style.isFree && (
+                  <span className="mr-1.5 inline-block h-2 w-2 rounded-full bg-[#F59E0B]" />
+                )}
                 {style.displayName}
               </button>
             ))}
@@ -55,6 +58,11 @@ export function StylesShowcase() {
                   className="object-cover"
                   sizes="(max-width: 768px) 100vw, 448px"
                 />
+                {!selectedStyle.isFree && (
+                  <span className="absolute top-3 right-3 z-10 rounded-full bg-[#F59E0B] px-2.5 py-1 text-xs font-bold text-white shadow-md">
+                    Premium
+                  </span>
+                )}
               </div>
               <div className="bg-white p-4 text-center">
                 <p className="font-quote text-sm text-[#1A1A1A]">
