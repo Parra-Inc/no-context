@@ -96,8 +96,8 @@ export function Footer() {
         </div>
         <div className="mt-12 pt-6">
           <p className="text-center text-xs text-[#4A4A4A]">
-            &copy; {new Date().getFullYear()} {COPYRIGHT_HOLDER}. Made with
-            humor and vibes.
+            &copy; {new Date().getFullYear()} {COPYRIGHT_HOLDER}. Made
+            exclusively with good vibes.
           </p>
         </div>
       </div>
