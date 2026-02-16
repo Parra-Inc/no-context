@@ -326,28 +326,31 @@ export function SettingsBilling({
 
       {/* Plans */}
       <div>
-        <h3 className="text-foreground text-base font-semibold">Plans</h3>
-        <p className="text-muted-foreground/60 mt-1 text-sm">
-          Choose the plan that works for your team
-        </p>
-
-        <div className="mt-4 flex flex-col gap-2">
-          <div className="flex items-center gap-3">
-            <span
-              className={`text-sm ${!isAnnual ? "text-foreground font-medium" : "text-muted-foreground"}`}
-            >
-              Monthly
-            </span>
-            <Switch checked={isAnnual} onCheckedChange={setIsAnnual} />
-            <span
-              className={`text-sm ${isAnnual ? "text-foreground font-medium" : "text-muted-foreground"}`}
-            >
-              Annual
-            </span>
+        <div className="flex items-start justify-between">
+          <div>
+            <h3 className="text-foreground text-base font-semibold">Plans</h3>
+            <p className="text-muted-foreground/60 mt-1 text-sm">
+              Choose the plan that works for your team
+            </p>
           </div>
-          <p className="text-muted-foreground text-sm">
-            save 25% with an annual plan
-          </p>
+          <div className="flex flex-col items-end gap-1">
+            <div className="flex items-center gap-3">
+              <span
+                className={`text-sm ${!isAnnual ? "text-foreground font-medium" : "text-muted-foreground"}`}
+              >
+                Monthly
+              </span>
+              <Switch checked={isAnnual} onCheckedChange={setIsAnnual} />
+              <span
+                className={`text-sm ${isAnnual ? "text-foreground font-medium" : "text-muted-foreground"}`}
+              >
+                Annual
+              </span>
+            </div>
+            <p className="text-muted-foreground text-sm">
+              save 25% with an annual plan
+            </p>
+          </div>
         </div>
 
         <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
