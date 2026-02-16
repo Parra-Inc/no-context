@@ -26,11 +26,20 @@ export default async function OnboardingPage({
 
   const { workspaceId: workspaceIdParam } = await searchParams;
 
-  // Use the workspace from the query param if provided, otherwise find the first one
+  // Use the workspace from the query param if provided, otherwise find the first incomplete one
   let workspaceId = workspaceIdParam;
-  if (!workspaceId) {
+  if (workspaceId) {
+    // If a specific workspace was requested, check if it already completed onboarding
+    const workspace = await prisma.workspace.findUnique({
+      where: { id: workspaceId },
+      select: { slug: true, onboardingCompleted: true },
+    });
+    if (workspace?.onboardingCompleted) {
+      redirect(`/${workspace.slug}`);
+    }
+  } else {
     const workspaceUser = await prisma.workspaceUser.findFirst({
-      where: { userId },
+      where: { userId, workspace: { onboardingCompleted: false } },
       select: { workspaceId: true },
     });
     workspaceId = workspaceUser?.workspaceId ?? undefined;

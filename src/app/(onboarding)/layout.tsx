@@ -36,15 +36,15 @@ export default async function OnboardingLayout({
     authType: session.user.authType,
   });
 
-  // Check if user has a workspace with completed onboarding
-  const workspaceUser = await prisma.workspaceUser.findFirst({
-    where: { userId },
-    include: {
-      workspace: { select: { onboardingCompleted: true } },
+  // Only redirect away if ALL of the user's workspaces have completed onboarding
+  const incompleteWorkspace = await prisma.workspaceUser.findFirst({
+    where: {
+      userId,
+      workspace: { onboardingCompleted: false },
     },
   });
 
-  if (workspaceUser?.workspace?.onboardingCompleted) {
+  if (!incompleteWorkspace) {
     redirect("/workspaces");
   }
 
