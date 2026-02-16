@@ -231,7 +231,7 @@ export function SettingsBilling({
             <div className="border-border bg-muted/30 rounded-lg border px-4 py-3">
               <div className="flex items-center justify-between">
                 <span className="text-foreground text-xs font-medium">
-                  Images
+                  Images / month
                 </span>
                 <span className="text-muted-foreground/60 text-xs tabular-nums">
                   {remaining} remaining
@@ -255,6 +255,15 @@ export function SettingsBilling({
                 max={quota}
                 className={`mt-2 h-2 ${usagePercent >= 90 ? "[&>div]:bg-red-500" : usagePercent >= 70 ? "[&>div]:bg-yellow-500" : ""}`}
               />
+              {currentPeriodEnd && !cancelAtPeriodEnd && (
+                <p className="text-muted-foreground/60 mt-2 text-[10px]">
+                  Resets{" "}
+                  {new Date(currentPeriodEnd).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </p>
+              )}
             </div>
 
             {/* Channels */}
@@ -307,18 +316,6 @@ export function SettingsBilling({
                 </div>
                 <Progress value={100} className="[&>div]:bg-primary mt-2 h-2" />
               </div>
-            )}
-
-            {/* Reset date */}
-            {currentPeriodEnd && !cancelAtPeriodEnd && (
-              <p className="text-muted-foreground/60 text-xs">
-                Resets{" "}
-                {new Date(currentPeriodEnd).toLocaleDateString("en-US", {
-                  month: "long",
-                  day: "numeric",
-                  year: "numeric",
-                })}
-              </p>
             )}
           </div>
         </CardContent>

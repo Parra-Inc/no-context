@@ -11,7 +11,7 @@ import {
   ChevronsUpDown,
   ShieldCheck,
   ArrowUpRight,
-  ArrowLeftRight,
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,6 +35,13 @@ import { Logo } from "@/components/logo";
 import { Progress } from "@/components/ui/progress";
 import { FeedbackDialog } from "@/components/dashboard/feedback-dialog";
 
+interface WorkspaceItem {
+  id: string;
+  slug: string;
+  name: string;
+  icon: string | null;
+}
+
 interface AppSidebarProps {
   user: {
     name: string;
@@ -49,6 +56,7 @@ interface AppSidebarProps {
   usageUsed?: number;
   workspaceIcon?: string;
   periodEnd?: string;
+  workspaces?: WorkspaceItem[];
 }
 
 const TIER_LABELS: Record<string, string> = {
@@ -80,6 +88,7 @@ export function AppSidebar({
   usageUsed = 0,
   workspaceIcon,
   periodEnd,
+  workspaces = [],
 }: AppSidebarProps) {
   const pathname = usePathname();
   const planLabel = TIER_LABELS[subscriptionTier] || "Free plan";
@@ -105,29 +114,68 @@ export function AppSidebar({
         </Link>
       </SidebarHeader>
 
-      {/* Workspace */}
+      {/* Workspace Picker */}
       <div className="px-3 py-1">
-        <div className="bg-sidebar-accent/40 flex items-center gap-2.5 rounded-lg border px-3 py-2.5 shadow-sm">
-          {workspaceIcon ? (
-            <img
-              src={workspaceIcon}
-              alt={workspaceName || "Workspace"}
-              className="h-8 w-8 shrink-0 rounded-lg border object-cover shadow-sm"
-            />
-          ) : (
-            <div className="bg-primary text-primary-foreground flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-xs font-bold shadow-sm">
-              {workspaceName?.[0]?.toUpperCase() || "W"}
+        <Popover>
+          <PopoverTrigger asChild>
+            <button className="bg-sidebar-accent/40 hover:bg-sidebar-accent/60 flex w-full items-center gap-2.5 rounded-lg border px-3 py-2.5 text-left shadow-sm transition-colors">
+              {workspaceIcon ? (
+                <img
+                  src={workspaceIcon}
+                  alt={workspaceName || "Workspace"}
+                  className="h-8 w-8 shrink-0 rounded-lg border object-cover shadow-sm"
+                />
+              ) : (
+                <div className="bg-primary text-primary-foreground flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-xs font-bold shadow-sm">
+                  {workspaceName?.[0]?.toUpperCase() || "W"}
+                </div>
+              )}
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm leading-tight font-semibold">
+                  {workspaceName || "Workspace"}
+                </p>
+                <p className="text-muted-foreground mt-0.5 text-[11px] leading-tight">
+                  Workspace
+                </p>
+              </div>
+              <ChevronsUpDown className="text-muted-foreground h-4 w-4 shrink-0" />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent side="bottom" align="start" className="w-64 p-1">
+            <div className="px-2 py-1.5">
+              <p className="text-muted-foreground text-xs font-medium">
+                Workspaces
+              </p>
             </div>
-          )}
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm leading-tight font-semibold">
-              {workspaceName || "Workspace"}
-            </p>
-            <p className="text-muted-foreground mt-0.5 text-[11px] leading-tight">
-              Workspace
-            </p>
-          </div>
-        </div>
+            {workspaces.map((ws) => (
+              <Link
+                key={ws.id}
+                href={`/${ws.slug}`}
+                className={`flex w-full items-center gap-2.5 rounded-md px-2 py-2 text-sm transition-colors ${
+                  ws.slug === workspaceSlug
+                    ? "bg-accent font-medium"
+                    : "hover:bg-accent/50"
+                }`}
+              >
+                {ws.icon ? (
+                  <img
+                    src={ws.icon}
+                    alt={ws.name}
+                    className="h-6 w-6 shrink-0 rounded object-cover"
+                  />
+                ) : (
+                  <div className="bg-primary text-primary-foreground flex h-6 w-6 shrink-0 items-center justify-center rounded text-[10px] font-bold">
+                    {ws.name?.[0]?.toUpperCase() || "W"}
+                  </div>
+                )}
+                <span className="min-w-0 flex-1 truncate">{ws.name}</span>
+                {ws.slug === workspaceSlug && (
+                  <Check className="text-foreground h-4 w-4 shrink-0" />
+                )}
+              </Link>
+            ))}
+          </PopoverContent>
+        </Popover>
       </div>
 
       {/* Navigation */}
@@ -186,7 +234,7 @@ export function AppSidebar({
           <div>
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground text-[10px]">
-                {usageUsed} / {usageQuota} generations
+                {usageUsed} / {usageQuota} images / mo
               </span>
               <span className="text-muted-foreground text-[10px]">
                 {Math.round(usagePercent)}%
@@ -205,15 +253,6 @@ export function AppSidebar({
             </Button>
           </Link>
         </div>
-
-        {/* Switch workspace */}
-        <Link
-          href="/workspaces"
-          className="text-muted-foreground hover:bg-accent hover:text-foreground flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors"
-        >
-          <ArrowLeftRight className="h-3.5 w-3.5" />
-          Switch workspace
-        </Link>
 
         {/* Feedback */}
         <FeedbackDialog userName={user.name} userEmail={user.email} />
@@ -248,7 +287,7 @@ export function AppSidebar({
             </div>
             <div className="bg-border my-1 h-px" />
             <Link
-              href="/api/auth/signout"
+              href="/logout"
               className="text-muted-foreground hover:bg-accent hover:text-foreground flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors"
             >
               <LogOut className="h-4 w-4" />

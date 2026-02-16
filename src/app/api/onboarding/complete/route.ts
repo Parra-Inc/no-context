@@ -17,10 +17,11 @@ export async function POST() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  await prisma.workspace.update({
+  const workspace = await prisma.workspace.update({
     where: { id: workspaceId },
     data: { onboardingCompleted: true },
+    select: { slug: true },
   });
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, slug: workspace.slug });
 }

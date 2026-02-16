@@ -1,4 +1,5 @@
-import { auth, signOut } from "@/lib/auth";
+import { auth } from "@/lib/auth";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { assertUser } from "@/lib/user";
@@ -74,20 +75,13 @@ export default async function OnboardingLayout({
               <div className="truncate text-sm font-medium text-[#1A1A1A]">
                 {user.name || user.email}
               </div>
-              <form
-                action={async () => {
-                  "use server";
-                  await signOut({ redirectTo: "/" });
-                }}
+              <Link
+                href="/logout"
+                className="text-muted-foreground hover:text-foreground flex items-center gap-2 text-sm"
               >
-                <button
-                  type="submit"
-                  className="text-muted-foreground hover:text-foreground flex items-center gap-2 text-sm"
-                >
-                  <LogOut className="h-4 w-4" />
-                  Sign out
-                </button>
-              </form>
+                <LogOut className="h-4 w-4" />
+                Sign out
+              </Link>
             </div>
           </PopoverContent>
         </Popover>

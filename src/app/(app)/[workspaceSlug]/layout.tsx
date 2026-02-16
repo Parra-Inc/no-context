@@ -5,7 +5,7 @@ import prisma from "@/lib/prisma";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/dashboard/app-sidebar";
 import { Toaster } from "sonner";
-import { assertWorkspace } from "@/lib/workspace";
+import { assertWorkspace, getUserWorkspaces } from "@/lib/workspace";
 import { WorkspaceProvider } from "@/components/workspace-context";
 
 export const metadata: Metadata = {
@@ -46,7 +46,7 @@ export default async function WorkspaceLayout({
     redirect(`/onboarding?workspaceId=${workspace.id}`);
   }
 
-  const [subscription, usage] = await Promise.all([
+  const [subscription, usage, workspaceUsers] = await Promise.all([
     prisma.subscription.findUnique({
       where: { workspaceId: workspace.id },
       select: { tier: true, monthlyQuota: true, currentPeriodEnd: true },
@@ -62,7 +62,17 @@ export default async function WorkspaceLayout({
       },
       select: { quotesUsed: true },
     }),
+    getUserWorkspaces(session.user.id),
   ]);
+
+  const workspaces = workspaceUsers
+    .filter((wu) => wu.workspace.onboardingCompleted)
+    .map((wu) => ({
+      id: wu.workspace.id,
+      slug: wu.workspace.slug,
+      name: wu.workspace.slackTeamName,
+      icon: wu.workspace.slackTeamIcon,
+    }));
 
   const tier = subscription?.tier || "FREE";
   const quota = subscription?.monthlyQuota || 5;
@@ -80,6 +90,7 @@ export default async function WorkspaceLayout({
           usageUsed={used}
           workspaceIcon={workspace.slackTeamIcon ?? undefined}
           periodEnd={subscription?.currentPeriodEnd?.toISOString()}
+          workspaces={workspaces}
         />
         <main className="bg-background flex-1 overflow-auto">
           <div className="bg-background/80 sticky top-0 z-10 flex h-14 items-center border-b px-6 backdrop-blur-sm md:hidden">

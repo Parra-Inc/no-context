@@ -124,7 +124,7 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
             </div>
             <div className="bg-border my-1 h-px" />
             <Link
-              href="/api/auth/signout"
+              href="/logout"
               className="text-muted-foreground hover:bg-accent hover:text-foreground flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors"
             >
               <LogOut className="h-4 w-4" />

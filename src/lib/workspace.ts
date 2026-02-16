@@ -3,21 +3,73 @@ import { redirect } from "next/navigation";
 import prisma from "./prisma";
 
 const RESERVED_SLUGS = new Set([
+  // Auth & app routes
   "signin",
+  "signup",
+  "login",
+  "logout",
+  "register",
   "auth",
-  "api",
-  "admin",
   "onboarding",
   "workspaces",
+  "dashboard",
   "checkout",
+  "admin",
+
+  // API & system
+  "api",
+  "_next",
+  "static",
+  "public",
+  "assets",
+  "favicon",
+
+  // Marketing & legal
   "pricing",
   "contact",
   "support",
   "blog",
   "terms",
   "privacy",
-  "_next",
-  "dashboard",
+  "about",
+  "help",
+  "docs",
+  "changelog",
+  "careers",
+  "press",
+  "security",
+  "status",
+
+  // Common vanity slugs
+  "app",
+  "www",
+  "mail",
+  "email",
+  "billing",
+  "settings",
+  "account",
+  "profile",
+  "home",
+  "new",
+  "create",
+  "edit",
+  "delete",
+  "search",
+  "explore",
+  "feed",
+  "notifications",
+  "messages",
+  "invite",
+  "join",
+  "team",
+  "teams",
+  "org",
+  "organization",
+  "workspace",
+  "null",
+  "undefined",
+  "404",
+  "500",
 ]);
 
 export function slugifyName(name: string): string {
@@ -31,24 +83,27 @@ export function slugifyName(name: string): string {
 }
 
 export async function generateUniqueSlug(name: string): Promise<string> {
-  let slug = slugifyName(name);
+  const base = slugifyName(name);
 
-  if (RESERVED_SLUGS.has(slug)) {
-    slug = `${slug}-team`;
+  // If the base slug isn't reserved, try it directly
+  if (!RESERVED_SLUGS.has(base)) {
+    const existing = await prisma.workspace.findUnique({
+      where: { slug: base },
+    });
+    if (!existing) return base;
   }
 
-  const existing = await prisma.workspace.findUnique({ where: { slug } });
-  if (!existing) return slug;
-
+  // Increment suffix: base-1, base-2, etc.
   for (let i = 1; i <= 100; i++) {
-    const candidate = `${slug}-${i}`;
+    const candidate = `${base}-${i}`;
+    if (RESERVED_SLUGS.has(candidate)) continue;
     const found = await prisma.workspace.findUnique({
       where: { slug: candidate },
     });
     if (!found) return candidate;
   }
 
-  return `${slug}-${Date.now()}`;
+  return `${base}-${Date.now()}`;
 }
 
 export async function assertWorkspace(userId: string, slugOrId: string) {

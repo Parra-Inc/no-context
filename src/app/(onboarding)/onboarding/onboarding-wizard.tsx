@@ -207,11 +207,12 @@ export function OnboardingWizard({
   async function handleComplete() {
     setLoading(true);
     try {
-      await fetch("/api/onboarding/complete", {
+      const res = await fetch("/api/onboarding/complete", {
         method: "POST",
         headers: workspaceId ? { "X-Workspace-Id": workspaceId } : {},
       });
-      router.push("/workspaces");
+      const data = await res.json();
+      router.push(data.slug ? `/${data.slug}` : "/workspaces");
     } catch {
       setError("Failed to complete onboarding");
       setLoading(false);
