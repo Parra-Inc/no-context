@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { z } from "zod/v4";
+import { getWorkspaceFromRequest } from "@/lib/workspace";
 
 const UpdateCollectionSchema = z.object({
   name: z.string().min(1).max(100).optional(),
@@ -16,7 +17,14 @@ export async function GET(
   const session = await auth();
   const { id } = await params;
 
-  if (!session?.user?.workspaceId) {
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  let workspaceId: string;
+  try {
+    workspaceId = await getWorkspaceFromRequest(session.user.id);
+  } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -29,7 +37,7 @@ export async function GET(
   const search = searchParams.get("search") || "";
 
   const collection = await prisma.collection.findFirst({
-    where: { id, workspaceId: session.user.workspaceId },
+    where: { id, workspaceId },
     select: { id: true, name: true, emoji: true },
   });
 
@@ -42,7 +50,7 @@ export async function GET(
 
   const where = {
     collectionQuotes: { some: { collectionId: id } },
-    workspaceId: session.user.workspaceId,
+    workspaceId,
     status: "COMPLETED" as const,
     ...(search
       ? {
@@ -100,12 +108,19 @@ export async function PATCH(
   const session = await auth();
   const { id } = await params;
 
-  if (!session?.user?.workspaceId) {
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  let workspaceId: string;
+  try {
+    workspaceId = await getWorkspaceFromRequest(session.user.id);
+  } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const subscription = await prisma.subscription.findUnique({
-    where: { workspaceId: session.user.workspaceId },
+    where: { workspaceId },
   });
 
   const tier = subscription?.tier || "FREE";
@@ -126,7 +141,7 @@ export async function PATCH(
   }
 
   const collection = await prisma.collection.updateMany({
-    where: { id, workspaceId: session.user.workspaceId },
+    where: { id, workspaceId },
     data: result.data,
   });
 
@@ -148,12 +163,19 @@ export async function DELETE(
   const session = await auth();
   const { id } = await params;
 
-  if (!session?.user?.workspaceId) {
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  let workspaceId: string;
+  try {
+    workspaceId = await getWorkspaceFromRequest(session.user.id);
+  } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const subscription = await prisma.subscription.findUnique({
-    where: { workspaceId: session.user.workspaceId },
+    where: { workspaceId },
   });
 
   const tier = subscription?.tier || "FREE";
@@ -165,7 +187,7 @@ export async function DELETE(
   }
 
   const deleted = await prisma.collection.deleteMany({
-    where: { id, workspaceId: session.user.workspaceId },
+    where: { id, workspaceId },
   });
 
   if (deleted.count === 0) {

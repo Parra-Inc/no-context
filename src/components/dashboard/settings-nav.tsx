@@ -4,20 +4,30 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Settings, CreditCard, Palette } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const tabs = [
-  {
-    href: "/dashboard/settings",
-    label: "General",
-    icon: Settings,
-    exact: true,
-  },
-  { href: "/dashboard/settings/billing", label: "Billing", icon: CreditCard },
-  { href: "/dashboard/settings/styles", label: "Styles", icon: Palette },
-];
+import { useWorkspace } from "@/components/workspace-context";
 
 export function SettingsNav() {
   const pathname = usePathname();
+  const { workspaceSlug } = useWorkspace();
+
+  const tabs = [
+    {
+      href: `/${workspaceSlug}/settings`,
+      label: "General",
+      icon: Settings,
+      exact: true,
+    },
+    {
+      href: `/${workspaceSlug}/settings/billing`,
+      label: "Billing",
+      icon: CreditCard,
+    },
+    {
+      href: `/${workspaceSlug}/settings/styles`,
+      label: "Styles",
+      icon: Palette,
+    },
+  ];
 
   return (
     <div

@@ -6,7 +6,7 @@ export async function signInWithSlack(
   _prevState: string | null,
 ): Promise<string | null> {
   try {
-    await signIn("slack", { redirectTo: "/dashboard" });
+    await signIn("slack", { redirectTo: "/workspaces" });
   } catch (error) {
     if (error && typeof error === "object" && "digest" in error) {
       throw error; // Re-throw Next.js internal errors (redirect, notFound)
@@ -32,7 +32,7 @@ export async function signInWithEmail(
     await signIn("email", {
       email,
       password,
-      redirectTo: "/dashboard",
+      redirectTo: "/workspaces",
     });
   } catch (error) {
     if (error && typeof error === "object" && "digest" in error) {

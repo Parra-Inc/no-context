@@ -38,6 +38,7 @@ import {
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+import { useWorkspace } from "@/components/workspace-context";
 import { INFINITY } from "@/lib/tier-constants";
 
 interface Channel {
@@ -84,6 +85,7 @@ export default function SettingsGeneral({
   subscriptionTier,
   maxChannels,
 }: SettingsGeneralProps) {
+  const { workspaceId, workspaceSlug } = useWorkspace();
   const [channels, setChannels] = useState(initialChannels);
   const [slackChannels, setSlackChannels] = useState<SlackChannel[]>([]);
   const [saving, setSaving] = useState<string | null>(null);
@@ -94,7 +96,9 @@ export default function SettingsGeneral({
   const [deleteTarget, setDeleteTarget] = useState<Channel | null>(null);
 
   useEffect(() => {
-    fetch("/api/settings/slack-channels")
+    fetch("/api/settings/slack-channels", {
+      headers: { "X-Workspace-Id": workspaceId },
+    })
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setSlackChannels(data);
@@ -114,7 +118,10 @@ export default function SettingsGeneral({
     try {
       const res = await fetch("/api/settings/channels", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-Workspace-Id": workspaceId,
+        },
         body: JSON.stringify({
           slackChannelId: slackChannel.id,
           channelName: slackChannel.name,
@@ -146,6 +153,7 @@ export default function SettingsGeneral({
     try {
       await fetch(`/api/settings/channels?id=${channel.id}`, {
         method: "DELETE",
+        headers: { "X-Workspace-Id": workspaceId },
       });
       toast.success(`#${channel.channelName} removed`);
     } catch {
@@ -168,7 +176,10 @@ export default function SettingsGeneral({
     try {
       await fetch("/api/settings/channels", {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-Workspace-Id": workspaceId,
+        },
         body: JSON.stringify({ channelId, isPaused: newPaused }),
       });
       toast.success(
@@ -197,7 +208,10 @@ export default function SettingsGeneral({
     try {
       await fetch("/api/settings/channels", {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-Workspace-Id": workspaceId,
+        },
         body: JSON.stringify({ channelId, styleMode }),
       });
       toast.success("Style mode updated");
@@ -230,12 +244,15 @@ export default function SettingsGeneral({
       if (isCurrentlyDisabled) {
         await fetch(
           `/api/settings/channel-styles?channelId=${channelId}&styleId=${styleId}`,
-          { method: "DELETE" },
+          { method: "DELETE", headers: { "X-Workspace-Id": workspaceId } },
         );
       } else {
         await fetch("/api/settings/channel-styles", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "X-Workspace-Id": workspaceId,
+          },
           body: JSON.stringify({ channelId, styleId }),
         });
       }
@@ -280,7 +297,10 @@ export default function SettingsGeneral({
     try {
       await fetch("/api/settings/channels", {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-Workspace-Id": workspaceId,
+        },
         body: JSON.stringify({
           channelId,
           postToChannelId,
@@ -421,7 +441,7 @@ export default function SettingsGeneral({
                 You&apos;ve reached the channel limit for your{" "}
                 {subscriptionTier} plan.{" "}
                 <Link
-                  href="/dashboard/settings/billing"
+                  href={`/${workspaceSlug}/settings/billing`}
                   className="text-primary hover:underline"
                 >
                   Upgrade

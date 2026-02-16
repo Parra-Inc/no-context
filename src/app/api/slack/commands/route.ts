@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
           `*No Context Status*`,
           `Plan: ${tier} · ${used}/${quota} images used this month`,
           `Connected channels: ${workspace.channels.filter((c) => c.isActive).length}`,
-          `<${appUrl}/dashboard|Open Dashboard>`,
+          `<${appUrl}/${workspace.slug}|Open Dashboard>`,
         ].join("\n"),
       });
     }
@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         response_type: "ephemeral",
-        text: `*Style Mode:* ${modeLabel}\n\n*Available Styles:*\n${styleList}\n\nManage styles in the <${appUrl}/dashboard/settings|dashboard>.`,
+        text: `*Style Mode:* ${modeLabel}\n\n*Available Styles:*\n${styleList}\n\nManage styles in the <${appUrl}/${workspace.slug}/settings|dashboard>.`,
       });
     }
 
@@ -204,7 +204,7 @@ export async function POST(request: NextRequest) {
           `\`/nocontext resume\` — Resume the bot in this channel`,
           ``,
           `*Need more help?*`,
-          `Visit the <${appUrl}/dashboard|Dashboard> to manage channels, styles, and billing.`,
+          `Visit the <${appUrl}/${workspace.slug}|Dashboard> to manage channels, styles, and billing.`,
         ].join("\n"),
       });
     }

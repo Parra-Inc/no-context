@@ -14,8 +14,6 @@ declare module "next-auth" {
       image?: string;
       slackUserId?: string;
       slackTeamId?: string;
-      workspaceId?: string;
-      workspaceName?: string;
       isEmailVerified?: boolean;
       isAdmin?: boolean;
       authType: "slack" | "email";
@@ -130,21 +128,27 @@ export const authConfig: NextAuthConfig = {
 
         if (dbUser) {
           token.userId = dbUser.id;
-        }
 
-        const workspace = await prisma.workspace.findUnique({
-          where: { slackTeamId },
-        });
+          // Link user to workspace via WorkspaceUser if workspace exists
+          const workspace = await prisma.workspace.findUnique({
+            where: { slackTeamId },
+          });
 
-        if (workspace) {
-          token.workspaceId = workspace.id;
-          token.workspaceName = workspace.slackTeamName;
-
-          // Link user to workspace in DB if not already linked
-          if (dbUser) {
-            await prisma.user.update({
-              where: { id: dbUser.id },
-              data: { workspaceId: workspace.id },
+          if (workspace) {
+            await prisma.workspaceUser.upsert({
+              where: {
+                userId_workspaceId: {
+                  userId: dbUser.id,
+                  workspaceId: workspace.id,
+                },
+              },
+              create: {
+                userId: dbUser.id,
+                workspaceId: workspace.id,
+                role: "member",
+                isDefault: true,
+              },
+              update: {},
             });
           }
         }
@@ -169,31 +173,6 @@ export const authConfig: NextAuthConfig = {
         });
         if (dbUser?.emailVerified) {
           token.isEmailVerified = true;
-        }
-      }
-
-      // Lazy workspace resolution: if workspaceId is missing, try to find it
-      if (!token.workspaceId) {
-        if (token.authType === "slack" && token.slackTeamId) {
-          const workspace = await prisma.workspace.findUnique({
-            where: { slackTeamId: token.slackTeamId as string },
-          });
-          if (workspace) {
-            token.workspaceId = workspace.id;
-            token.workspaceName = workspace.slackTeamName;
-          }
-        } else if (token.authType === "email" && token.userId) {
-          const dbUser = await prisma.user.findUnique({
-            where: { id: token.userId as string },
-            select: {
-              workspaceId: true,
-              workspace: { select: { slackTeamName: true } },
-            },
-          });
-          if (dbUser?.workspaceId) {
-            token.workspaceId = dbUser.workspaceId;
-            token.workspaceName = dbUser.workspace?.slackTeamName;
-          }
         }
       }
 
@@ -228,9 +207,6 @@ export const authConfig: NextAuthConfig = {
             | undefined;
         }
 
-        // Common: both auth types can have workspace after linking
-        session.user.workspaceId = token.workspaceId as string | undefined;
-        session.user.workspaceName = token.workspaceName as string | undefined;
         session.user.isAdmin = (token.isAdmin as boolean) ?? false;
       }
       return session;

@@ -4,24 +4,22 @@ import prisma from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { QuoteDetail } from "@/components/dashboard/quote-detail";
 import { getEnabledStylesForChannel } from "@/lib/styles.server";
+import { assertWorkspace } from "@/lib/workspace";
 
 export default async function QuoteDetailPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ workspaceSlug: string; id: string }>;
 }) {
   const session = await auth();
-  const { id } = await params;
+  const { workspaceSlug, id } = await params;
 
   if (!session?.user?.id) {
     redirect("/signin");
   }
 
-  const workspaceId = session.user.workspaceId;
-
-  if (!workspaceId) {
-    redirect("/onboarding");
-  }
+  const { workspace } = await assertWorkspace(session.user.id, workspaceSlug);
+  const workspaceId = workspace.id;
 
   const quote = await prisma.quote.findFirst({
     where: { id, workspaceId },

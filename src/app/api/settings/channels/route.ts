@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { TIER_MAX_CHANNELS } from "@/lib/stripe";
+import { getWorkspaceFromRequest } from "@/lib/workspace";
 
 import { z } from "zod/v4";
 
@@ -22,12 +23,19 @@ const UpdateChannelSchema = z.object({
 export async function GET() {
   const session = await auth();
 
-  if (!session?.user?.workspaceId) {
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  let workspaceId: string;
+  try {
+    workspaceId = await getWorkspaceFromRequest(session.user.id);
+  } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const channels = await prisma.channel.findMany({
-    where: { workspaceId: session.user.workspaceId },
+    where: { workspaceId },
     orderBy: { createdAt: "asc" },
   });
 
@@ -37,7 +45,14 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   const session = await auth();
 
-  if (!session?.user?.workspaceId) {
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  let workspaceId: string;
+  try {
+    workspaceId = await getWorkspaceFromRequest(session.user.id);
+  } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -55,14 +70,14 @@ export async function POST(request: NextRequest) {
 
   // Check channel limit
   const subscription = await prisma.subscription.findUnique({
-    where: { workspaceId: session.user.workspaceId },
+    where: { workspaceId },
   });
 
   const tier = subscription?.tier || "FREE";
   const maxChannels = subscription?.maxChannels ?? TIER_MAX_CHANNELS[tier] ?? 1;
 
   const currentCount = await prisma.channel.count({
-    where: { workspaceId: session.user.workspaceId, isActive: true },
+    where: { workspaceId, isActive: true },
   });
 
   if (currentCount >= maxChannels) {
@@ -77,13 +92,13 @@ export async function POST(request: NextRequest) {
   const channel = await prisma.channel.upsert({
     where: {
       workspaceId_slackChannelId: {
-        workspaceId: session.user.workspaceId,
+        workspaceId,
         slackChannelId,
       },
     },
     update: { channelName, isActive: true },
     create: {
-      workspaceId: session.user.workspaceId,
+      workspaceId,
       slackChannelId,
       channelName,
     },
@@ -95,7 +110,14 @@ export async function POST(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   const session = await auth();
 
-  if (!session?.user?.workspaceId) {
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  let workspaceId: string;
+  try {
+    workspaceId = await getWorkspaceFromRequest(session.user.id);
+  } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -138,7 +160,7 @@ export async function PATCH(request: NextRequest) {
   }
 
   const channel = await prisma.channel.update({
-    where: { id: channelId, workspaceId: session.user.workspaceId },
+    where: { id: channelId, workspaceId },
     data,
   });
 
@@ -148,7 +170,14 @@ export async function PATCH(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const session = await auth();
 
-  if (!session?.user?.workspaceId) {
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  let workspaceId: string;
+  try {
+    workspaceId = await getWorkspaceFromRequest(session.user.id);
+  } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -160,7 +189,7 @@ export async function DELETE(request: NextRequest) {
   }
 
   await prisma.channel.update({
-    where: { id: channelId, workspaceId: session.user.workspaceId },
+    where: { id: channelId, workspaceId },
     data: { isActive: false },
   });
 

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { z } from "zod/v4";
+import { getWorkspaceFromRequest } from "@/lib/workspace";
 
 const UpdateQuoteCollectionsSchema = z.object({
   collectionIds: z.array(z.string().min(1)),
@@ -15,12 +16,19 @@ export async function GET(
   const session = await auth();
   const { id: quoteId } = await params;
 
-  if (!session?.user?.workspaceId) {
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  let workspaceId: string;
+  try {
+    workspaceId = await getWorkspaceFromRequest(session.user.id);
+  } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const collections = await prisma.collection.findMany({
-    where: { workspaceId: session.user.workspaceId },
+    where: { workspaceId },
     orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
     include: {
       _count: {
@@ -52,12 +60,19 @@ export async function PUT(
   const session = await auth();
   const { id: quoteId } = await params;
 
-  if (!session?.user?.workspaceId) {
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  let workspaceId: string;
+  try {
+    workspaceId = await getWorkspaceFromRequest(session.user.id);
+  } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const subscription = await prisma.subscription.findUnique({
-    where: { workspaceId: session.user.workspaceId },
+    where: { workspaceId },
   });
 
   const tier = subscription?.tier || "FREE";
@@ -70,7 +85,7 @@ export async function PUT(
 
   // Verify quote belongs to workspace
   const quote = await prisma.quote.findFirst({
-    where: { id: quoteId, workspaceId: session.user.workspaceId },
+    where: { id: quoteId, workspaceId },
     select: { id: true },
   });
 

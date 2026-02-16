@@ -6,12 +6,29 @@ import {
   TOKEN_PACKS,
   createTokenPackCheckoutSession,
 } from "@/lib/stripe";
+import { getWorkspaceFromRequest } from "@/lib/workspace";
 
 export async function POST(request: NextRequest) {
   const session = await auth();
 
-  if (!session?.user?.workspaceId) {
+  if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  let workspaceId: string;
+  try {
+    workspaceId = await getWorkspaceFromRequest(session.user.id);
+  } catch {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const workspace = await prisma.workspace.findUnique({
+    where: { id: workspaceId },
+    select: { slug: true },
+  });
+
+  if (!workspace) {
+    return NextResponse.json({ error: "Workspace not found" }, { status: 404 });
   }
 
   const { packId } = await request.json();
@@ -22,25 +39,25 @@ export async function POST(request: NextRequest) {
   }
 
   let subscription = await prisma.subscription.findUnique({
-    where: { workspaceId: session.user.workspaceId },
+    where: { workspaceId },
   });
 
   // Create a Stripe customer + subscription record for free users
   if (!subscription?.stripeCustomerId) {
     const customer = await stripe.customers.create({
       email: session.user.email || undefined,
-      metadata: { workspaceId: session.user.workspaceId },
+      metadata: { workspaceId },
     });
 
     if (subscription) {
       subscription = await prisma.subscription.update({
-        where: { workspaceId: session.user.workspaceId },
+        where: { workspaceId },
         data: { stripeCustomerId: customer.id },
       });
     } else {
       subscription = await prisma.subscription.create({
         data: {
-          workspaceId: session.user.workspaceId,
+          workspaceId,
           stripeCustomerId: customer.id,
         },
       });
@@ -49,8 +66,9 @@ export async function POST(request: NextRequest) {
 
   const checkoutSession = await createTokenPackCheckoutSession(
     subscription.stripeCustomerId!,
-    session.user.workspaceId,
+    workspaceId,
     pack,
+    workspace.slug,
   );
 
   return NextResponse.json({ url: checkoutSession.url });

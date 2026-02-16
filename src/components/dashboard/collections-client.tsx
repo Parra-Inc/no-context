@@ -25,6 +25,7 @@ import {
   ImageIcon,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useWorkspace } from "@/components/workspace-context";
 import {
   DndContext,
   closestCenter,
@@ -182,6 +183,7 @@ function SortableCollectionItem({
 export function CollectionsClient({
   subscriptionTier,
 }: CollectionsClientProps) {
+  const { workspaceId, workspaceSlug } = useWorkspace();
   const isPaid = subscriptionTier !== "FREE";
   const [collections, setCollections] = useState<Collection[]>([]);
   const [loading, setLoading] = useState(true);
@@ -212,7 +214,9 @@ export function CollectionsClient({
 
   const fetchCollections = async () => {
     try {
-      const res = await fetch("/api/collections");
+      const res = await fetch("/api/collections", {
+        headers: { "X-Workspace-Id": workspaceId },
+      });
       if (res.ok) {
         const data = await res.json();
         setCollections(data);
@@ -234,7 +238,10 @@ export function CollectionsClient({
       setCreatingCollection(true);
       const res = await fetch("/api/collections", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-Workspace-Id": workspaceId,
+        },
         body: JSON.stringify({ name: name.trim() }),
       });
 
@@ -282,6 +289,7 @@ export function CollectionsClient({
       setDeletingId(collectionId);
       const res = await fetch(`/api/collections/${collectionId}`, {
         method: "DELETE",
+        headers: { "X-Workspace-Id": workspaceId },
       });
 
       if (res.ok) {
@@ -304,7 +312,10 @@ export function CollectionsClient({
     try {
       const res = await fetch(`/api/collections/${collectionId}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-Workspace-Id": workspaceId,
+        },
         body: JSON.stringify(updates),
       });
 
@@ -334,7 +345,10 @@ export function CollectionsClient({
       try {
         await fetch("/api/collections/reorder", {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "X-Workspace-Id": workspaceId,
+          },
           body: JSON.stringify({
             collectionIds: newOrder.map((c) => c.id),
           }),
@@ -468,7 +482,7 @@ export function CollectionsClient({
                     organize your quotes your way.
                   </p>
                 </div>
-                <Link href="/dashboard/settings/billing">
+                <Link href={`/${workspaceSlug}/settings/billing`}>
                   <Button className="from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 shadow-primary/25 bg-gradient-to-r shadow-lg">
                     <ArrowUpRight className="mr-2 h-4 w-4" />
                     Upgrade
@@ -549,7 +563,7 @@ export function CollectionsClient({
             {filteredCollections.map((collection) => (
               <Link
                 key={collection.id}
-                href={`/dashboard/collections/${collection.id}`}
+                href={`/${workspaceSlug}/collections/${collection.id}`}
                 className="bg-card hover:border-primary/20 group cursor-pointer overflow-hidden rounded-xl border transition-all duration-200 hover:shadow-lg"
               >
                 {/* Cover Image */}

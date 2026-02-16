@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { z } from "zod/v4";
+import { getWorkspaceFromRequest } from "@/lib/workspace";
 
 const CreateStyleSchema = z.object({
   name: z.string().min(1),
@@ -13,14 +14,21 @@ const CreateStyleSchema = z.object({
 export async function GET() {
   const session = await auth();
 
-  if (!session?.user?.workspaceId) {
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  let workspaceId: string;
+  try {
+    workspaceId = await getWorkspaceFromRequest(session.user.id);
+  } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const styles = await prisma.style.findMany({
     where: {
       isActive: true,
-      OR: [{ workspaceId: null }, { workspaceId: session.user.workspaceId }],
+      OR: [{ workspaceId: null }, { workspaceId }],
     },
     orderBy: { createdAt: "asc" },
   });
@@ -32,13 +40,20 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   const session = await auth();
 
-  if (!session?.user?.workspaceId || !session?.user?.slackUserId) {
+  if (!session?.user?.id || !session?.user?.slackUserId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  let workspaceId: string;
+  try {
+    workspaceId = await getWorkspaceFromRequest(session.user.id);
+  } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   // Check tier — only Team+ can create custom styles
   const subscription = await prisma.subscription.findUnique({
-    where: { workspaceId: session.user.workspaceId },
+    where: { workspaceId },
   });
 
   if (!subscription || !["TEAM", "BUSINESS"].includes(subscription.tier)) {
@@ -62,7 +77,7 @@ export async function POST(request: NextRequest) {
 
   const style = await prisma.style.create({
     data: {
-      workspaceId: session.user.workspaceId,
+      workspaceId,
       name,
       displayName,
       description: displayName,
@@ -78,7 +93,14 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const session = await auth();
 
-  if (!session?.user?.workspaceId) {
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  let workspaceId: string;
+  try {
+    workspaceId = await getWorkspaceFromRequest(session.user.id);
+  } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -93,7 +115,7 @@ export async function DELETE(request: NextRequest) {
   await prisma.style.update({
     where: {
       id: styleId,
-      workspaceId: session.user.workspaceId,
+      workspaceId,
     },
     data: { isActive: false },
   });

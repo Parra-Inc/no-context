@@ -38,6 +38,7 @@ import {
 import { toast } from "sonner";
 import { Lightbox } from "@/components/marketing/lightbox";
 import { ManageCollectionsDialog } from "@/components/dashboard/manage-collections-dialog";
+import { useWorkspace } from "@/components/workspace-context";
 
 interface Generation {
   id: string;
@@ -97,6 +98,7 @@ export function QuoteDetail({
   availableStyles,
 }: QuoteDetailProps) {
   const router = useRouter();
+  const { workspaceId, workspaceSlug } = useWorkspace();
   const [isFavorited, setIsFavorited] = useState(quote.isFavorited);
   const [copied, setCopied] = useState(false);
   const [isRerolling, setIsRerolling] = useState(false);
@@ -147,6 +149,7 @@ export function QuoteDetail({
     try {
       const res = await fetch(`/api/quotes/${quote.id}/favorite`, {
         method: "POST",
+        headers: { "X-Workspace-Id": workspaceId },
       });
       const data = await res.json();
       setIsFavorited(data.isFavorited);
@@ -175,7 +178,10 @@ export function QuoteDetail({
     try {
       const res = await fetch(`/api/quotes/${quote.id}/regenerate`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-Workspace-Id": workspaceId,
+        },
         body: JSON.stringify({ styleId: rerollStyleId }),
       });
 
@@ -208,7 +214,7 @@ export function QuoteDetail({
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <Link
-        href="/dashboard/gallery"
+        href={`/${workspaceSlug}/gallery`}
         className="text-muted-foreground hover:text-foreground inline-flex items-center gap-2 text-sm transition-colors"
       >
         <ArrowLeft className="h-4 w-4" /> Back to Gallery

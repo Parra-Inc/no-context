@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
+import { assertWorkspace } from "@/lib/workspace";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
@@ -13,7 +14,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { QuoteCard } from "@/components/quote-card";
+import { RecentQuotes } from "@/components/dashboard/recent-quotes";
 
 function timeAgo(date: Date): string {
   const now = new Date();
@@ -32,67 +33,59 @@ function timeAgo(date: Date): string {
   });
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  params,
+}: {
+  params: Promise<{ workspaceSlug: string }>;
+}) {
   const session = await auth();
 
   if (!session?.user?.id) {
     redirect("/signin");
   }
 
-  const workspaceId = session.user.workspaceId;
+  const { workspaceSlug } = await params;
+  const { workspace } = await assertWorkspace(session.user.id, workspaceSlug);
+  const workspaceId = workspace.id;
 
-  if (!workspaceId) {
-    redirect("/onboarding");
-  }
-
-  const [
-    workspace,
-    channels,
-    totalQuotes,
-    totalFavorites,
-    recentQuotes,
-    usage,
-    styles,
-  ] = await Promise.all([
-    prisma.workspace.findUnique({
-      where: { id: workspaceId },
-    }),
-    prisma.channel.findMany({
-      where: { workspaceId, isActive: true },
-      include: {
-        _count: { select: { quotes: { where: { status: "COMPLETED" } } } },
-      },
-    }),
-    prisma.quote.count({
-      where: { workspaceId, status: "COMPLETED" },
-    }),
-    prisma.quote.count({
-      where: { workspaceId, status: "COMPLETED", isFavorited: true },
-    }),
-    prisma.quote.findMany({
-      where: { workspaceId, status: "COMPLETED" },
-      orderBy: { createdAt: "desc" },
-      take: 8,
-      include: { channel: { select: { channelName: true } } },
-    }),
-    prisma.usageRecord.findFirst({
-      where: {
-        workspaceId,
-        periodStart: new Date(
-          new Date().getFullYear(),
-          new Date().getMonth(),
-          1,
-        ),
-      },
-    }),
-    prisma.style.findMany({
-      where: {
-        OR: [{ workspaceId }, { workspaceId: null }],
-        isActive: true,
-      },
-      select: { name: true, displayName: true },
-    }),
-  ]);
+  const [channels, totalQuotes, totalFavorites, recentQuotes, usage, styles] =
+    await Promise.all([
+      prisma.channel.findMany({
+        where: { workspaceId, isActive: true },
+        include: {
+          _count: { select: { quotes: { where: { status: "COMPLETED" } } } },
+        },
+      }),
+      prisma.quote.count({
+        where: { workspaceId, status: "COMPLETED" },
+      }),
+      prisma.quote.count({
+        where: { workspaceId, status: "COMPLETED", isFavorited: true },
+      }),
+      prisma.quote.findMany({
+        where: { workspaceId, status: "COMPLETED" },
+        orderBy: { createdAt: "desc" },
+        take: 8,
+        include: { channel: { select: { channelName: true } } },
+      }),
+      prisma.usageRecord.findFirst({
+        where: {
+          workspaceId,
+          periodStart: new Date(
+            new Date().getFullYear(),
+            new Date().getMonth(),
+            1,
+          ),
+        },
+      }),
+      prisma.style.findMany({
+        where: {
+          OR: [{ workspaceId }, { workspaceId: null }],
+          isActive: true,
+        },
+        select: { name: true, displayName: true },
+      }),
+    ]);
 
   const used = usage?.quotesUsed || 0;
 
@@ -129,7 +122,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      {workspace?.needsReconnection && (
+      {workspace.needsReconnection && (
         <div className="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4">
           <AlertTriangle className="h-5 w-5 shrink-0 text-red-600" />
           <div className="flex-1">
@@ -140,7 +133,7 @@ export default async function DashboardPage() {
               Reconnect to continue generating art from your channels.
             </p>
           </div>
-          <Link href="/dashboard/settings">
+          <Link href={`/${workspaceSlug}/settings`}>
             <Button size="sm" variant="destructive">
               Reconnect
             </Button>
@@ -150,7 +143,11 @@ export default async function DashboardPage() {
 
       {/* Header */}
       <h1 className="text-foreground text-2xl font-bold">
-        Welcome{session.user.name ? `, ${session.user.name}` : ""} 👋
+        Welcome
+        {session.user.name && !session.user.name.includes("@")
+          ? `, ${session.user.name}`
+          : ""}{" "}
+        👋
       </h1>
 
       {/* Stat cards */}
@@ -188,37 +185,29 @@ export default async function DashboardPage() {
             Recent Quotes
           </h2>
           <Link
-            href="/dashboard/gallery"
+            href={`/${workspaceSlug}/gallery`}
             className="text-primary text-sm hover:underline"
           >
             View All
           </Link>
         </div>
         {recentQuotes.length > 0 ? (
-          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {recentQuotes.map((quote) => {
-              const styleName =
+          <RecentQuotes
+            initialQuotes={recentQuotes.map((quote) => ({
+              id: quote.id,
+              quoteText: quote.quoteText,
+              attributedTo: quote.attributedTo,
+              styleId: quote.styleId,
+              imageUrl: quote.imageUrl,
+              isFavorited: quote.isFavorited,
+              createdAt: quote.createdAt.toISOString(),
+              channelName: quote.channel.channelName,
+              styleName:
                 styles.find((s) => s.name === quote.styleId)?.displayName ||
-                null;
-
-              return (
-                <Link
-                  key={quote.id}
-                  href={`/dashboard/gallery/${quote.id}`}
-                  className="h-full"
-                >
-                  <QuoteCard
-                    imageUrl={quote.imageUrl}
-                    quoteText={quote.quoteText}
-                    author={quote.attributedTo}
-                    styleName={styleName}
-                    channelName={quote.channel.channelName}
-                    timeAgo={timeAgo(quote.createdAt)}
-                  />
-                </Link>
-              );
-            })}
-          </div>
+                null,
+              timeAgo: timeAgo(quote.createdAt),
+            }))}
+          />
         ) : (
           <div className="border-border mt-4 flex flex-col items-center justify-center rounded-xl border border-dashed py-10">
             <ImageIcon className="text-muted-foreground/30 h-10 w-10" />
@@ -239,7 +228,7 @@ export default async function DashboardPage() {
             Connected Channels
           </h2>
           <Link
-            href="/dashboard/settings"
+            href={`/${workspaceSlug}/settings`}
             className="text-primary text-sm hover:underline"
           >
             Manage
@@ -273,7 +262,7 @@ export default async function DashboardPage() {
                   {channel.styleMode === "AI" ? "AI Selection" : "Random"}
                 </span>
                 <Link
-                  href="/dashboard/settings"
+                  href={`/${workspaceSlug}/settings`}
                   className="text-muted-foreground/60 hover:text-muted-foreground"
                 >
                   <Settings className="h-4 w-4" />
@@ -287,7 +276,7 @@ export default async function DashboardPage() {
               <p className="text-muted-foreground mt-2 text-sm">
                 No channels connected yet.
               </p>
-              <Link href="/dashboard/settings" className="mt-3">
+              <Link href={`/${workspaceSlug}/settings`} className="mt-3">
                 <Button size="sm" variant="secondary">
                   Add a channel
                 </Button>

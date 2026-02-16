@@ -150,7 +150,9 @@ export function OnboardingWizard({
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/settings/slack-channels");
+      const res = await fetch("/api/settings/slack-channels", {
+        headers: workspaceId ? { "X-Workspace-Id": workspaceId } : {},
+      });
       const data = await res.json();
       if (Array.isArray(data)) {
         setSlackChannels(data);
@@ -177,7 +179,10 @@ export function OnboardingWizard({
     try {
       const res = await fetch("/api/settings/channels", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(workspaceId ? { "X-Workspace-Id": workspaceId } : {}),
+        },
         body: JSON.stringify({
           slackChannelId: channel.id,
           channelName: channel.name,
@@ -199,8 +204,11 @@ export function OnboardingWizard({
   async function handleComplete() {
     setLoading(true);
     try {
-      await fetch("/api/onboarding/complete", { method: "POST" });
-      router.push("/dashboard");
+      await fetch("/api/onboarding/complete", {
+        method: "POST",
+        headers: workspaceId ? { "X-Workspace-Id": workspaceId } : {},
+      });
+      router.push("/workspaces");
     } catch {
       setError("Failed to complete onboarding");
       setLoading(false);

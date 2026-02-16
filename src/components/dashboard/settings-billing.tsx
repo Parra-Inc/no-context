@@ -17,6 +17,7 @@ import { TIER_QUOTAS, TIER_MAX_CHANNELS, INFINITY } from "@/lib/tier-constants";
 import { Switch } from "@/components/ui/switch";
 import { Check, AlertTriangle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useWorkspace } from "@/components/workspace-context";
 
 const TIER_ORDER = ["FREE", "STARTER", "TEAM", "BUSINESS"];
 
@@ -129,6 +130,7 @@ export function SettingsBilling({
   invoices,
   tokenPurchases,
 }: SettingsBillingProps) {
+  const { workspaceId } = useWorkspace();
   const [loadingTier, setLoadingTier] = useState<string | null>(null);
   const [isAnnual, setIsAnnual] = useState(billingInterval === "annual");
   const statusInfo = STATUS_LABEL[status] || STATUS_LABEL.ACTIVE;
@@ -147,7 +149,10 @@ export function SettingsBilling({
     try {
       const res = await fetch("/api/stripe/checkout", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-Workspace-Id": workspaceId,
+        },
         body: JSON.stringify({
           tier: targetTier,
           interval: isAnnual ? "annual" : "monthly",

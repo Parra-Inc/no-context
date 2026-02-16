@@ -24,6 +24,7 @@ import {
 import { useRouter } from "next/navigation";
 import { QuoteCard } from "@/components/quote-card";
 import { toast } from "sonner";
+import { useWorkspace } from "@/components/workspace-context";
 
 interface Quote {
   id: string;
@@ -118,6 +119,7 @@ export default function GalleryPage() {
   const [styles, setStyles] = useState<Style[]>([]);
 
   const router = useRouter();
+  const { workspaceId, workspaceSlug } = useWorkspace();
 
   // Debounce refs
   const searchTimer = useRef<ReturnType<typeof setTimeout>>(null);
@@ -127,7 +129,8 @@ export default function GalleryPage() {
 
   // Fetch channels and styles on mount
   useEffect(() => {
-    fetch("/api/settings/channels")
+    const headers = { "X-Workspace-Id": workspaceId };
+    fetch("/api/settings/channels", { headers })
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
@@ -135,7 +138,7 @@ export default function GalleryPage() {
         }
       })
       .catch(() => {});
-    fetch("/api/settings/styles")
+    fetch("/api/settings/styles", { headers })
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
@@ -143,7 +146,7 @@ export default function GalleryPage() {
         }
       })
       .catch(() => {});
-  }, []);
+  }, [workspaceId]);
 
   // Debounce search
   useEffect(() => {
@@ -182,7 +185,9 @@ export default function GalleryPage() {
         if (debouncedAuthor) params.set("author", debouncedAuthor);
         if (favoritesOnly) params.set("favorites", "true");
 
-        const res = await fetch(`/api/quotes?${params}`);
+        const res = await fetch(`/api/quotes?${params}`, {
+          headers: { "X-Workspace-Id": workspaceId },
+        });
         const data = await res.json();
         if (append) {
           setQuotes((prev) => [...prev, ...data.quotes]);
@@ -195,7 +200,15 @@ export default function GalleryPage() {
         setLoadingMore(false);
       }
     },
-    [debouncedSearch, channelId, styleId, debouncedAuthor, favoritesOnly, sort],
+    [
+      debouncedSearch,
+      channelId,
+      styleId,
+      debouncedAuthor,
+      favoritesOnly,
+      sort,
+      workspaceId,
+    ],
   );
 
   // Reset to page 1 when filters change
@@ -224,6 +237,7 @@ export default function GalleryPage() {
     try {
       const res = await fetch(`/api/quotes/${id}/favorite`, {
         method: "POST",
+        headers: { "X-Workspace-Id": workspaceId },
       });
       const data = await res.json();
       setQuotes((prev) =>
@@ -427,7 +441,9 @@ export default function GalleryPage() {
                 timeAgo={timeAgo(quote.createdAt)}
                 isFavorited={quote.isFavorited}
                 onFavoriteToggle={(e) => toggleFavorite(e, quote.id)}
-                onClick={() => router.push(`/dashboard/gallery/${quote.id}`)}
+                onClick={() =>
+                  router.push(`/${workspaceSlug}/gallery/${quote.id}`)
+                }
               />
             );
           })}

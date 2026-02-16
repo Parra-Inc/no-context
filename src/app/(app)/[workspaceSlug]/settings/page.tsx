@@ -3,22 +3,24 @@ import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { TIER_MAX_CHANNELS } from "@/lib/stripe";
 import SettingsGeneral from "@/components/dashboard/settings-general";
+import { assertWorkspace } from "@/lib/workspace";
 
-export default async function SettingsGeneralPage() {
+export default async function SettingsGeneralPage({
+  params,
+}: {
+  params: Promise<{ workspaceSlug: string }>;
+}) {
   const session = await auth();
 
   if (!session?.user?.id) {
     redirect("/signin");
   }
 
-  const workspaceId = session.user.workspaceId;
+  const { workspaceSlug } = await params;
+  const { workspace } = await assertWorkspace(session.user.id, workspaceSlug);
+  const workspaceId = workspace.id;
 
-  if (!workspaceId) {
-    redirect("/onboarding");
-  }
-
-  const [workspace, channels, subscription, styles] = await Promise.all([
-    prisma.workspace.findUnique({ where: { id: workspaceId } }),
+  const [channels, subscription, styles] = await Promise.all([
     prisma.channel.findMany({
       where: { workspaceId, isActive: true },
       include: { channelStyles: true },
@@ -46,8 +48,8 @@ export default async function SettingsGeneralPage() {
 
   return (
     <SettingsGeneral
-      workspaceName={workspace?.slackTeamName || ""}
-      needsReconnection={workspace?.needsReconnection || false}
+      workspaceName={workspace.slackTeamName || ""}
+      needsReconnection={workspace.needsReconnection}
       channels={channels.map((ch) => ({
         id: ch.id,
         slackChannelId: ch.slackChannelId,

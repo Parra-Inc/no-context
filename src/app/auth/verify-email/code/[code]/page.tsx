@@ -17,7 +17,7 @@ export default async function VerifyEmailTokenPage({
   const result = await verifyToken(token);
 
   if (result.success) {
-    redirect("/dashboard");
+    redirect("/workspaces");
   }
 
   // Token invalid or expired

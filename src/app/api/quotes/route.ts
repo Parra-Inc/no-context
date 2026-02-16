@@ -1,11 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { getWorkspaceFromRequest } from "@/lib/workspace";
 
 export async function GET(request: NextRequest) {
   const session = await auth();
 
-  if (!session?.user?.workspaceId) {
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  let workspaceId: string;
+  try {
+    workspaceId = await getWorkspaceFromRequest(session.user.id);
+  } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -20,7 +28,7 @@ export async function GET(request: NextRequest) {
   const author = searchParams.get("author");
 
   const where: Record<string, unknown> = {
-    workspaceId: session.user.workspaceId,
+    workspaceId,
     status: "COMPLETED",
   };
 

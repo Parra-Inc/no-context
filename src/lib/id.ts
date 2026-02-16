@@ -1,6 +1,6 @@
 import { randomBytes } from "crypto";
 
-const MODEL_PREFIXES: Record<string, string> = {
+export const MODEL_PREFIXES: Record<string, string> = {
   Workspace: "ws",
   Subscription: "sub",
   Channel: "ch",
@@ -14,6 +14,9 @@ const MODEL_PREFIXES: Record<string, string> = {
   User: "usr",
   SlackEvent: "se",
   EmailVerificationCode: "evc",
+  WorkspaceUser: "wsu",
+  Collection: "col",
+  CollectionQuote: "cq",
 };
 
 export function createId(prefix: string): string {

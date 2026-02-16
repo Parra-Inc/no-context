@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { z } from "zod/v4";
+import { getWorkspaceFromRequest } from "@/lib/workspace";
 
 const CreateCollectionSchema = z.object({
   name: z.string().min(1).max(100),
@@ -12,12 +13,19 @@ const CreateCollectionSchema = z.object({
 export async function GET() {
   const session = await auth();
 
-  if (!session?.user?.workspaceId) {
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  let workspaceId: string;
+  try {
+    workspaceId = await getWorkspaceFromRequest(session.user.id);
+  } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const collections = await prisma.collection.findMany({
-    where: { workspaceId: session.user.workspaceId },
+    where: { workspaceId },
     orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
     include: {
       collectionQuotes: {
@@ -52,13 +60,20 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   const session = await auth();
 
-  if (!session?.user?.workspaceId) {
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  let workspaceId: string;
+  try {
+    workspaceId = await getWorkspaceFromRequest(session.user.id);
+  } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   // Check tier — only paid plans can create collections
   const subscription = await prisma.subscription.findUnique({
-    where: { workspaceId: session.user.workspaceId },
+    where: { workspaceId },
   });
 
   const tier = subscription?.tier || "FREE";
@@ -82,13 +97,13 @@ export async function POST(request: NextRequest) {
 
   // Increment sortOrder of existing collections to place new one at top
   await prisma.collection.updateMany({
-    where: { workspaceId: session.user.workspaceId },
+    where: { workspaceId },
     data: { sortOrder: { increment: 1 } },
   });
 
   const collection = await prisma.collection.create({
     data: {
-      workspaceId: session.user.workspaceId,
+      workspaceId,
       name,
       emoji: emoji || null,
       sortOrder: 0,

@@ -12,6 +12,7 @@ import {
 import { findOrCreateUserBySlack } from "@/lib/user";
 import { notifyNewWorkspace } from "@/lib/slack-notifications";
 import { log } from "@/lib/logger";
+import { generateUniqueSlug } from "@/lib/workspace";
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -143,6 +144,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Upsert workspace with the database User ID as installer
+    const slug = await generateUniqueSlug(slackTeamName);
     const workspace = await prisma.workspace.upsert({
       where: { slackTeamId },
       update: {
@@ -156,6 +158,7 @@ export async function GET(request: NextRequest) {
         updatedAt: new Date(),
       },
       create: {
+        slug,
         slackTeamId,
         slackTeamName,
         slackTeamIcon,
@@ -208,6 +211,7 @@ export async function GET(request: NextRequest) {
       after(() =>
         notifyNewWorkspace({
           workspaceId: workspace.id,
+          workspaceSlug: workspace.slug,
           slackTeamName,
           slackTeamIcon,
           installedByEmail: installer?.email || null,
@@ -215,15 +219,26 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Link the user to the workspace
-    await prisma.user.update({
-      where: { id: userId },
-      data: { workspaceId: workspace.id },
+    // Link the user to the workspace via WorkspaceUser
+    await prisma.workspaceUser.upsert({
+      where: {
+        userId_workspaceId: {
+          userId,
+          workspaceId: workspace.id,
+        },
+      },
+      create: {
+        userId,
+        workspaceId: workspace.id,
+        role: "owner",
+        isDefault: true,
+      },
+      update: {},
     });
 
-    log.info(`Slack callback: complete, redirecting to ${returnTo}`);
+    log.info(`Slack callback: complete, redirecting to /workspaces`);
 
-    return NextResponse.redirect(`${appUrl}${returnTo}`);
+    return NextResponse.redirect(`${appUrl}/workspaces`);
   } catch (error) {
     log.error("Slack callback: OAuth flow error", error);
     return NextResponse.redirect(`${appUrl}/?error=install_failed`);

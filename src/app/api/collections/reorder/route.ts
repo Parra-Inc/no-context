@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { z } from "zod/v4";
+import { getWorkspaceFromRequest } from "@/lib/workspace";
 
 const ReorderSchema = z.object({
   collectionIds: z.array(z.string().min(1)),
@@ -11,7 +12,14 @@ const ReorderSchema = z.object({
 export async function PUT(request: NextRequest) {
   const session = await auth();
 
-  if (!session?.user?.workspaceId) {
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  let workspaceId: string;
+  try {
+    workspaceId = await getWorkspaceFromRequest(session.user.id);
+  } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -29,7 +37,7 @@ export async function PUT(request: NextRequest) {
   await prisma.$transaction(
     collectionIds.map((id, index) =>
       prisma.collection.updateMany({
-        where: { id, workspaceId: session.user.workspaceId! },
+        where: { id, workspaceId },
         data: { sortOrder: index },
       }),
     ),

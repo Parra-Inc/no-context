@@ -36,27 +36,16 @@ export default async function OnboardingLayout({
     authType: session.user.authType,
   });
 
-  // The session JWT may not yet reflect a workspace that was just linked
-  // (e.g. after the Slack OAuth callback). Fall back to a direct DB lookup.
-  let workspaceId = session.user.workspaceId;
+  // Check if user has a workspace with completed onboarding
+  const workspaceUser = await prisma.workspaceUser.findFirst({
+    where: { userId },
+    include: {
+      workspace: { select: { onboardingCompleted: true } },
+    },
+  });
 
-  if (!workspaceId) {
-    const dbUser = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { workspaceId: true },
-    });
-    workspaceId = dbUser?.workspaceId ?? undefined;
-  }
-
-  if (workspaceId) {
-    const workspace = await prisma.workspace.findUnique({
-      where: { id: workspaceId },
-      select: { onboardingCompleted: true },
-    });
-
-    if (workspace?.onboardingCompleted) {
-      redirect("/dashboard");
-    }
+  if (workspaceUser?.workspace?.onboardingCompleted) {
+    redirect("/workspaces");
   }
 
   const user = session.user;

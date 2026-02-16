@@ -2,16 +2,24 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { getSlackClient } from "@/lib/slack";
+import { getWorkspaceFromRequest } from "@/lib/workspace";
 
 export async function GET() {
   const session = await auth();
 
-  if (!session?.user?.workspaceId) {
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  let workspaceId: string;
+  try {
+    workspaceId = await getWorkspaceFromRequest(session.user.id);
+  } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const workspace = await prisma.workspace.findUnique({
-    where: { id: session.user.workspaceId },
+    where: { id: workspaceId },
     select: { slackBotToken: true },
   });
 

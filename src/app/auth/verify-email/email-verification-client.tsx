@@ -78,7 +78,7 @@ export function EmailVerificationClient({
       if (result.success) {
         setSuccess(true);
         setTimeout(() => {
-          router.push("/dashboard");
+          router.push("/workspaces");
         }, 2000);
       } else {
         setError(result.error || "Invalid verification code.");

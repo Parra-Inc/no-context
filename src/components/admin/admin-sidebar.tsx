@@ -92,7 +92,7 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
 
       <SidebarFooter className="p-3">
         <Link
-          href="/dashboard"
+          href="/workspaces"
           className="text-muted-foreground hover:bg-sidebar-accent flex items-center gap-2.5 rounded-lg p-2 text-sm transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />

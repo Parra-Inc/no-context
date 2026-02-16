@@ -19,7 +19,8 @@ import {
 import Link from "next/link";
 import { Palette, Lock, Info, Crown } from "lucide-react";
 import { CustomStylesManager } from "@/components/dashboard/custom-styles-manager";
-import { toggleStyleEnabled } from "@/app/(dashboard)/dashboard/settings/styles/actions";
+import { toggleStyleEnabled } from "@/app/(app)/[workspaceSlug]/settings/styles/actions";
+import { useWorkspace } from "@/components/workspace-context";
 
 function getStyleImagePath(name: string): string {
   return `/images/dashboard/styles/${name}.png`;
@@ -147,6 +148,7 @@ export function SettingsStyles({
   customStyles,
   canCreateCustom,
 }: SettingsStylesProps) {
+  const { workspaceSlug } = useWorkspace();
   const isFreeTier = subscriptionTier === "FREE";
 
   return (
@@ -176,7 +178,7 @@ export function SettingsStyles({
                 Custom styles are available on Team and Business plans.
               </p>
               <Link
-                href="/dashboard/settings/billing"
+                href={`/${workspaceSlug}/settings/billing`}
                 className="text-primary mt-2 text-sm hover:underline"
               >
                 View plans

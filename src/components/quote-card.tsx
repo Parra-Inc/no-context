@@ -114,14 +114,16 @@ export function QuoteCard({
                   </button>
                 )}
                 {imageUrl && (
-                  <a
-                    href={imageUrl}
-                    download
-                    onClick={(e) => e.stopPropagation()}
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      window.open(imageUrl, "_blank");
+                    }}
                     className="text-muted-foreground hover:text-foreground"
                   >
                     <Download className="h-4 w-4" />
-                  </a>
+                  </button>
                 )}
               </div>
             </div>

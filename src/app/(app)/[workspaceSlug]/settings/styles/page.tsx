@@ -2,19 +2,22 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { SettingsStyles } from "@/components/dashboard/settings-styles";
+import { assertWorkspace } from "@/lib/workspace";
 
-export default async function StylesPage() {
+export default async function StylesPage({
+  params,
+}: {
+  params: Promise<{ workspaceSlug: string }>;
+}) {
   const session = await auth();
 
   if (!session?.user?.id) {
     redirect("/signin");
   }
 
-  const workspaceId = session.user.workspaceId;
-
-  if (!workspaceId) {
-    redirect("/onboarding");
-  }
+  const { workspaceSlug } = await params;
+  const { workspace } = await assertWorkspace(session.user.id, workspaceSlug);
+  const workspaceId = workspace.id;
 
   const [subscription, styles] = await Promise.all([
     prisma.subscription.findUnique({ where: { workspaceId } }),

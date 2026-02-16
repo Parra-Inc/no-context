@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { QuoteCard } from "@/components/quote-card";
 import { ArrowLeft, Search, ImageIcon, SearchX, X } from "lucide-react";
 import { toast } from "sonner";
+import { useWorkspace } from "@/components/workspace-context";
 
 interface Quote {
   id: string;
@@ -80,6 +81,7 @@ export function CollectionDetailClient({
   initialEmoji,
 }: CollectionDetailClientProps) {
   const router = useRouter();
+  const { workspaceId, workspaceSlug } = useWorkspace();
   const [name, setName] = useState(initialName);
   const [emoji] = useState(initialEmoji);
   const [quotes, setQuotes] = useState<Quote[]>([]);
@@ -119,7 +121,9 @@ export function CollectionDetailClient({
         });
         if (debouncedSearch) params.set("search", debouncedSearch);
 
-        const res = await fetch(`/api/collections/${collectionId}?${params}`);
+        const res = await fetch(`/api/collections/${collectionId}?${params}`, {
+          headers: { "X-Workspace-Id": workspaceId },
+        });
         const data = await res.json();
 
         if (append) {
@@ -160,6 +164,7 @@ export function CollectionDetailClient({
     try {
       const res = await fetch(`/api/quotes/${id}/favorite`, {
         method: "POST",
+        headers: { "X-Workspace-Id": workspaceId },
       });
       const data = await res.json();
       setQuotes((prev) =>
@@ -182,7 +187,10 @@ export function CollectionDetailClient({
       try {
         const res = await fetch(`/api/collections/${collectionId}`, {
           method: "PATCH",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "X-Workspace-Id": workspaceId,
+          },
           body: JSON.stringify({ name: editedName.trim() }),
         });
         if (res.ok) {
@@ -212,7 +220,7 @@ export function CollectionDetailClient({
   return (
     <div className="space-y-8">
       <Link
-        href="/dashboard/collections"
+        href={`/${workspaceSlug}/collections`}
         className="text-muted-foreground hover:text-foreground inline-flex items-center gap-2 text-sm transition-colors"
       >
         <ArrowLeft className="h-4 w-4" /> Back to Collections
@@ -280,7 +288,9 @@ export function CollectionDetailClient({
               timeAgo={timeAgo(quote.createdAt)}
               isFavorited={quote.isFavorited}
               onFavoriteToggle={(e) => toggleFavorite(e, quote.id)}
-              onClick={() => router.push(`/dashboard/gallery/${quote.id}`)}
+              onClick={() =>
+                router.push(`/${workspaceSlug}/gallery/${quote.id}`)
+              }
             />
           ))}
         </div>

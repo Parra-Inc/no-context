@@ -27,7 +27,7 @@ export default async function AdminLayout({
   }
 
   if (!session.user.isAdmin) {
-    redirect("/dashboard");
+    redirect("/workspaces");
   }
 
   return (

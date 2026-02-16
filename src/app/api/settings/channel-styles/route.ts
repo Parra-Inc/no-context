@@ -1,12 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { getWorkspaceFromRequest } from "@/lib/workspace";
 
 // GET: returns disabled style IDs for a channel
 export async function GET(request: NextRequest) {
   const session = await auth();
 
-  if (!session?.user?.workspaceId) {
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  let workspaceId: string;
+  try {
+    workspaceId = await getWorkspaceFromRequest(session.user.id);
+  } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -22,7 +30,7 @@ export async function GET(request: NextRequest) {
 
   // Verify the channel belongs to the workspace
   const channel = await prisma.channel.findUnique({
-    where: { id: channelId, workspaceId: session.user.workspaceId },
+    where: { id: channelId, workspaceId },
   });
 
   if (!channel) {
@@ -41,7 +49,14 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const session = await auth();
 
-  if (!session?.user?.workspaceId) {
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  let workspaceId: string;
+  try {
+    workspaceId = await getWorkspaceFromRequest(session.user.id);
+  } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -57,7 +72,7 @@ export async function POST(request: NextRequest) {
 
   // Verify the channel belongs to the workspace
   const channel = await prisma.channel.findUnique({
-    where: { id: channelId, workspaceId: session.user.workspaceId },
+    where: { id: channelId, workspaceId },
   });
 
   if (!channel) {
@@ -75,7 +90,14 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const session = await auth();
 
-  if (!session?.user?.workspaceId) {
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  let workspaceId: string;
+  try {
+    workspaceId = await getWorkspaceFromRequest(session.user.id);
+  } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -92,7 +114,7 @@ export async function DELETE(request: NextRequest) {
 
   // Verify the channel belongs to the workspace
   const channel = await prisma.channel.findUnique({
-    where: { id: channelId, workspaceId: session.user.workspaceId },
+    where: { id: channelId, workspaceId },
   });
 
   if (!channel) {

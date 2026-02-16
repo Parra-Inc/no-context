@@ -29,6 +29,7 @@ export async function createCheckoutSession(
   customerId: string,
   priceId: string,
   workspaceId: string,
+  workspaceSlug: string,
 ) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
@@ -38,18 +39,21 @@ export async function createCheckoutSession(
     allow_promotion_codes: true,
     line_items: [{ price: priceId, quantity: 1 }],
     mode: "subscription",
-    success_url: `${appUrl}/dashboard/settings/billing?success=true`,
-    cancel_url: `${appUrl}/dashboard/settings/billing?canceled=true`,
+    success_url: `${appUrl}/${workspaceSlug}/settings/billing?success=true`,
+    cancel_url: `${appUrl}/${workspaceSlug}/settings/billing?canceled=true`,
     metadata: { workspaceId },
   });
 }
 
-export async function createCustomerPortalSession(customerId: string) {
+export async function createCustomerPortalSession(
+  customerId: string,
+  workspaceSlug: string,
+) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
   return stripe.billingPortal.sessions.create({
     customer: customerId,
-    return_url: `${appUrl}/dashboard/settings/billing`,
+    return_url: `${appUrl}/${workspaceSlug}/settings/billing`,
   });
 }
 
@@ -142,6 +146,7 @@ export async function createTokenPackCheckoutSession(
   customerId: string,
   workspaceId: string,
   pack: TokenPack,
+  workspaceSlug: string,
 ) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
@@ -151,8 +156,8 @@ export async function createTokenPackCheckoutSession(
     allow_promotion_codes: true,
     line_items: [{ price: pack.stripePriceId, quantity: 1 }],
     mode: "payment",
-    success_url: `${appUrl}/dashboard/settings/billing?tokens=success&pack=${pack.id}`,
-    cancel_url: `${appUrl}/dashboard/settings/billing?tokens=canceled`,
+    success_url: `${appUrl}/${workspaceSlug}/settings/billing?tokens=success&pack=${pack.id}`,
+    cancel_url: `${appUrl}/${workspaceSlug}/settings/billing?tokens=canceled`,
     metadata: {
       workspaceId,
       tokenPackId: pack.id,

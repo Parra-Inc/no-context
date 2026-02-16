@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 
 export async function toggleStyleEnabled(styleId: string, enabled: boolean) {
   const session = await auth();
-  if (!session?.user?.workspaceId) {
+  if (!session?.user?.id) {
     throw new Error("Unauthorized");
   }
 
@@ -15,5 +15,6 @@ export async function toggleStyleEnabled(styleId: string, enabled: boolean) {
     data: { enabledByDefault: enabled },
   });
 
-  revalidatePath("/dashboard/settings/styles");
+  // Revalidate all workspace paths since we don't know the slug in server actions
+  revalidatePath("/[workspaceSlug]/settings/styles", "page");
 }

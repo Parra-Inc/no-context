@@ -10,7 +10,7 @@ export default async function SignInPage() {
   const session = await auth();
 
   if (session?.user?.id) {
-    redirect("/dashboard");
+    redirect("/workspaces");
   }
 
   return <SignInContent />;

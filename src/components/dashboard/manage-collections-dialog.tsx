@@ -6,6 +6,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Loader2, Plus, Inbox, Check, FolderKanban } from "lucide-react";
 import { toast } from "sonner";
+import { useWorkspace } from "@/components/workspace-context";
 
 interface Collection {
   id: string;
@@ -26,6 +27,7 @@ export function ManageCollectionsDialog({
   open,
   onOpenChange,
 }: ManageCollectionsDialogProps) {
+  const { workspaceId } = useWorkspace();
   const [collections, setCollections] = useState<Collection[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
@@ -43,7 +45,9 @@ export function ManageCollectionsDialog({
   const fetchCollections = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`/api/quotes/${quoteId}/collections`);
+      const res = await fetch(`/api/quotes/${quoteId}/collections`, {
+        headers: { "X-Workspace-Id": workspaceId },
+      });
       if (res.ok) {
         const data: Collection[] = await res.json();
         setCollections(data);
@@ -78,7 +82,10 @@ export function ManageCollectionsDialog({
       setCreating(true);
       const res = await fetch("/api/collections", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-Workspace-Id": workspaceId,
+        },
         body: JSON.stringify({ name: newCollectionName.trim() }),
       });
 
@@ -114,7 +121,10 @@ export function ManageCollectionsDialog({
       setSaving(true);
       const res = await fetch(`/api/quotes/${quoteId}/collections`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-Workspace-Id": workspaceId,
+        },
         body: JSON.stringify({ collectionIds: Array.from(selectedIds) }),
       });
 

@@ -108,6 +108,7 @@ export async function notifyNewUserSignup(
 
 interface NotifyNewWorkspaceParams {
   workspaceId: string;
+  workspaceSlug: string;
   slackTeamName: string;
   slackTeamIcon: string | null;
   installedByEmail: string | null;
@@ -116,8 +117,13 @@ interface NotifyNewWorkspaceParams {
 export async function notifyNewWorkspace(
   params: NotifyNewWorkspaceParams,
 ): Promise<void> {
-  const { workspaceId, slackTeamName, slackTeamIcon, installedByEmail } =
-    params;
+  const {
+    workspaceId,
+    workspaceSlug,
+    slackTeamName,
+    slackTeamIcon,
+    installedByEmail,
+  } = params;
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nocontextbot.com";
 
   const iconPrefix = slackTeamIcon ? `${slackTeamIcon} ` : "";
@@ -153,7 +159,10 @@ export async function notifyNewWorkspace(
       type: "section",
       fields: [
         { type: "mrkdwn", text: `*Workspace ID:*\n\`${workspaceId}\`` },
-        { type: "mrkdwn", text: `*Dashboard:*\n<${appUrl}/dashboard|View>` },
+        {
+          type: "mrkdwn",
+          text: `*Dashboard:*\n<${appUrl}/${workspaceSlug}|View>`,
+        },
       ],
     },
     {

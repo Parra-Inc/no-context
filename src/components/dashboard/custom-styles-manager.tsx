@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Plus, Trash2, Palette } from "lucide-react";
 import { toast } from "sonner";
+import { useWorkspace } from "@/components/workspace-context";
 
 interface CustomStyle {
   id: string;
@@ -29,6 +30,7 @@ interface CustomStylesManagerProps {
 export function CustomStylesManager({
   customStyles: initialStyles,
 }: CustomStylesManagerProps) {
+  const { workspaceId } = useWorkspace();
   const [styles, setStyles] = useState(initialStyles);
   const [createOpen, setCreateOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<CustomStyle | null>(null);
@@ -48,7 +50,10 @@ export function CustomStylesManager({
     try {
       const res = await fetch("/api/settings/styles", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-Workspace-Id": workspaceId,
+        },
         body: JSON.stringify({
           name: newName.toLowerCase().replace(/\s+/g, "-"),
           displayName: newDisplayName,
@@ -83,6 +88,7 @@ export function CustomStylesManager({
     try {
       await fetch(`/api/settings/styles?id=${style.id}`, {
         method: "DELETE",
+        headers: { "X-Workspace-Id": workspaceId },
       });
       toast.success(`"${style.displayName}" deleted`);
     } catch {

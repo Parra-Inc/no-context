@@ -7,6 +7,7 @@ import {
   getEnabledStylesForChannel,
   pickRandomStyle,
 } from "@/lib/styles.server";
+import { getWorkspaceFromRequest } from "@/lib/workspace";
 
 export async function POST(
   request: NextRequest,
@@ -14,11 +15,17 @@ export async function POST(
 ) {
   const session = await auth();
 
-  if (!session?.user?.workspaceId) {
+  if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const workspaceId = session.user.workspaceId;
+  let workspaceId: string;
+  try {
+    workspaceId = await getWorkspaceFromRequest(session.user.id);
+  } catch {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { id: quoteId } = await params;
 
   // Parse optional styleId from request body

@@ -24,7 +24,7 @@ export default async function VerifyEmailPage({
 
   // If already verified, go to dashboard
   if (session?.user?.isEmailVerified) {
-    redirect("/dashboard");
+    redirect("/workspaces");
   }
 
   return <EmailVerificationClient user={{ id: userId, email }} />;

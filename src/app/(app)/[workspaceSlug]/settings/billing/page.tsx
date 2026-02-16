@@ -3,19 +3,22 @@ import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { stripe, PRICE_IDS } from "@/lib/stripe";
 import { SettingsBilling } from "@/components/dashboard/settings-billing";
+import { assertWorkspace } from "@/lib/workspace";
 
-export default async function BillingPage() {
+export default async function BillingPage({
+  params,
+}: {
+  params: Promise<{ workspaceSlug: string }>;
+}) {
   const session = await auth();
 
   if (!session?.user?.id) {
     redirect("/signin");
   }
 
-  const workspaceId = session.user.workspaceId;
-
-  if (!workspaceId) {
-    redirect("/onboarding");
-  }
+  const { workspaceSlug } = await params;
+  const { workspace } = await assertWorkspace(session.user.id, workspaceSlug);
+  const workspaceId = workspace.id;
 
   const [subscription, usage, tokenPurchases, channelCount] = await Promise.all(
     [

@@ -11,6 +11,7 @@ import {
   ChevronsUpDown,
   ShieldCheck,
   ArrowUpRight,
+  ArrowLeftRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -39,9 +40,10 @@ interface AppSidebarProps {
     name: string;
     email?: string;
     image?: string;
-    workspaceName?: string;
     isAdmin?: boolean;
   };
+  workspaceSlug: string;
+  workspaceName?: string;
   subscriptionTier?: string;
   usageQuota?: number;
   usageUsed?: number;
@@ -56,15 +58,23 @@ const TIER_LABELS: Record<string, string> = {
   BUSINESS: "Business plan",
 };
 
-const navItems = [
-  { href: "/dashboard", label: "Home", icon: Home },
-  { href: "/dashboard/gallery", label: "Gallery", icon: Image },
-  { href: "/dashboard/collections", label: "Collections", icon: FolderKanban },
-  { href: "/dashboard/settings", label: "Settings", icon: Settings },
-];
+function getNavItems(workspaceSlug: string) {
+  return [
+    { href: `/${workspaceSlug}`, label: "Home", icon: Home },
+    { href: `/${workspaceSlug}/gallery`, label: "Gallery", icon: Image },
+    {
+      href: `/${workspaceSlug}/collections`,
+      label: "Collections",
+      icon: FolderKanban,
+    },
+    { href: `/${workspaceSlug}/settings`, label: "Settings", icon: Settings },
+  ];
+}
 
 export function AppSidebar({
   user,
+  workspaceSlug,
+  workspaceName,
   subscriptionTier = "FREE",
   usageQuota = 5,
   usageUsed = 0,
@@ -74,6 +84,8 @@ export function AppSidebar({
   const pathname = usePathname();
   const planLabel = TIER_LABELS[subscriptionTier] || "Free plan";
   const usagePercent = usageQuota > 0 ? (usageUsed / usageQuota) * 100 : 0;
+  const navItems = getNavItems(workspaceSlug);
+  const basePath = `/${workspaceSlug}`;
 
   // Calculate reset date
   const resetDate = periodEnd
@@ -88,7 +100,7 @@ export function AppSidebar({
     <Sidebar>
       {/* Logo */}
       <SidebarHeader className="p-4 pb-2">
-        <Link href="/dashboard" className="inline-flex">
+        <Link href={basePath} className="inline-flex">
           <Logo size="sm" />
         </Link>
       </SidebarHeader>
@@ -99,17 +111,17 @@ export function AppSidebar({
           {workspaceIcon ? (
             <img
               src={workspaceIcon}
-              alt={user.workspaceName || "Workspace"}
+              alt={workspaceName || "Workspace"}
               className="h-8 w-8 shrink-0 rounded-lg border object-cover shadow-sm"
             />
           ) : (
             <div className="bg-primary text-primary-foreground flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-xs font-bold shadow-sm">
-              {user.workspaceName?.[0]?.toUpperCase() || "W"}
+              {workspaceName?.[0]?.toUpperCase() || "W"}
             </div>
           )}
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm leading-tight font-semibold">
-              {user.workspaceName || "Workspace"}
+              {workspaceName || "Workspace"}
             </p>
             <p className="text-muted-foreground mt-0.5 text-[11px] leading-tight">
               Workspace
@@ -126,8 +138,7 @@ export function AppSidebar({
               {navItems.map((item) => {
                 const isActive =
                   pathname === item.href ||
-                  (item.href !== "/dashboard" &&
-                    pathname.startsWith(item.href));
+                  (item.href !== basePath && pathname.startsWith(item.href));
                 return (
                   <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton asChild isActive={isActive}>
@@ -187,13 +198,22 @@ export function AppSidebar({
               className={`mt-1 h-1.5 ${usagePercent >= 90 ? "[&>div]:bg-red-500" : usagePercent >= 70 ? "[&>div]:bg-yellow-500" : ""}`}
             />
           </div>
-          <Link href="/dashboard/settings/billing" className="block">
+          <Link href={`/${workspaceSlug}/settings/billing`} className="block">
             <Button size="sm" className="w-full gap-1.5 text-xs">
               Upgrade plan
               <ArrowUpRight className="h-3 w-3" />
             </Button>
           </Link>
         </div>
+
+        {/* Switch workspace */}
+        <Link
+          href="/workspaces"
+          className="text-muted-foreground hover:bg-accent hover:text-foreground flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors"
+        >
+          <ArrowLeftRight className="h-3.5 w-3.5" />
+          Switch workspace
+        </Link>
 
         {/* Feedback */}
         <FeedbackDialog userName={user.name} userEmail={user.email} />
@@ -222,10 +242,8 @@ export function AppSidebar({
           <PopoverContent side="top" align="start" className="w-56 p-1">
             <div className="px-3 py-2">
               <p className="text-sm font-medium">{user.name}</p>
-              {user.workspaceName && (
-                <p className="text-muted-foreground text-xs">
-                  {user.workspaceName}
-                </p>
+              {workspaceName && (
+                <p className="text-muted-foreground text-xs">{workspaceName}</p>
               )}
             </div>
             <div className="bg-border my-1 h-px" />
