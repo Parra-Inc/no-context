@@ -255,10 +255,17 @@ export function SettingsBilling({
                 max={quota}
                 className={`mt-2 h-2 ${usagePercent >= 90 ? "[&>div]:bg-red-500" : usagePercent >= 70 ? "[&>div]:bg-yellow-500" : ""}`}
               />
-              {currentPeriodEnd && !cancelAtPeriodEnd && (
+              {!cancelAtPeriodEnd && (
                 <p className="text-muted-foreground/60 mt-2 text-[10px]">
                   Resets{" "}
-                  {new Date(currentPeriodEnd).toLocaleDateString("en-US", {
+                  {(currentPeriodEnd
+                    ? new Date(currentPeriodEnd)
+                    : new Date(
+                        new Date().getFullYear(),
+                        new Date().getMonth() + 1,
+                        1,
+                      )
+                  ).toLocaleDateString("en-US", {
                     month: "short",
                     day: "numeric",
                   })}
