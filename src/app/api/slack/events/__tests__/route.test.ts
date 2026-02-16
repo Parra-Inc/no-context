@@ -26,6 +26,20 @@ jest.mock("@/lib/stripe", () => ({
     BUSINESS: 500,
     ENTERPRISE: 2000,
   },
+  TIER_MAX_CHANNELS: {
+    FREE: 1,
+    STARTER: 1,
+    TEAM: 3,
+    BUSINESS: 999999,
+    ENTERPRISE: 999999,
+  },
+  TIER_PRIORITY: {
+    FREE: 4,
+    STARTER: 3,
+    TEAM: 2,
+    BUSINESS: 1,
+    ENTERPRISE: 0,
+  },
 }));
 
 jest.mock("@/lib/slack", () => ({
@@ -37,8 +51,19 @@ jest.mock("@/lib/slack", () => ({
   markWorkspaceDisconnected: jest.fn(),
 }));
 
+jest.mock("next/server", () => ({
+  ...jest.requireActual("next/server"),
+  after: jest.fn(),
+}));
 jest.mock("@/lib/ai/quote-detector");
 jest.mock("@/lib/queue/queue");
+jest.mock("@/lib/checkout", () => ({
+  getOrCreateCheckoutToken: jest.fn().mockResolvedValue("test-token"),
+}));
+jest.mock("@/lib/styles.server", () => ({
+  getEnabledStylesForChannel: jest.fn().mockResolvedValue([]),
+  pickRandomStyle: jest.fn(),
+}));
 jest.mock("@/lib/logger", () => ({
   log: {
     info: jest.fn(),

@@ -86,7 +86,7 @@ describe("detectQuote", () => {
     expect(result.isQuote).toBe(false);
   });
 
-  it("skips when confidence is below 0.7", async () => {
+  it("skips when confidence is below 0.5", async () => {
     mockCreate.mockResolvedValueOnce({
       content: [
         {
@@ -95,7 +95,7 @@ describe("detectQuote", () => {
           name: "classify_quote",
           input: {
             is_quote: true,
-            confidence: 0.5,
+            confidence: 0.4,
             extracted_quote: "maybe a quote",
             attributed_to: null,
           },
@@ -105,7 +105,7 @@ describe("detectQuote", () => {
 
     const result = await detectQuote("maybe a quote maybe not really");
     expect(result.isQuote).toBe(false);
-    expect(result.confidence).toBe(0.5);
+    expect(result.confidence).toBe(0.4);
   });
 
   it("handles missing tool_use block gracefully", async () => {

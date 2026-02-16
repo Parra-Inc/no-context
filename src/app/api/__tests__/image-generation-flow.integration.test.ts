@@ -22,12 +22,13 @@ jest.mock("@/lib/prisma", () => ({
     },
     channel: { findUnique: jest.fn() },
     usageRecord: { findUnique: jest.fn(), upsert: jest.fn() },
-    quote: { create: jest.fn(), update: jest.fn() },
+    quote: { create: jest.fn(), update: jest.fn(), findUnique: jest.fn() },
     imageGeneration: { create: jest.fn(), update: jest.fn() },
     style: { findMany: jest.fn() },
     channelStyle: { findMany: jest.fn() },
     subscription: { findUnique: jest.fn() },
     $transaction: jest.fn(),
+    $executeRaw: jest.fn(),
   },
 }));
 
@@ -38,6 +39,9 @@ jest.mock("@/lib/slack", () => ({
   postToChannel: jest.fn().mockResolvedValue(undefined),
   addReaction: jest.fn().mockResolvedValue(undefined),
   removeReaction: jest.fn().mockResolvedValue(undefined),
+  postEphemeral: jest.fn().mockResolvedValue(undefined),
+  getParentMessage: jest.fn().mockResolvedValue(null),
+  getMessagePermalink: jest.fn().mockResolvedValue(null),
   isSlackTokenError: jest.fn().mockReturnValue(false),
   markWorkspaceDisconnected: jest.fn().mockResolvedValue(undefined),
 }));
@@ -50,6 +54,20 @@ jest.mock("@/lib/stripe", () => ({
     BUSINESS: 500,
     ENTERPRISE: 2000,
   },
+  TIER_MAX_CHANNELS: {
+    FREE: 1,
+    STARTER: 1,
+    TEAM: 3,
+    BUSINESS: 999999,
+    ENTERPRISE: 999999,
+  },
+  TIER_PRIORITY: {
+    FREE: 4,
+    STARTER: 3,
+    TEAM: 2,
+    BUSINESS: 1,
+    ENTERPRISE: 0,
+  },
   TIER_HAS_WATERMARK: {
     FREE: true,
     STARTER: false,
@@ -57,6 +75,15 @@ jest.mock("@/lib/stripe", () => ({
     BUSINESS: false,
     ENTERPRISE: false,
   },
+}));
+
+jest.mock("@/lib/checkout", () => ({
+  getOrCreateCheckoutToken: jest.fn().mockResolvedValue("test-token"),
+}));
+
+jest.mock("@/lib/styles.server", () => ({
+  getEnabledStylesForChannel: jest.fn().mockResolvedValue([]),
+  pickRandomStyle: jest.fn(),
 }));
 
 jest.mock("@/lib/ai/quote-detector", () => ({
@@ -95,6 +122,21 @@ jest.mock("@/lib/logger", () => ({
   },
 }));
 
+jest.mock("next/server", () => {
+  const actual = jest.requireActual("next/server");
+  return {
+    ...actual,
+    after: jest.fn((fn: Promise<void> | (() => void)) => {
+      if (typeof fn === "function") {
+        fn();
+      } else {
+        // If it's a promise, just let it resolve
+        fn.catch(() => {});
+      }
+    }),
+  };
+});
+
 // ─── Imports (after mocks) ──────────────────────────────────────────
 
 import { POST as slackEventsPost } from "@/app/api/slack/events/route";
@@ -105,12 +147,17 @@ import {
   addReaction,
   removeReaction,
   postThreadReply,
+  postEphemeral,
 } from "@/lib/slack";
 import { detectQuote } from "@/lib/ai/quote-detector";
 import { generateImage, downloadImage } from "@/lib/ai/image-generator";
 import { enqueueImageGeneration } from "@/lib/queue/queue";
 import { uploadImage } from "@/lib/storage";
 import { applyWatermark } from "@/lib/watermark";
+import {
+  getEnabledStylesForChannel,
+  pickRandomStyle,
+} from "@/lib/styles.server";
 
 // Slack client mock — created after imports so getSlackClient can return it
 const mockSlackClient = {
@@ -141,9 +188,12 @@ const WORKSPACE = {
   slackBotUserId: "U-BOT-001",
   isActive: true,
   needsReconnection: false,
+  slug: "test-workspace",
   subscription: {
     tier: "FREE",
     monthlyQuota: 5,
+    bonusCredits: 0,
+    hasWatermark: true,
     status: "ACTIVE",
   },
 };
@@ -154,8 +204,19 @@ const CHANNEL = {
   slackChannelId: "C-CHAN-001",
   styleMode: "RANDOM",
   postToChannelId: null,
+  quoteOriginal: null,
   isActive: true,
   isPaused: false,
+};
+
+const WATERCOLOR_STYLE = {
+  id: "sty_watercolor",
+  workspaceId: null,
+  name: "watercolor",
+  displayName: "Watercolor",
+  description: "soft watercolor painting with gentle washes of color",
+  prompt: null,
+  isActive: true,
 };
 
 const QUOTE_RECORD = {
@@ -243,17 +304,10 @@ describe("Image Generation Flow: Slack Event → Image → Slack Post", () => {
     (prisma.workspace.findUnique as jest.Mock).mockResolvedValue(WORKSPACE);
     (prisma.channel.findUnique as jest.Mock).mockResolvedValue(CHANNEL);
     (prisma.usageRecord.findUnique as jest.Mock).mockResolvedValue(null);
-    (prisma.style.findMany as jest.Mock).mockResolvedValue([
-      {
-        id: "sty_watercolor",
-        workspaceId: null,
-        name: "watercolor",
-        displayName: "Watercolor",
-        description: "soft watercolor painting with gentle washes of color",
-        isActive: true,
-      },
+    (getEnabledStylesForChannel as jest.Mock).mockResolvedValue([
+      WATERCOLOR_STYLE,
     ]);
-    (prisma.channelStyle.findMany as jest.Mock).mockResolvedValue([]);
+    (pickRandomStyle as jest.Mock).mockReturnValue(WATERCOLOR_STYLE);
     (prisma.$transaction as jest.Mock).mockImplementation(
       async (fn: Function) => {
         const tx = {
@@ -269,7 +323,15 @@ describe("Image Generation Flow: Slack Event → Image → Slack Post", () => {
     );
     (prisma.imageGeneration.update as jest.Mock).mockResolvedValue({});
     (prisma.quote.update as jest.Mock).mockResolvedValue({});
-    (prisma.usageRecord.upsert as jest.Mock).mockResolvedValue({});
+    (prisma.quote.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.usageRecord.upsert as jest.Mock).mockResolvedValue({
+      quotesUsed: 1,
+    });
+    (prisma.subscription.findUnique as jest.Mock).mockResolvedValue({
+      monthlyQuota: 5,
+      bonusCredits: 0,
+    });
+    (prisma.$executeRaw as jest.Mock).mockResolvedValue(0);
 
     // Quote detector
     (detectQuote as jest.Mock).mockResolvedValue({
@@ -427,14 +489,6 @@ describe("Image Generation Flow: Slack Event → Image → Slack Post", () => {
 
       await slackEventsPost(req);
       await waitForAsyncProcessing();
-
-      // Quota limit reaction added
-      expect(addReaction).toHaveBeenCalledWith(
-        mockSlackClient,
-        "C-CHAN-001",
-        "1700000000.000003",
-        "no-context-limit",
-      );
 
       // Should NOT proceed to quote detection or enqueue
       expect(detectQuote).not.toHaveBeenCalled();

@@ -5,6 +5,16 @@
 import { POST } from "../route";
 import { NextRequest } from "next/server";
 
+jest.mock("next/server", () => ({
+  ...jest.requireActual("next/server"),
+  after: jest.fn(),
+}));
+jest.mock("@/lib/slack-notifications", () => ({
+  notifyTokenPackPurchase: jest.fn(),
+  notifySubscriptionPurchase: jest.fn(),
+  notifySubscriptionCanceled: jest.fn(),
+}));
+
 // Mock stripe module
 jest.mock("@/lib/stripe", () => ({
   stripe: {
