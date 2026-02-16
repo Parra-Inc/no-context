@@ -1,6 +1,7 @@
 import Stripe from "stripe";
 
 export {
+  INFINITY,
   TIER_QUOTAS,
   TIER_MAX_CHANNELS,
   TIER_IMAGE_SIZE,

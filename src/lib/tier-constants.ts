@@ -1,3 +1,5 @@
+export const INFINITY = 999999;
+
 export const TIER_QUOTAS: Record<string, number> = {
   FREE: 5,
   STARTER: 25,
@@ -10,8 +12,8 @@ export const TIER_MAX_CHANNELS: Record<string, number> = {
   FREE: 1,
   STARTER: 1,
   TEAM: 3,
-  BUSINESS: 999999,
-  ENTERPRISE: 999999,
+  BUSINESS: INFINITY,
+  ENTERPRISE: INFINITY,
 };
 
 export const TIER_IMAGE_SIZE: Record<string, string> = {

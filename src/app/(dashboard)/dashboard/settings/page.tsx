@@ -41,6 +41,7 @@ export default async function SettingsGeneralPage() {
     displayName: s.displayName,
     description: s.description,
     isBuiltIn: s.workspaceId === null,
+    isFree: s.isFree,
   }));
 
   return (

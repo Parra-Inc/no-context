@@ -14,12 +14,13 @@ export const TIER_QUOTAS = {
   BUSINESS: 500,
   ENTERPRISE: 2000,
 };
+export const INFINITY = 999999;
 export const TIER_MAX_CHANNELS = {
   FREE: 1,
   STARTER: 1,
   TEAM: 3,
-  BUSINESS: Infinity,
-  ENTERPRISE: Infinity,
+  BUSINESS: INFINITY,
+  ENTERPRISE: INFINITY,
 };
 export const TIER_IMAGE_SIZE = {
   FREE: "1792x1024",

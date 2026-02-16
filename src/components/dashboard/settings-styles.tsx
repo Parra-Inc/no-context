@@ -17,7 +17,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import Link from "next/link";
-import { Palette, Lock, Info } from "lucide-react";
+import { Palette, Lock, Info, Crown } from "lucide-react";
 import { CustomStylesManager } from "@/components/dashboard/custom-styles-manager";
 import { toggleStyleEnabled } from "@/app/(dashboard)/dashboard/settings/styles/actions";
 
@@ -77,7 +77,7 @@ function StyleCard({
             src={getStyleImagePath(style.name)}
             alt={`${style.displayName} preview`}
             fill
-            className="object-cover grayscale"
+            className="object-cover"
             sizes="(max-width: 640px) 50vw, 33vw"
           />
           <div className="absolute inset-0 flex items-center justify-center bg-black/20">
@@ -85,16 +85,16 @@ function StyleCard({
           </div>
         </div>
         <div className="flex items-center justify-between gap-2 px-2.5 py-2">
-          <div className="flex min-w-0 items-center gap-1">
-            <p className="truncate text-xs font-medium">{style.displayName}</p>
-            <Badge
-              variant="secondary"
-              className="shrink-0 px-1 py-0 text-[10px] leading-tight"
-            >
-              PRO
-            </Badge>
-          </div>
-          <Switch checked={false} disabled />
+          <p className="min-w-0 truncate text-xs font-medium">
+            {style.displayName}
+          </p>
+          <Badge
+            variant="secondary"
+            className="shrink-0 gap-0.5 px-1.5 py-0 text-[10px] leading-tight"
+          >
+            <Crown className="h-2.5 w-2.5" />
+            Premium
+          </Badge>
         </div>
       </div>
     );

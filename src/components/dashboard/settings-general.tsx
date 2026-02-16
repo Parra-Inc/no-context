@@ -27,9 +27,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus, Trash2, ChevronDown, Hash, Palette } from "lucide-react";
+import { Plus, Trash2, ChevronDown, Hash, Palette, Crown } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+import { INFINITY } from "@/lib/tier-constants";
 
 interface Channel {
   id: string;
@@ -49,6 +50,7 @@ interface Style {
   displayName: string;
   description: string;
   isBuiltIn: boolean;
+  isFree: boolean;
 }
 
 interface SlackChannel {
@@ -320,8 +322,8 @@ export default function SettingsGeneral({
                 </h4>
                 <p className="text-muted-foreground/60 mt-0.5 text-xs">
                   {channels.length} of{" "}
-                  {maxChannels === Infinity ? "unlimited" : maxChannels}{" "}
-                  channels used
+                  {maxChannels >= INFINITY ? "unlimited" : maxChannels} channels
+                  used
                 </p>
               </div>
               <Dialog open={addChannelOpen} onOpenChange={setAddChannelOpen}>
@@ -397,8 +399,15 @@ export default function SettingsGeneral({
 
             <div className="mt-3 space-y-3">
               {channels.map((channel) => {
+                const availableStyles =
+                  subscriptionTier === "FREE"
+                    ? styles.filter((s) => s.isFree)
+                    : styles;
                 const enabledCount =
-                  styles.length - channel.disabledStyleIds.length;
+                  availableStyles.length -
+                  availableStyles.filter((s) =>
+                    channel.disabledStyleIds.includes(s.id),
+                  ).length;
                 const isExpanded = expandedChannel === channel.id;
 
                 return (
@@ -515,7 +524,8 @@ export default function SettingsGeneral({
                       className="border-border bg-muted/30 text-muted-foreground hover:bg-muted/50 flex w-full items-center justify-between border-t px-4 py-2.5 text-xs transition-colors"
                     >
                       <span>
-                        {enabledCount} of {styles.length} styles enabled
+                        {enabledCount} of {availableStyles.length} styles
+                        enabled
                       </span>
                       <ChevronDown
                         className={`h-3.5 w-3.5 transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`}
@@ -533,13 +543,17 @@ export default function SettingsGeneral({
                           {styles.map((style) => {
                             const isEnabled =
                               !channel.disabledStyleIds.includes(style.id);
+                            const isPremiumLocked =
+                              !style.isFree && subscriptionTier === "FREE";
                             return (
                               <div
                                 key={style.id}
                                 className={`overflow-hidden rounded-lg border transition-all ${
-                                  isEnabled
-                                    ? "border-border bg-background"
-                                    : "border-border/50 bg-muted/30 opacity-50"
+                                  isPremiumLocked
+                                    ? "border-border/50 bg-muted/30 opacity-50"
+                                    : isEnabled
+                                      ? "border-border bg-background"
+                                      : "border-border/50 bg-muted/30 opacity-50"
                                 }`}
                               >
                                 {style.isBuiltIn ? (
@@ -568,12 +582,22 @@ export default function SettingsGeneral({
                                       </p>
                                     )}
                                   </div>
-                                  <Switch
-                                    checked={isEnabled}
-                                    onCheckedChange={() =>
-                                      toggleChannelStyle(channel.id, style.id)
-                                    }
-                                  />
+                                  {isPremiumLocked ? (
+                                    <Badge
+                                      variant="secondary"
+                                      className="shrink-0 gap-0.5 px-1.5 py-0 text-[10px] leading-tight"
+                                    >
+                                      <Crown className="h-2.5 w-2.5" />
+                                      Premium
+                                    </Badge>
+                                  ) : (
+                                    <Switch
+                                      checked={isEnabled}
+                                      onCheckedChange={() =>
+                                        toggleChannelStyle(channel.id, style.id)
+                                      }
+                                    />
+                                  )}
                                 </div>
                               </div>
                             );

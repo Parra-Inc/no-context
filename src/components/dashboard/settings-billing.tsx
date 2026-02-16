@@ -13,7 +13,7 @@ import {
   type InvoiceData,
   type TokenPurchaseData,
 } from "@/components/dashboard/billing-history";
-import { TIER_QUOTAS, TIER_MAX_CHANNELS } from "@/lib/tier-constants";
+import { TIER_QUOTAS, TIER_MAX_CHANNELS, INFINITY } from "@/lib/tier-constants";
 import { Switch } from "@/components/ui/switch";
 import { Check, AlertTriangle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -95,6 +95,7 @@ const STATUS_LABEL: Record<
 
 interface SettingsBillingProps {
   tier: string;
+  billingInterval: "monthly" | "annual";
   status: string;
   cancelAtPeriodEnd: boolean;
   quota: number;
@@ -111,6 +112,7 @@ interface SettingsBillingProps {
 
 export function SettingsBilling({
   tier,
+  billingInterval,
   status,
   cancelAtPeriodEnd,
   quota,
@@ -125,13 +127,19 @@ export function SettingsBilling({
   tokenPurchases,
 }: SettingsBillingProps) {
   const [loadingTier, setLoadingTier] = useState<string | null>(null);
-  const [isAnnual, setIsAnnual] = useState(false);
+  const [isAnnual, setIsAnnual] = useState(billingInterval === "annual");
   const statusInfo = STATUS_LABEL[status] || STATUS_LABEL.ACTIVE;
   const currentTierIndex = TIER_ORDER.indexOf(tier);
   const maxChannels = TIER_MAX_CHANNELS[tier] ?? 1;
+  const currentInterval = isAnnual ? "annual" : "monthly";
+  const intervalMatchesCurrent = currentInterval === billingInterval;
 
   async function handlePlanChange(targetTier: string) {
-    if (targetTier === tier || targetTier === "FREE") return;
+    if (
+      (targetTier === tier && intervalMatchesCurrent) ||
+      targetTier === "FREE"
+    )
+      return;
     setLoadingTier(targetTier);
     try {
       const res = await fetch("/api/stripe/checkout", {
@@ -157,11 +165,17 @@ export function SettingsBilling({
   }
 
   function getPlanAction(planTier: string) {
-    if (planTier === tier)
+    if (planTier === tier && (intervalMatchesCurrent || tier === "FREE"))
       return {
         label: "Current plan",
         disabled: true,
         variant: "outline" as const,
+      };
+    if (planTier === tier && !intervalMatchesCurrent)
+      return {
+        label: isAnnual ? "Switch to annual" : "Switch to monthly",
+        disabled: false,
+        variant: "default" as const,
       };
     const planIndex = TIER_ORDER.indexOf(planTier);
     if (planTier === "FREE")
@@ -242,7 +256,7 @@ export function SettingsBilling({
                   Channels
                 </span>
                 <span className="text-muted-foreground/60 text-xs tabular-nums">
-                  {maxChannels === Infinity
+                  {maxChannels >= INFINITY
                     ? "Unlimited"
                     : `${Math.max(maxChannels - channelsUsed, 0)} remaining`}
                 </span>
@@ -252,10 +266,10 @@ export function SettingsBilling({
                   {channelsUsed}
                 </span>
                 <span className="text-muted-foreground/60 mb-0.5 text-xs">
-                  / {maxChannels === Infinity ? "Unlimited" : maxChannels}
+                  / {maxChannels >= INFINITY ? "Unlimited" : maxChannels}
                 </span>
               </div>
-              {maxChannels !== Infinity && (
+              {maxChannels < INFINITY && (
                 <Progress
                   value={channelsUsed}
                   max={maxChannels}
@@ -263,6 +277,29 @@ export function SettingsBilling({
                 />
               )}
             </div>
+
+            {/* Extra Image Generations */}
+            {bonusCredits > 0 && (
+              <div className="border-border bg-muted/30 rounded-lg border px-4 py-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-foreground text-xs font-medium">
+                    Extra Image Generations
+                  </span>
+                  <span className="text-muted-foreground/60 text-xs">
+                    never expires
+                  </span>
+                </div>
+                <div className="mt-2 flex items-end gap-1">
+                  <span className="text-foreground text-2xl font-bold tracking-tight tabular-nums">
+                    {bonusCredits}
+                  </span>
+                  <span className="text-muted-foreground/60 mb-0.5 text-xs">
+                    available
+                  </span>
+                </div>
+                <Progress value={100} className="[&>div]:bg-primary mt-2 h-2" />
+              </div>
+            )}
 
             {/* Reset date */}
             {currentPeriodEnd && !cancelAtPeriodEnd && (
@@ -308,7 +345,8 @@ export function SettingsBilling({
         <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {PLANS.map((plan) => {
             const action = getPlanAction(plan.tier);
-            const isCurrent = plan.tier === tier;
+            const isCurrent =
+              plan.tier === tier && (intervalMatchesCurrent || tier === "FREE");
             const isPopular = plan.popular;
 
             return (
@@ -356,7 +394,7 @@ export function SettingsBilling({
                   )}
                   {isAnnual && plan.annualPrice > 0 && (
                     <p className="text-muted-foreground/60 mt-1 text-xs">
-                      billed annually
+                      ${plan.annualPrice * 12} billed annually
                     </p>
                   )}
                   {(isAnnual ? plan.annualPrice : plan.price) > 0 && (

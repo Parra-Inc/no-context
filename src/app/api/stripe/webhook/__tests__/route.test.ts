@@ -26,8 +26,8 @@ jest.mock("@/lib/stripe", () => ({
     FREE: 1,
     STARTER: 1,
     TEAM: 3,
-    BUSINESS: Infinity,
-    ENTERPRISE: Infinity,
+    BUSINESS: 999999,
+    ENTERPRISE: 999999,
   },
   TIER_HAS_WATERMARK: {
     FREE: true,

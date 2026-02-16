@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
-import { stripe } from "@/lib/stripe";
+import { stripe, PRICE_IDS } from "@/lib/stripe";
 import { SettingsBilling } from "@/components/dashboard/settings-billing";
 
 export default async function BillingPage() {
@@ -79,9 +79,20 @@ export default async function BillingPage() {
   const remaining = Math.max(quota - used, 0);
   const usagePercent = quota > 0 ? (used / quota) * 100 : 0;
 
+  // Derive billing interval from the stored Stripe price ID
+  const annualPriceIds = Object.entries(PRICE_IDS)
+    .filter(([key]) => key.endsWith("_ANNUAL"))
+    .map(([, id]) => id);
+  const billingInterval: "monthly" | "annual" =
+    subscription?.stripePriceId &&
+    annualPriceIds.includes(subscription.stripePriceId)
+      ? "annual"
+      : "monthly";
+
   return (
     <SettingsBilling
       tier={tier}
+      billingInterval={billingInterval}
       status={subscription?.status || "ACTIVE"}
       cancelAtPeriodEnd={subscription?.cancelAtPeriodEnd || false}
       quota={quota}
