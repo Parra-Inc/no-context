@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
 import { encrypt } from "@/lib/encryption";
@@ -205,12 +205,14 @@ export async function GET(request: NextRequest) {
         select: { email: true },
       });
 
-      notifyNewWorkspace({
-        workspaceId: workspace.id,
-        slackTeamName,
-        slackTeamIcon,
-        installedByEmail: installer?.email || null,
-      });
+      after(() =>
+        notifyNewWorkspace({
+          workspaceId: workspace.id,
+          slackTeamName,
+          slackTeamIcon,
+          installedByEmail: installer?.email || null,
+        }),
+      );
     }
 
     // Link the user to the workspace

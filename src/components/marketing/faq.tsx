@@ -83,7 +83,7 @@ export function FAQ() {
       <div className="mx-auto max-w-3xl">
         <FadeIn>
           <h2 className="font-display text-center text-3xl text-[#1A1A1A] md:text-4xl">
-            Questions? Answers.
+            Any Questions?
           </h2>
         </FadeIn>
         <div className="mt-12 space-y-2">
@@ -120,6 +120,17 @@ export function FAQ() {
             </FadeIn>
           ))}
         </div>
+        <FadeIn delay={faqs.length * 50}>
+          <p className="mt-10 text-center text-sm text-[#4A4A4A]">
+            Don&apos;t see what you&apos;re looking for?{" "}
+            <a
+              href="/contact"
+              className="font-medium text-[#7C3AED] underline hover:text-[#6D28D9]"
+            >
+              Contact us
+            </a>
+          </p>
+        </FadeIn>
       </div>
     </section>
   );

@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { z } from "zod/v4";
 import { notifyContactFormSubmission } from "@/lib/slack-notifications";
 
@@ -34,13 +34,15 @@ export async function POST(request: Request) {
       },
     });
 
-    notifyContactFormSubmission({
-      submissionId: submission.id,
-      name,
-      email,
-      subject,
-      message,
-    });
+    after(() =>
+      notifyContactFormSubmission({
+        submissionId: submission.id,
+        name,
+        email,
+        subject,
+        message,
+      }),
+    );
 
     return NextResponse.json(
       { success: true, id: submission.id },

@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
 import { hash } from "bcryptjs";
 import prisma from "@/lib/prisma";
 import { sendVerificationEmail } from "@/lib/email/send-verification";
@@ -50,11 +50,13 @@ export async function POST(request: NextRequest) {
 
     await sendVerificationEmail(user.id);
 
-    notifyNewUserSignup({
-      userId: user.id,
-      email: normalizedEmail,
-      name: name || null,
-    });
+    after(() =>
+      notifyNewUserSignup({
+        userId: user.id,
+        email: normalizedEmail,
+        name: name || null,
+      }),
+    );
 
     return NextResponse.json(
       {

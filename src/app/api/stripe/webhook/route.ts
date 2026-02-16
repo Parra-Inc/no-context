@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
 import {
   stripe,
   TIER_QUOTAS,
@@ -110,13 +110,15 @@ export async function POST(request: NextRequest) {
           select: { slackTeamName: true },
         });
 
-        notifyTokenPackPurchase({
-          workspaceId,
-          teamName: tokenWorkspace?.slackTeamName || workspaceId,
-          packType: packId || "UNKNOWN",
-          credits: creditsToAdd,
-          amountCents: session.amount_total || 0,
-        });
+        after(() =>
+          notifyTokenPackPurchase({
+            workspaceId,
+            teamName: tokenWorkspace?.slackTeamName || workspaceId,
+            packType: packId || "UNKNOWN",
+            credits: creditsToAdd,
+            amountCents: session.amount_total || 0,
+          }),
+        );
 
         break;
       }
@@ -152,12 +154,14 @@ export async function POST(request: NextRequest) {
         include: { workspace: { select: { slackTeamName: true } } },
       });
 
-      notifySubscriptionPurchase({
-        workspaceId: updatedSub.workspaceId,
-        teamName: updatedSub.workspace.slackTeamName,
-        tier,
-        priceId,
-      });
+      after(() =>
+        notifySubscriptionPurchase({
+          workspaceId: updatedSub.workspaceId,
+          teamName: updatedSub.workspace.slackTeamName,
+          tier,
+          priceId,
+        }),
+      );
       break;
     }
 
@@ -214,10 +218,12 @@ export async function POST(request: NextRequest) {
         include: { workspace: { select: { slackTeamName: true } } },
       });
 
-      notifySubscriptionCanceled({
-        workspaceId: canceledSub.workspaceId,
-        teamName: canceledSub.workspace.slackTeamName,
-      });
+      after(() =>
+        notifySubscriptionCanceled({
+          workspaceId: canceledSub.workspaceId,
+          teamName: canceledSub.workspace.slackTeamName,
+        }),
+      );
       break;
     }
 

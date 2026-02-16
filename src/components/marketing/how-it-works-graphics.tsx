@@ -227,17 +227,23 @@ function SidebarPanel() {
 /* ---- Messages panel content ---- */
 function MessagesPanel({
   compact = false,
-  contentDim,
-  composerDim,
+  currentStep,
 }: {
   compact?: boolean;
-  contentDim?: MotionValue<number>;
-  composerDim?: MotionValue<number>;
+  currentStep: number;
 }) {
   return (
     <div className="flex h-full flex-col bg-white">
-      {/* Channel header + messages area — dimmable together */}
-      <div className="relative flex flex-1 flex-col overflow-hidden">
+      {/* Channel header + messages area */}
+      <div
+        className={`flex flex-1 flex-col overflow-hidden transition-opacity duration-500 ${
+          currentStep === 0
+            ? "opacity-40"
+            : currentStep === 1
+              ? "opacity-50"
+              : "opacity-40"
+        }`}
+      >
         <div className="flex items-center border-b border-[#E5E5E5] px-4 py-2">
           <span className="text-[14px] font-bold text-[#1D1C1D]">
             # no-context
@@ -325,18 +331,14 @@ function MessagesPanel({
             </SlackMessage>
           )}
         </div>
-
-        {/* Dim overlay for messages content */}
-        {contentDim && (
-          <motion.div
-            className="pointer-events-none absolute inset-0 bg-white/80"
-            style={{ opacity: contentDim }}
-          />
-        )}
       </div>
 
-      {/* Composer — separate dim zone */}
-      <div className="relative border-t border-[#E5E5E5] px-4 py-2">
+      {/* Composer */}
+      <div
+        className={`border-t border-[#E5E5E5] px-4 py-2 transition-opacity duration-500 ${
+          currentStep === 1 ? "opacity-100" : "opacity-40"
+        }`}
+      >
         <div
           className={`flex items-center gap-2 rounded-lg border px-3 py-1.5 ${compact ? "border-[#E5E5E5]" : "border-[#7C3AED] ring-1 ring-[#7C3AED]/20"}`}
         >
@@ -365,13 +367,6 @@ function MessagesPanel({
             </svg>
           </span>
         </div>
-        {/* Dim overlay for composer */}
-        {composerDim && (
-          <motion.div
-            className="pointer-events-none absolute inset-0 bg-white/80"
-            style={{ opacity: composerDim }}
-          />
-        )}
       </div>
     </div>
   );
@@ -471,76 +466,48 @@ export function UnifiedSlackGraphic({
     setMessageSent(latest >= 0.6);
   });
 
-  // Sidebar opacity: bright during step 1, fades as step 1 scrolls away toward step 2
-  const sidebarOpacity = useTransform(
-    scrollYProgress,
-    [0, 0.33, 0.55, 0.6, 0.667],
-    [1, 0.3, 0.3, 0.3, 0.3],
-  );
-
-  // Messages content dim: dimmed at step 0, less dimmed at step 1 (only composer bright), dimmed at step 2 (thread focused)
-  const messagesContentDim = useTransform(
-    scrollYProgress,
-    [0, 0.2, 0.33, 0.55, 0.6, 0.667],
-    [0.6, 0.6, 0.5, 0.5, 0.5, 0.6],
-  );
-
-  // Composer dim: dimmed at step 0, brightens as step 1 scrolls away, dimmed at step 2 (thread focused)
-  const composerDim = useTransform(
-    scrollYProgress,
-    [0, 0.2, 0.33, 0.55, 0.6, 0.667],
-    [0.6, 0.6, 0, 0, 0, 0.6],
-  );
-
   // Thread panel: width grows from 0 to 240 at step 3
   const threadWidth = useTransform(scrollYProgress, [0.6, 0.75], [0, 240]);
 
   return (
-    <>
-      <div
-        role="img"
-        aria-label={stepAriaLabels[currentStep]}
-        className="overflow-hidden rounded-2xl border border-[#E5E5E5] bg-white shadow-xl"
-      >
-        {/* Window chrome */}
-        <div className="flex items-center gap-1.5 border-b border-[#E5E5E5] bg-[#F8F8F8] px-3 py-2">
-          <div className="h-2.5 w-2.5 rounded-full bg-[#FF5F57]" />
-          <div className="h-2.5 w-2.5 rounded-full bg-[#FFBD2E]" />
-          <div className="h-2.5 w-2.5 rounded-full bg-[#28C840]" />
-        </div>
-
-        <div className="relative flex overflow-hidden" style={{ height: 380 }}>
-          {/* PANEL 1: Sidebar */}
-          <motion.div
-            className="w-[140px] shrink-0"
-            style={{ opacity: sidebarOpacity }}
-          >
-            <SidebarPanel />
-          </motion.div>
-
-          {/* PANEL 2: Messages */}
-          <div className="flex-1 border-l border-[#E5E5E5]">
-            <MessagesPanel
-              compact={messageSent}
-              contentDim={messagesContentDim}
-              composerDim={composerDim}
-            />
-          </div>
-
-          {/* PANEL 3: Thread (width animates open from right) */}
-          <motion.div
-            className="shrink-0 overflow-hidden border-l border-[#E5E5E5] bg-white"
-            style={{ width: threadWidth }}
-          >
-            <div className="h-full w-[240px]">
-              <ThreadPanel />
-            </div>
-          </motion.div>
-        </div>
+    <div
+      role="img"
+      aria-label={stepAriaLabels[currentStep]}
+      className="overflow-hidden rounded-2xl border border-[#E5E5E5] bg-white shadow-xl"
+    >
+      {/* Window chrome */}
+      <div className="flex items-center gap-1.5 border-b border-[#E5E5E5] bg-[#F8F8F8] px-3 py-2">
+        <div className="h-2.5 w-2.5 rounded-full bg-[#FF5F57]" />
+        <div className="h-2.5 w-2.5 rounded-full bg-[#FFBD2E]" />
+        <div className="h-2.5 w-2.5 rounded-full bg-[#28C840]" />
       </div>
 
-      {scrollYProgress.get()}
-    </>
+      <div className="relative flex overflow-hidden" style={{ height: 380 }}>
+        {/* PANEL 1: Sidebar */}
+        <div
+          className={`w-[140px] shrink-0 transition-opacity duration-500 ${
+            currentStep === 0 ? "opacity-100" : "opacity-30"
+          }`}
+        >
+          <SidebarPanel />
+        </div>
+
+        {/* PANEL 2: Messages */}
+        <div className="flex-1 border-l border-[#E5E5E5]">
+          <MessagesPanel compact={messageSent} currentStep={currentStep} />
+        </div>
+
+        {/* PANEL 3: Thread (width animates open from right) */}
+        <motion.div
+          className="shrink-0 overflow-hidden border-l border-[#E5E5E5] bg-white"
+          style={{ width: threadWidth }}
+        >
+          <div className="h-full w-[240px]">
+            <ThreadPanel />
+          </div>
+        </motion.div>
+      </div>
+    </div>
   );
 }
 
