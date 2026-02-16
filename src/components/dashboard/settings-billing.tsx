@@ -286,19 +286,23 @@ export function SettingsBilling({
           Choose the plan that works for your team
         </p>
 
-        <div className="mt-4 flex items-center gap-3">
-          <span
-            className={`text-sm ${!isAnnual ? "text-foreground font-medium" : "text-muted-foreground"}`}
-          >
-            Monthly
-          </span>
-          <Switch checked={isAnnual} onCheckedChange={setIsAnnual} />
-          <span
-            className={`text-sm ${isAnnual ? "text-foreground font-medium" : "text-muted-foreground"}`}
-          >
-            Annual
-          </span>
-          {isAnnual && <Badge variant="default">Save 25%</Badge>}
+        <div className="mt-4 flex flex-col gap-2">
+          <div className="flex items-center gap-3">
+            <span
+              className={`text-sm ${!isAnnual ? "text-foreground font-medium" : "text-muted-foreground"}`}
+            >
+              Monthly
+            </span>
+            <Switch checked={isAnnual} onCheckedChange={setIsAnnual} />
+            <span
+              className={`text-sm ${isAnnual ? "text-foreground font-medium" : "text-muted-foreground"}`}
+            >
+              Annual
+            </span>
+          </div>
+          <p className="text-muted-foreground text-sm">
+            save 25% with an annual plan
+          </p>
         </div>
 
         <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

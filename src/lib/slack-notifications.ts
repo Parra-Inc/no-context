@@ -13,6 +13,10 @@ interface SlackBlock {
     type: string;
     text: string;
   }>;
+  elements?: Array<{
+    type: string;
+    text: string;
+  }>;
 }
 
 async function sendSlackNotification(
@@ -116,22 +120,23 @@ export async function notifyNewWorkspace(
     params;
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nocontextbot.com";
 
+  const iconPrefix = slackTeamIcon ? `${slackTeamIcon} ` : "";
+
   const blocks: SlackBlock[] = [
     {
       type: "header",
       text: {
         type: "plain_text",
-        text: ":rocket: New Workspace",
+        text: ":rocket: New Workspace Installation",
         emoji: true,
       },
     },
+    { type: "divider" },
     {
       type: "section",
       text: {
         type: "mrkdwn",
-        text: slackTeamIcon
-          ? `*${slackTeamName}* just installed No Context!`
-          : `*${slackTeamName}* just installed No Context!`,
+        text: `${iconPrefix}*${slackTeamName}* just installed No Context!`,
       },
     },
     {
@@ -140,10 +145,24 @@ export async function notifyNewWorkspace(
         { type: "mrkdwn", text: `*Team:*\n${slackTeamName}` },
         {
           type: "mrkdwn",
-          text: `*Installed by:*\n${installedByEmail || "Unknown"}`,
+          text: `*Installed by:*\n${installedByEmail ? `<mailto:${installedByEmail}|${installedByEmail}>` : "_Unknown_"}`,
         },
+      ],
+    },
+    {
+      type: "section",
+      fields: [
         { type: "mrkdwn", text: `*Workspace ID:*\n\`${workspaceId}\`` },
         { type: "mrkdwn", text: `*Dashboard:*\n<${appUrl}/dashboard|View>` },
+      ],
+    },
+    {
+      type: "context",
+      elements: [
+        {
+          type: "mrkdwn",
+          text: `Installed at <!date^${Math.floor(Date.now() / 1000)}^{date_short_pretty} at {time}|${new Date().toISOString()}>`,
+        },
       ],
     },
   ];
@@ -320,6 +339,9 @@ export async function notifyContactFormSubmission(
 ): Promise<void> {
   const { name, email, subject, message, submissionId } = params;
 
+  const truncatedMessage =
+    message.length > 2500 ? message.slice(0, 2500) + "…" : message;
+
   const blocks: SlackBlock[] = [
     {
       type: "header",
@@ -329,24 +351,40 @@ export async function notifyContactFormSubmission(
         emoji: true,
       },
     },
+    { type: "divider" },
     {
       type: "section",
       fields: [
-        { type: "mrkdwn", text: `*Name:*\n${name}` },
-        { type: "mrkdwn", text: `*Email:*\n${email}` },
-        {
-          type: "mrkdwn",
-          text: `*Subject:*\n${subject || "Not provided"}`,
-        },
-        { type: "mrkdwn", text: `*ID:*\n\`${submissionId}\`` },
+        { type: "mrkdwn", text: `*From:*\n${name}` },
+        { type: "mrkdwn", text: `*Email:*\n<mailto:${email}|${email}>` },
       ],
     },
     {
       type: "section",
+      fields: [
+        {
+          type: "mrkdwn",
+          text: `*Subject:*\n${subject || "_No subject_"}`,
+        },
+        { type: "mrkdwn", text: `*ID:*\n\`${submissionId}\`` },
+      ],
+    },
+    { type: "divider" },
+    {
+      type: "section",
       text: {
         type: "mrkdwn",
-        text: `*Message:*\n${message}`,
+        text: `*Message:*\n>>>${truncatedMessage}`,
       },
+    },
+    {
+      type: "context",
+      elements: [
+        {
+          type: "mrkdwn",
+          text: `Submitted at <!date^${Math.floor(Date.now() / 1000)}^{date_short_pretty} at {time}|${new Date().toISOString()}>`,
+        },
+      ],
     },
   ];
 

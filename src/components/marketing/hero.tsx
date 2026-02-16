@@ -21,9 +21,9 @@ export function Hero() {
             </span>
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg text-[#4A4A4A] md:text-xl lg:mx-0">
-            No Context Bot turns your team&apos;s most hilarious Slack quotes
-            into one-of-a-kind AI paintings. The best team culture tool is the
-            one nobody has to manage.
+            Drop a quote in Slack, get back a masterpiece. No Context Bot turns
+            your team&apos;s funniest moments into AI-generated art that&apos;s
+            actually worth hanging up.
           </p>
           <div className="lg:inline-block">
             <div className="mt-10 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-center sm:gap-4 lg:justify-start">

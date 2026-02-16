@@ -471,73 +471,76 @@ export function UnifiedSlackGraphic({
     setMessageSent(latest >= 0.6);
   });
 
-  // Sidebar dim: bright at step 0, dimmed at steps 1-2
-  const sidebarDim = useTransform(
+  // Sidebar opacity: bright during step 1, fades as step 1 scrolls away toward step 2
+  const sidebarOpacity = useTransform(
     scrollYProgress,
-    [0, 0.28, 0.38],
-    [0, 0, 0.6],
+    [0, 0.33, 0.55, 0.6, 0.667],
+    [1, 0.3, 0.3, 0.3, 0.3],
   );
 
-  // Messages content dim: dimmed at step 0, dimmed at step 1 (only composer bright), dimmed at step 3 (thread focused)
+  // Messages content dim: dimmed at step 0, less dimmed at step 1 (only composer bright), dimmed at step 2 (thread focused)
   const messagesContentDim = useTransform(
     scrollYProgress,
-    [0, 0.05, 0.28, 0.38, 0.62, 0.72],
-    [0.6, 0.6, 0.6, 0.5, 0.5, 0.6],
+    [0, 0.2, 0.33, 0.55, 0.6, 0.667],
+    [0.6, 0.6, 0.5, 0.5, 0.5, 0.6],
   );
 
-  // Composer dim: dimmed at step 0, bright at step 1 (focused!), bright at step 2, dimmed at step 3
+  // Composer dim: dimmed at step 0, brightens as step 1 scrolls away, dimmed at step 2 (thread focused)
   const composerDim = useTransform(
     scrollYProgress,
-    [0, 0.05, 0.28, 0.38, 0.62, 0.72],
-    [0.6, 0.6, 0.6, 0, 0, 0.6],
+    [0, 0.2, 0.33, 0.55, 0.6, 0.667],
+    [0.6, 0.6, 0, 0, 0, 0.6],
   );
 
   // Thread panel: width grows from 0 to 240 at step 3
   const threadWidth = useTransform(scrollYProgress, [0.6, 0.75], [0, 240]);
 
   return (
-    <div
-      role="img"
-      aria-label={stepAriaLabels[currentStep]}
-      className="overflow-hidden rounded-2xl border border-[#E5E5E5] bg-white shadow-xl"
-    >
-      {/* Window chrome */}
-      <div className="flex items-center gap-1.5 border-b border-[#E5E5E5] bg-[#F8F8F8] px-3 py-2">
-        <div className="h-2.5 w-2.5 rounded-full bg-[#FF5F57]" />
-        <div className="h-2.5 w-2.5 rounded-full bg-[#FFBD2E]" />
-        <div className="h-2.5 w-2.5 rounded-full bg-[#28C840]" />
-      </div>
+    <>
+      <div
+        role="img"
+        aria-label={stepAriaLabels[currentStep]}
+        className="overflow-hidden rounded-2xl border border-[#E5E5E5] bg-white shadow-xl"
+      >
+        {/* Window chrome */}
+        <div className="flex items-center gap-1.5 border-b border-[#E5E5E5] bg-[#F8F8F8] px-3 py-2">
+          <div className="h-2.5 w-2.5 rounded-full bg-[#FF5F57]" />
+          <div className="h-2.5 w-2.5 rounded-full bg-[#FFBD2E]" />
+          <div className="h-2.5 w-2.5 rounded-full bg-[#28C840]" />
+        </div>
 
-      <div className="relative flex overflow-hidden" style={{ height: 380 }}>
-        {/* PANEL 1: Sidebar */}
-        <div className="relative w-[140px] shrink-0">
-          <SidebarPanel />
+        <div className="relative flex overflow-hidden" style={{ height: 380 }}>
+          {/* PANEL 1: Sidebar */}
           <motion.div
-            className="pointer-events-none absolute inset-0 bg-white/80"
-            style={{ opacity: sidebarDim }}
-          />
-        </div>
+            className="w-[140px] shrink-0"
+            style={{ opacity: sidebarOpacity }}
+          >
+            <SidebarPanel />
+          </motion.div>
 
-        {/* PANEL 2: Messages */}
-        <div className="flex-1 border-l border-[#E5E5E5]">
-          <MessagesPanel
-            compact={messageSent}
-            contentDim={messagesContentDim}
-            composerDim={composerDim}
-          />
-        </div>
-
-        {/* PANEL 3: Thread (width animates open from right) */}
-        <motion.div
-          className="shrink-0 overflow-hidden border-l border-[#E5E5E5] bg-white"
-          style={{ width: threadWidth }}
-        >
-          <div className="h-full w-[240px]">
-            <ThreadPanel />
+          {/* PANEL 2: Messages */}
+          <div className="flex-1 border-l border-[#E5E5E5]">
+            <MessagesPanel
+              compact={messageSent}
+              contentDim={messagesContentDim}
+              composerDim={composerDim}
+            />
           </div>
-        </motion.div>
+
+          {/* PANEL 3: Thread (width animates open from right) */}
+          <motion.div
+            className="shrink-0 overflow-hidden border-l border-[#E5E5E5] bg-white"
+            style={{ width: threadWidth }}
+          >
+            <div className="h-full w-[240px]">
+              <ThreadPanel />
+            </div>
+          </motion.div>
+        </div>
       </div>
-    </div>
+
+      {scrollYProgress.get()}
+    </>
   );
 }
 

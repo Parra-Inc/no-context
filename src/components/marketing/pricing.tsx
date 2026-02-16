@@ -70,10 +70,7 @@ const tiers = [
       "500 generated images/month",
       "Unlimited channels",
       "Everything in Team",
-      "API access",
       "Priority generation queue",
-      "CSV export",
-      "Custom brand watermark",
     ],
   },
 ];
@@ -113,8 +110,10 @@ export function Pricing() {
               >
                 Annual
               </span>
-              {isAnnual && <Badge variant="default">Save 25%</Badge>}
             </div>
+            <p className="text-sm text-[#4A4A4A]">
+              save 25% with an annual plan
+            </p>
           </div>
         </FadeIn>
 
