@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { QuoteDetail } from "@/components/dashboard/quote-detail";
+import { getEnabledStylesForChannel } from "@/lib/styles.server";
 
 export default async function QuoteDetailPage({
   params,
@@ -51,8 +52,19 @@ export default async function QuoteDetailPage({
 
   const currentStyle = styleNameMap.get(quote.styleId) || null;
 
+  // Fetch available styles for the re-roll dropdown
+  const enabledStyles = await getEnabledStylesForChannel(
+    quote.channelId,
+    workspaceId,
+  );
+  const availableStyles = enabledStyles.map((s) => ({
+    name: s.name,
+    displayName: s.displayName,
+  }));
+
   return (
     <QuoteDetail
+      availableStyles={availableStyles}
       quote={{
         id: quote.id,
         quoteText: quote.quoteText,

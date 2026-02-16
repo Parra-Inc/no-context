@@ -23,8 +23,8 @@ import {
   ImageIcon,
   SearchX,
 } from "lucide-react";
-import { Lightbox } from "@/components/marketing/lightbox";
 import { motion } from "motion/react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 interface Quote {
@@ -119,8 +119,7 @@ export default function GalleryPage() {
   const [channels, setChannels] = useState<Channel[]>([]);
   const [styles, setStyles] = useState<Style[]>([]);
 
-  // Lightbox
-  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const router = useRouter();
 
   // Debounce refs
   const searchTimer = useRef<ReturnType<typeof setTimeout>>(null);
@@ -415,7 +414,7 @@ export default function GalleryPage() {
       {/* Gallery grid */}
       {!loading && quotes.length > 0 && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {quotes.map((quote, index) => {
+          {quotes.map((quote) => {
             const styleName =
               styles.find((s) => s.name === quote.styleId)?.displayName || null;
 
@@ -423,7 +422,7 @@ export default function GalleryPage() {
               <div
                 key={quote.id}
                 className="group cursor-pointer"
-                onClick={() => setLightboxIndex(index)}
+                onClick={() => router.push(`/dashboard/gallery/${quote.id}`)}
               >
                 <Card className="flex h-full flex-col overflow-hidden transition-all group-hover:shadow-md">
                   {quote.imageUrl ? (
@@ -456,20 +455,9 @@ export default function GalleryPage() {
                       &ldquo;{quote.quoteText}&rdquo;
                     </p>
                     {quote.attributedTo && (
-                      <div className="mt-1 flex items-center gap-1.5">
-                        {quote.slackUserAvatarUrl && (
-                          <Image
-                            src={quote.slackUserAvatarUrl}
-                            alt={quote.attributedTo}
-                            width={16}
-                            height={16}
-                            className="rounded-full"
-                          />
-                        )}
-                        <p className="text-muted-foreground text-xs">
-                          — {quote.attributedTo}
-                        </p>
-                      </div>
+                      <p className="text-muted-foreground mt-1 text-xs">
+                        — {quote.attributedTo}
+                      </p>
                     )}
                     <div className="mt-auto flex items-center justify-between pt-3">
                       <div className="flex items-center gap-2">
@@ -580,32 +568,6 @@ export default function GalleryPage() {
             </>
           )}
         </div>
-      )}
-
-      {/* Lightbox */}
-      {lightboxIndex !== null && quotes[lightboxIndex] && (
-        <Lightbox
-          items={quotes.map((q) => ({
-            quote: q.quoteText,
-            author: q.attributedTo || "Unknown",
-            style:
-              styles.find((s) => s.name === q.styleId)?.displayName ||
-              q.styleId,
-            image: q.imageUrl || "",
-          }))}
-          currentIndex={lightboxIndex}
-          onClose={() => setLightboxIndex(null)}
-          onPrev={() =>
-            setLightboxIndex((i) =>
-              i !== null ? (i - 1 + quotes.length) % quotes.length : null,
-            )
-          }
-          onNext={() =>
-            setLightboxIndex((i) =>
-              i !== null ? (i + 1) % quotes.length : null,
-            )
-          }
-        />
       )}
     </div>
   );

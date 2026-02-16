@@ -9,7 +9,7 @@ import {
 } from "@/lib/styles.server";
 
 export async function POST(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const session = await auth();
@@ -20,6 +20,17 @@ export async function POST(
 
   const workspaceId = session.user.workspaceId;
   const { id: quoteId } = await params;
+
+  // Parse optional styleId from request body
+  let requestedStyleId: string | null = null;
+  try {
+    const body = await request.json();
+    if (body.styleId && body.styleId !== "random") {
+      requestedStyleId = body.styleId;
+    }
+  } catch {
+    // No body or invalid JSON — treat as random
+  }
 
   // Fetch quote with channel and existing generations
   const quote = await prisma.quote.findFirst({
@@ -79,13 +90,27 @@ export async function POST(
     return NextResponse.json({ error: "No styles available" }, { status: 400 });
   }
 
-  // Pick an unused style; fall back to any if all exhausted
-  const usedStyleIds = new Set(quote.imageGenerations.map((ig) => ig.styleId));
-  const unusedStyles = enabledStyles.filter((s) => !usedStyleIds.has(s.name));
-  const selectedStyle =
-    unusedStyles.length > 0
-      ? pickRandomStyle(unusedStyles)
-      : pickRandomStyle(enabledStyles);
+  // Select style: use requested style if valid, otherwise random (prefer unused)
+  let selectedStyle;
+  if (requestedStyleId) {
+    const match = enabledStyles.find((s) => s.name === requestedStyleId);
+    if (!match) {
+      return NextResponse.json(
+        { error: "Style not available" },
+        { status: 400 },
+      );
+    }
+    selectedStyle = match;
+  } else {
+    const usedStyleIds = new Set(
+      quote.imageGenerations.map((ig) => ig.styleId),
+    );
+    const unusedStyles = enabledStyles.filter((s) => !usedStyleIds.has(s.name));
+    selectedStyle =
+      unusedStyles.length > 0
+        ? pickRandomStyle(unusedStyles)
+        : pickRandomStyle(enabledStyles);
+  }
 
   const styleId = selectedStyle.name;
   const customStyleDescription = selectedStyle.workspaceId

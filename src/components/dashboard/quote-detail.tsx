@@ -8,6 +8,13 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   ArrowLeft,
   Heart,
   Download,
@@ -18,6 +25,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
+import { Lightbox } from "@/components/marketing/lightbox";
 
 interface Generation {
   id: string;
@@ -26,6 +34,11 @@ interface Generation {
   imageUrl: string | null;
   status: string;
   createdAt: string;
+}
+
+interface AvailableStyle {
+  name: string;
+  displayName: string;
 }
 
 interface QuoteDetailProps {
@@ -43,6 +56,7 @@ interface QuoteDetailProps {
     status: string;
   };
   generations: Generation[];
+  availableStyles: AvailableStyle[];
 }
 
 function timeAgo(dateStr: string): string {
@@ -64,11 +78,28 @@ function timeAgo(dateStr: string): string {
   });
 }
 
-export function QuoteDetail({ quote, generations }: QuoteDetailProps) {
+export function QuoteDetail({
+  quote,
+  generations,
+  availableStyles,
+}: QuoteDetailProps) {
   const router = useRouter();
   const [isFavorited, setIsFavorited] = useState(quote.isFavorited);
   const [copied, setCopied] = useState(false);
   const [isRerolling, setIsRerolling] = useState(false);
+  const [rerollStyleId, setRerollStyleId] = useState("random");
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  // Build lightbox items from all generations that have images
+  const lightboxItems = generations
+    .filter((g) => g.imageUrl)
+    .map((g) => ({
+      quote: quote.quoteText,
+      author: quote.attributedTo || "Unknown",
+      style: g.styleName,
+      image: g.imageUrl!,
+    }))
+    .reverse();
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const hasPendingGeneration = generations.some(
@@ -129,6 +160,8 @@ export function QuoteDetail({ quote, generations }: QuoteDetailProps) {
     try {
       const res = await fetch(`/api/quotes/${quote.id}/regenerate`, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ styleId: rerollStyleId }),
       });
 
       if (res.status === 429) {
@@ -167,7 +200,15 @@ export function QuoteDetail({ quote, generations }: QuoteDetailProps) {
 
       <div className="border-border bg-card overflow-hidden rounded-2xl border shadow-sm">
         {displayImageUrl ? (
-          <div className="relative aspect-[4/3]">
+          <div
+            className="relative aspect-[4/3] cursor-pointer"
+            onClick={() => {
+              const idx = lightboxItems.findIndex(
+                (item) => item.image === displayImageUrl,
+              );
+              setLightboxIndex(idx >= 0 ? idx : 0);
+            }}
+          >
             <Image
               src={displayImageUrl}
               alt={quote.quoteText}
@@ -260,19 +301,34 @@ export function QuoteDetail({ quote, generations }: QuoteDetailProps) {
             )}
             {copied ? "Copied!" : "Share Link"}
           </Button>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={handleReroll}
-            disabled={isRerolling || hasPendingGeneration}
-          >
-            {isRerolling || hasPendingGeneration ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <RefreshCw className="mr-2 h-4 w-4" />
-            )}
-            Re-roll
-          </Button>
+          <div className="flex items-center gap-1.5">
+            <Select value={rerollStyleId} onValueChange={setRerollStyleId}>
+              <SelectTrigger className="h-8 w-[140px] text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="random">Random</SelectItem>
+                {availableStyles.map((s) => (
+                  <SelectItem key={s.name} value={s.name}>
+                    {s.displayName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={handleReroll}
+              disabled={isRerolling || hasPendingGeneration}
+            >
+              {isRerolling || hasPendingGeneration ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <RefreshCw className="mr-2 h-4 w-4" />
+              )}
+              Re-roll
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -289,7 +345,15 @@ export function QuoteDetail({ quote, generations }: QuoteDetailProps) {
                 className="border-border bg-card overflow-hidden rounded-lg border shadow-sm"
               >
                 {gen.imageUrl ? (
-                  <div className="relative aspect-[4/3]">
+                  <div
+                    className="relative aspect-[4/3] cursor-pointer"
+                    onClick={() => {
+                      const idx = lightboxItems.findIndex(
+                        (item) => item.image === gen.imageUrl,
+                      );
+                      if (idx >= 0) setLightboxIndex(idx);
+                    }}
+                  >
                     <Image
                       src={gen.imageUrl}
                       alt={`${gen.styleName} generation`}
@@ -333,6 +397,26 @@ export function QuoteDetail({ quote, generations }: QuoteDetailProps) {
             ))}
           </div>
         </div>
+      )}
+      {/* Lightbox */}
+      {lightboxIndex !== null && lightboxItems[lightboxIndex] && (
+        <Lightbox
+          items={lightboxItems}
+          currentIndex={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+          onPrev={() =>
+            setLightboxIndex((i) =>
+              i !== null
+                ? (i - 1 + lightboxItems.length) % lightboxItems.length
+                : null,
+            )
+          }
+          onNext={() =>
+            setLightboxIndex((i) =>
+              i !== null ? (i + 1) % lightboxItems.length : null,
+            )
+          }
+        />
       )}
     </div>
   );
