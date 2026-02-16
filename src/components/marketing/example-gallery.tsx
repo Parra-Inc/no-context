@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import { useState, useCallback, useRef, useEffect } from "react";
 import { FadeIn } from "@/components/marketing/fade-in";
 import { Lightbox } from "@/components/marketing/lightbox";
+import { QuoteCard } from "@/components/quote-card";
 
 const examples = [
   {
@@ -116,27 +116,6 @@ const examples = [
     style: "Fallout",
     image: "/images/landing/gallery/bunker-fallout.png",
   },
-];
-
-const cardRotations = [
-  "-rotate-1",
-  "rotate-1",
-  "rotate-0.5",
-  "-rotate-0.5",
-  "rotate-1",
-  "-rotate-1",
-  "-rotate-0.5",
-  "rotate-0.5",
-  "rotate-1",
-  "-rotate-1",
-  "rotate-0.5",
-  "-rotate-0.5",
-  "-rotate-1",
-  "rotate-0.5",
-  "-rotate-0.5",
-  "rotate-1",
-  "-rotate-1",
-  "rotate-0.5",
 ];
 
 export function ExampleGallery() {
@@ -264,31 +243,14 @@ export function ExampleGallery() {
                   key={i}
                   className="w-[280px] flex-shrink-0 snap-start sm:w-[260px]"
                 >
-                  <button
+                  <QuoteCard
+                    imageUrl={example.image}
+                    quoteText={example.quote}
+                    author={example.author}
+                    styleName={example.style}
                     onClick={() => setLightboxIndex(i)}
-                    className={`group flex h-full w-full cursor-pointer flex-col overflow-hidden rounded-xl border-2 border-[#1A1A1A] bg-white text-left shadow-[4px_4px_0px_0px_#1A1A1A] transition-all duration-200 hover:translate-x-[2px] hover:translate-y-[2px] hover:rotate-0 hover:shadow-[2px_2px_0px_0px_#1A1A1A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED] ${cardRotations[i]}`}
-                  >
-                    <div className="relative aspect-square overflow-hidden">
-                      <Image
-                        src={example.image}
-                        alt={example.quote}
-                        fill
-                        className="object-cover transition-transform duration-300 group-hover:scale-[1.025]"
-                        sizes="280px"
-                      />
-                    </div>
-                    <div className="p-4">
-                      <p className="font-quote text-sm text-[#1A1A1A]">
-                        &ldquo;{example.quote}&rdquo;
-                      </p>
-                      <p className="mt-1 text-xs text-[#4A4A4A]">
-                        — {example.author}
-                      </p>
-                      <p className="mt-2 text-xs font-medium text-[#7C3AED]">
-                        {example.style}
-                      </p>
-                    </div>
-                  </button>
+                    imageSizes="280px"
+                  />
                 </div>
               ))}
             </div>

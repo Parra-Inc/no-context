@@ -9,6 +9,7 @@ import {
   getSlackClient,
   postThreadReply,
   postToChannel,
+  getMessagePermalink,
   addReaction,
   removeReaction,
   isSlackTokenError,
@@ -120,12 +121,18 @@ async function handler(request: NextRequest) {
     // Post to Slack — routed to a channel (same or different) or as a thread reply
     const postTargetChannelId = job.postToSlackChannelId;
     if (postTargetChannelId) {
-      await postToChannel(
-        slackClient,
-        postTargetChannelId,
-        `"${quoteText}"`,
-        storedUrl,
-      );
+      let text = `"${quoteText}"`;
+      if (job.quoteOriginal) {
+        const permalink = await getMessagePermalink(
+          slackClient,
+          slackChannelId,
+          messageTs,
+        );
+        if (permalink) {
+          text = `${text}\n${permalink}`;
+        }
+      }
+      await postToChannel(slackClient, postTargetChannelId, text, storedUrl);
     } else {
       await postThreadReply(
         slackClient,
@@ -133,6 +140,20 @@ async function handler(request: NextRequest) {
         messageTs,
         `"${quoteText}"`,
         storedUrl,
+      );
+    }
+
+    // Get Slack permalink for the original message thread (if not already saved)
+    let slackPermalink: string | null = null;
+    const existingQuote = await prisma.quote.findUnique({
+      where: { id: quoteId },
+      select: { slackPermalink: true },
+    });
+    if (!existingQuote?.slackPermalink) {
+      slackPermalink = await getMessagePermalink(
+        slackClient,
+        slackChannelId,
+        messageTs,
       );
     }
 
@@ -153,6 +174,7 @@ async function handler(request: NextRequest) {
       data: {
         status: "COMPLETED",
         imageUrl: storedUrl,
+        ...(slackPermalink && { slackPermalink }),
       },
     });
 

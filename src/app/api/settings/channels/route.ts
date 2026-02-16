@@ -16,6 +16,7 @@ const UpdateChannelSchema = z.object({
   isPaused: z.boolean().optional(),
   postToChannelId: z.string().nullable().optional(),
   postToChannelName: z.string().nullable().optional(),
+  quoteOriginal: z.boolean().optional(),
 });
 
 export async function GET() {
@@ -108,8 +109,14 @@ export async function PATCH(request: NextRequest) {
     );
   }
 
-  const { channelId, styleMode, isPaused, postToChannelId, postToChannelName } =
-    result.data;
+  const {
+    channelId,
+    styleMode,
+    isPaused,
+    postToChannelId,
+    postToChannelName,
+    quoteOriginal,
+  } = result.data;
 
   const data: Record<string, unknown> = {};
 
@@ -124,6 +131,10 @@ export async function PATCH(request: NextRequest) {
   if (postToChannelId !== undefined) {
     data.postToChannelId = postToChannelId || null;
     data.postToChannelName = postToChannelName || null;
+  }
+
+  if (quoteOriginal !== undefined) {
+    data.quoteOriginal = quoteOriginal;
   }
 
   const channel = await prisma.channel.update({

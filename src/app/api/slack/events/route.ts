@@ -442,6 +442,7 @@ async function processMessage(event: SlackEvent, teamId: string) {
       customStyleDescription,
       encryptedBotToken: workspace.slackBotToken,
       postToSlackChannelId: channelRecord.postToChannelId || undefined,
+      quoteOriginal: channelRecord.quoteOriginal || undefined,
       tier,
       hasWatermark:
         (workspace.subscription?.hasWatermark ?? true) && used < quota,
@@ -792,6 +793,7 @@ async function generateFromMention(
       customStyleDescription,
       encryptedBotToken: workspace.slackBotToken,
       postToSlackChannelId: channelRecord.postToChannelId || undefined,
+      quoteOriginal: channelRecord.quoteOriginal || undefined,
       tier,
       hasWatermark:
         (workspace.subscription?.hasWatermark ?? true) && used < quota,

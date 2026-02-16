@@ -32,9 +32,12 @@ import {
   ImageIcon,
   RefreshCw,
   Loader2,
+  ExternalLink,
+  FolderKanban,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Lightbox } from "@/components/marketing/lightbox";
+import { ManageCollectionsDialog } from "@/components/dashboard/manage-collections-dialog";
 
 interface Generation {
   id: string;
@@ -63,6 +66,7 @@ interface QuoteDetailProps {
     channelName: string;
     styleName: string | null;
     status: string;
+    slackPermalink: string | null;
   };
   generations: Generation[];
   availableStyles: AvailableStyle[];
@@ -99,6 +103,7 @@ export function QuoteDetail({
   const [rerollStyleId, setRerollStyleId] = useState("random");
   const [rerollDialogOpen, setRerollDialogOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [collectionsOpen, setCollectionsOpen] = useState(false);
 
   // Build lightbox items from all generations that have images
   const lightboxItems = generations
@@ -312,6 +317,22 @@ export function QuoteDetail({
             )}
             {copied ? "Copied!" : "Share Link"}
           </Button>
+          {quote.slackPermalink && (
+            <a href={quote.slackPermalink} target="_blank" rel="noreferrer">
+              <Button variant="secondary" size="sm">
+                <ExternalLink className="mr-2 h-4 w-4" />
+                Open in Slack
+              </Button>
+            </a>
+          )}
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setCollectionsOpen(true)}
+          >
+            <FolderKanban className="mr-2 h-4 w-4" />
+            Collections
+          </Button>
           <Dialog open={rerollDialogOpen} onOpenChange={setRerollDialogOpen}>
             <DialogTrigger asChild>
               <Button
@@ -435,6 +456,13 @@ export function QuoteDetail({
           </div>
         </div>
       )}
+      {/* Manage Collections */}
+      <ManageCollectionsDialog
+        quoteId={quote.id}
+        open={collectionsOpen}
+        onOpenChange={setCollectionsOpen}
+      />
+
       {/* Lightbox */}
       {lightboxIndex !== null && lightboxItems[lightboxIndex] && (
         <Lightbox

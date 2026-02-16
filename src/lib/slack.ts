@@ -181,6 +181,22 @@ export async function removeReaction(
   }
 }
 
+export async function getMessagePermalink(
+  client: WebClient,
+  channel: string,
+  messageTs: string,
+): Promise<string | null> {
+  try {
+    const result = await client.chat.getPermalink({
+      channel,
+      message_ts: messageTs,
+    });
+    return result.permalink || null;
+  } catch {
+    return null;
+  }
+}
+
 export async function getParentMessage(
   client: WebClient,
   channel: string,

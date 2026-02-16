@@ -27,6 +27,7 @@ model Workspace {
   quotes       Quote[]
   styles       Style[]
   users        User[]
+  collections  Collection[]
 
 }
 
@@ -80,6 +81,7 @@ model Channel {
   styleMode         StyleMode @default(RANDOM)
   postToChannelId   String?
   postToChannelName String?
+  quoteOriginal     Boolean   @default(false)
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
@@ -103,6 +105,7 @@ model Quote {
   attributedTo    String?
   styleId         String
   imageUrl        String?
+  slackPermalink  String?
   status          QuoteStatus @default(PENDING)
   aiConfidence    Float?
   isFavorited     Boolean     @default(false)
@@ -110,6 +113,7 @@ model Quote {
   updatedAt       DateTime    @updatedAt
 
   imageGenerations ImageGeneration[]
+  collectionQuotes CollectionQuote[]
 
   @@unique([workspaceId, slackMessageTs])
   @@index([workspaceId, createdAt])
@@ -280,4 +284,34 @@ model EmailVerificationCode {
   @@index([code])
   @@index([token])
   @@index([expires])
+}
+
+model Collection {
+  id          String   @id @default(cuid())
+  name        String
+  emoji       String?
+  sortOrder   Int      @default(0)
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  collectionQuotes CollectionQuote[]
+
+  @@index([workspaceId])
+  @@index([workspaceId, sortOrder])
+}
+
+model CollectionQuote {
+  id           String   @id @default(cuid())
+  quoteId      String
+  collectionId String
+  createdAt    DateTime @default(now())
+
+  quote      Quote      @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  @@unique([quoteId, collectionId])
+  @@index([quoteId])
+  @@index([collectionId])
 }

@@ -57,6 +57,7 @@ export default async function SettingsGeneralPage() {
         styleMode: ch.styleMode,
         postToChannelId: ch.postToChannelId,
         postToChannelName: ch.postToChannelName,
+        quoteOriginal: ch.quoteOriginal,
         disabledStyleIds: ch.channelStyles.map((cs) => cs.styleId),
       }))}
       styles={allStyles}

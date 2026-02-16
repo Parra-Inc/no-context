@@ -27,7 +27,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus, Trash2, ChevronDown, Hash, Palette, Crown } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  ChevronDown,
+  Hash,
+  Palette,
+  Crown,
+  TriangleAlert,
+} from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { INFINITY } from "@/lib/tier-constants";
@@ -41,6 +49,7 @@ interface Channel {
   styleMode: "RANDOM" | "AI";
   postToChannelId: string | null;
   postToChannelName: string | null;
+  quoteOriginal: boolean;
   disabledStyleIds: string[];
 }
 
@@ -250,6 +259,7 @@ export default function SettingsGeneral({
     channelId: string,
     postToChannelId: string | null,
     overrideName?: string,
+    quoteOriginal?: boolean,
   ) {
     const slackChannel = slackChannels.find((ch) => ch.id === postToChannelId);
     const postToChannelName = overrideName || slackChannel?.name || null;
@@ -258,7 +268,12 @@ export default function SettingsGeneral({
     setChannels((prev) =>
       prev.map((ch) =>
         ch.id === channelId
-          ? { ...ch, postToChannelId, postToChannelName }
+          ? {
+              ...ch,
+              postToChannelId,
+              postToChannelName,
+              quoteOriginal: quoteOriginal ?? false,
+            }
           : ch,
       ),
     );
@@ -266,7 +281,12 @@ export default function SettingsGeneral({
       await fetch("/api/settings/channels", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ channelId, postToChannelId, postToChannelName }),
+        body: JSON.stringify({
+          channelId,
+          postToChannelId,
+          postToChannelName,
+          quoteOriginal: quoteOriginal ?? false,
+        }),
       });
       toast.success("Routing updated");
     } catch {
@@ -345,26 +365,39 @@ export default function SettingsGeneral({
                       quotes.
                     </DialogDescription>
                   </DialogHeader>
-                  <Select
-                    value={selectedSlackChannel}
-                    onValueChange={setSelectedSlackChannel}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a channel..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableSlackChannels.map((ch) => (
-                        <SelectItem key={ch.id} value={ch.id}>
-                          # {ch.name}
-                        </SelectItem>
-                      ))}
-                      {availableSlackChannels.length === 0 && (
-                        <SelectItem value="none" disabled>
-                          No available channels
-                        </SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
+                  {availableSlackChannels.length === 0 ? (
+                    <div className="flex items-start gap-3 rounded-md border border-yellow-500/30 bg-yellow-500/10 p-3 text-sm">
+                      <TriangleAlert className="mt-0.5 h-5 w-5 shrink-0 text-yellow-500" />
+                      <div>
+                        <p className="font-medium text-yellow-500">
+                          No channels available
+                        </p>
+                        <p className="text-muted-foreground mt-1">
+                          The No Context bot needs to be added to a Slack
+                          channel first. In Slack, open the channel you want to
+                          monitor, click the channel name at the top, go to the{" "}
+                          <strong>Integrations</strong> tab, and add the{" "}
+                          <strong>No Context</strong> app.
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <Select
+                      value={selectedSlackChannel}
+                      onValueChange={setSelectedSlackChannel}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a channel..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableSlackChannels.map((ch) => (
+                          <SelectItem key={ch.id} value={ch.id}>
+                            # {ch.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
                   <DialogFooter>
                     <Button
                       variant="secondary"
@@ -442,76 +475,165 @@ export default function SettingsGeneral({
                           </Button>
                         </div>
                       </div>
-                      <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                        <div>
-                          <label className="text-muted-foreground mb-1 block text-xs">
-                            Style Mode
-                          </label>
-                          <Select
-                            value={channel.styleMode}
-                            onValueChange={(v) =>
-                              updateChannelStyleMode(
-                                channel.id,
-                                v as "RANDOM" | "AI",
-                              )
-                            }
-                            disabled={saving === `mode-${channel.id}`}
-                          >
-                            <SelectTrigger className="w-full">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="RANDOM">Random</SelectItem>
-                              <SelectItem value="AI">AI Selection</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div>
-                          <label className="text-muted-foreground mb-1 block text-xs">
+                      <div className="mt-4 space-y-4">
+                        <fieldset disabled={saving === `mode-${channel.id}`}>
+                          <legend className="text-muted-foreground mb-2 text-xs font-medium">
+                            Style Selection
+                          </legend>
+                          <div className="grid gap-2 sm:grid-cols-2">
+                            {[
+                              {
+                                value: "RANDOM" as const,
+                                label: "Random",
+                                description:
+                                  "Picks a random style from the enabled styles each time",
+                              },
+                              {
+                                value: "AI" as const,
+                                label: "AI Selection",
+                                description:
+                                  "AI reads the message and picks the best matching style",
+                              },
+                            ].map((option) => (
+                              <label
+                                key={option.value}
+                                className={`cursor-pointer rounded-lg border p-3 transition-colors ${
+                                  channel.styleMode === option.value
+                                    ? "border-primary bg-primary/5"
+                                    : "border-border hover:border-muted-foreground/40"
+                                }`}
+                              >
+                                <div className="flex items-start gap-2">
+                                  <input
+                                    type="radio"
+                                    name={`styleMode-${channel.id}`}
+                                    value={option.value}
+                                    checked={channel.styleMode === option.value}
+                                    onChange={() =>
+                                      updateChannelStyleMode(
+                                        channel.id,
+                                        option.value,
+                                      )
+                                    }
+                                    className="accent-primary mt-1"
+                                  />
+                                  <div>
+                                    <div className="text-sm font-medium">
+                                      {option.label}
+                                    </div>
+                                    <div className="text-muted-foreground text-xs">
+                                      {option.description}
+                                    </div>
+                                  </div>
+                                </div>
+                              </label>
+                            ))}
+                          </div>
+                        </fieldset>
+
+                        <fieldset disabled={saving === `routing-${channel.id}`}>
+                          <legend className="text-muted-foreground mb-2 text-xs font-medium">
                             Post To
-                          </label>
-                          <Select
-                            value={
-                              channel.postToChannelId === null
-                                ? "same"
-                                : channel.postToChannelId ===
-                                    channel.slackChannelId
-                                  ? "same-new"
-                                  : channel.postToChannelId
-                            }
-                            onValueChange={(v) => {
-                              if (v === "same") {
-                                updateChannelRouting(channel.id, null);
-                              } else if (v === "same-new") {
-                                updateChannelRouting(
-                                  channel.id,
-                                  channel.slackChannelId,
-                                  channel.channelName,
-                                );
-                              } else {
-                                updateChannelRouting(channel.id, v);
-                              }
-                            }}
-                            disabled={saving === `routing-${channel.id}`}
-                          >
-                            <SelectTrigger className="w-full">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="same">
-                                Same channel (thread reply)
-                              </SelectItem>
-                              <SelectItem value="same-new">
-                                Same channel (new message)
-                              </SelectItem>
-                              {slackChannels.map((ch) => (
-                                <SelectItem key={ch.id} value={ch.id}>
-                                  # {ch.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
+                          </legend>
+                          <div className="grid gap-2">
+                            {[
+                              {
+                                value: "same",
+                                label: "Reply in thread",
+                                description:
+                                  "Responds as a thread reply on the original message",
+                              },
+                              {
+                                value: "same-new",
+                                label: "New message in same channel",
+                                description:
+                                  "Posts as a new standalone message in the same channel",
+                              },
+                              {
+                                value: "same-quote",
+                                label: "Quote & reply in same channel",
+                                description:
+                                  "Posts a new message that quotes the original message",
+                              },
+                              ...slackChannels.map((ch) => ({
+                                value: ch.id,
+                                label: `# ${ch.name}`,
+                                description: `Post to a different channel: #${ch.name}`,
+                              })),
+                            ].map((option) => {
+                              const currentValue =
+                                channel.postToChannelId === null
+                                  ? "same"
+                                  : channel.postToChannelId ===
+                                        channel.slackChannelId &&
+                                      channel.quoteOriginal
+                                    ? "same-quote"
+                                    : channel.postToChannelId ===
+                                        channel.slackChannelId
+                                      ? "same-new"
+                                      : channel.postToChannelId;
+                              return (
+                                <label
+                                  key={option.value}
+                                  className={`cursor-pointer rounded-lg border p-3 transition-colors ${
+                                    currentValue === option.value
+                                      ? "border-primary bg-primary/5"
+                                      : "border-border hover:border-muted-foreground/40"
+                                  }`}
+                                >
+                                  <div className="flex items-start gap-2">
+                                    <input
+                                      type="radio"
+                                      name={`postTo-${channel.id}`}
+                                      value={option.value}
+                                      checked={currentValue === option.value}
+                                      onChange={() => {
+                                        if (option.value === "same") {
+                                          updateChannelRouting(
+                                            channel.id,
+                                            null,
+                                          );
+                                        } else if (
+                                          option.value === "same-new"
+                                        ) {
+                                          updateChannelRouting(
+                                            channel.id,
+                                            channel.slackChannelId,
+                                            channel.channelName,
+                                            false,
+                                          );
+                                        } else if (
+                                          option.value === "same-quote"
+                                        ) {
+                                          updateChannelRouting(
+                                            channel.id,
+                                            channel.slackChannelId,
+                                            channel.channelName,
+                                            true,
+                                          );
+                                        } else {
+                                          updateChannelRouting(
+                                            channel.id,
+                                            option.value,
+                                          );
+                                        }
+                                      }}
+                                      className="accent-primary mt-1"
+                                    />
+                                    <div>
+                                      <div className="text-sm font-medium">
+                                        {option.label}
+                                      </div>
+                                      <div className="text-muted-foreground text-xs">
+                                        {option.description}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </label>
+                              );
+                            })}
+                          </div>
+                        </fieldset>
                       </div>
                     </div>
 

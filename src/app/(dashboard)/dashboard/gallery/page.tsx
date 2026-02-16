@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,15 +15,14 @@ import {
 } from "@/components/ui/select";
 import {
   Heart,
-  Download,
   Search,
   SlidersHorizontal,
   X,
-  ImageIcon,
   SearchX,
+  ImageIcon,
 } from "lucide-react";
-import { motion } from "motion/react";
 import { useRouter } from "next/navigation";
+import { QuoteCard } from "@/components/quote-card";
 import { toast } from "sonner";
 
 interface Quote {
@@ -419,97 +417,18 @@ export default function GalleryPage() {
               styles.find((s) => s.name === quote.styleId)?.displayName || null;
 
             return (
-              <div
+              <QuoteCard
                 key={quote.id}
-                className="group cursor-pointer"
+                imageUrl={quote.imageUrl}
+                quoteText={quote.quoteText}
+                author={quote.attributedTo}
+                styleName={styleName}
+                channelName={quote.channel.channelName}
+                timeAgo={timeAgo(quote.createdAt)}
+                isFavorited={quote.isFavorited}
+                onFavoriteToggle={(e) => toggleFavorite(e, quote.id)}
                 onClick={() => router.push(`/dashboard/gallery/${quote.id}`)}
-              >
-                <Card className="flex h-full flex-col overflow-hidden transition-all group-hover:shadow-md">
-                  {quote.imageUrl ? (
-                    <div className="relative aspect-[4/3]">
-                      <Image
-                        src={quote.imageUrl}
-                        alt={quote.quoteText}
-                        fill
-                        className="object-cover transition-transform group-hover:scale-[1.02]"
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                      />
-                      {styleName && (
-                        <div className="absolute bottom-2 left-2">
-                          <Badge
-                            variant="secondary"
-                            className="bg-black/60 text-[10px] text-white backdrop-blur-sm"
-                          >
-                            {styleName}
-                          </Badge>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="flex aspect-[4/3] items-center justify-center bg-gradient-to-br from-violet-50 to-orange-50">
-                      <ImageIcon className="text-muted-foreground/30 h-8 w-8" />
-                    </div>
-                  )}
-                  <div className="flex flex-1 flex-col p-4">
-                    <p className="font-quote text-foreground line-clamp-2 text-sm">
-                      &ldquo;{quote.quoteText}&rdquo;
-                    </p>
-                    {quote.attributedTo && (
-                      <p className="text-muted-foreground mt-1 text-xs">
-                        — {quote.attributedTo}
-                      </p>
-                    )}
-                    <div className="mt-auto flex items-center justify-between pt-3">
-                      <div className="flex items-center gap-2">
-                        <span className="text-muted-foreground/60 text-xs">
-                          #{quote.channel.channelName}
-                        </span>
-                        <span className="text-muted-foreground/30 text-[10px]">
-                          {timeAgo(quote.createdAt)}
-                        </span>
-                      </div>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={(e) => toggleFavorite(e, quote.id)}
-                          className="text-muted-foreground hover:text-coral transition-colors"
-                        >
-                          <motion.div
-                            key={String(quote.isFavorited)}
-                            initial={{ scale: 0.8 }}
-                            animate={{ scale: 1 }}
-                            transition={{
-                              type: "spring",
-                              stiffness: 400,
-                              damping: 10,
-                            }}
-                            className="inline-flex"
-                          >
-                            <Heart
-                              className="h-4 w-4"
-                              fill={quote.isFavorited ? "var(--coral)" : "none"}
-                              stroke={
-                                quote.isFavorited
-                                  ? "var(--coral)"
-                                  : "currentColor"
-                              }
-                            />
-                          </motion.div>
-                        </button>
-                        {quote.imageUrl && (
-                          <a
-                            href={quote.imageUrl}
-                            download
-                            onClick={(e) => e.stopPropagation()}
-                            className="text-muted-foreground hover:text-foreground"
-                          >
-                            <Download className="h-4 w-4" />
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              </div>
+              />
             );
           })}
         </div>

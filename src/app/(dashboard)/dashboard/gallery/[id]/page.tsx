@@ -77,6 +77,7 @@ export default async function QuoteDetailPage({
         channelName: quote.channel.channelName,
         styleName: currentStyle,
         status: quote.status,
+        slackPermalink: quote.slackPermalink,
       }}
       generations={quote.imageGenerations.map((ig) => ({
         id: ig.id,

@@ -154,6 +154,7 @@ export async function POST(
       customStyleDescription,
       encryptedBotToken: workspace.slackBotToken,
       postToSlackChannelId: quote.channel.postToChannelId || undefined,
+      quoteOriginal: quote.channel.quoteOriginal || undefined,
       tier,
       hasWatermark:
         (workspace.subscription?.hasWatermark ?? true) && used < quota,

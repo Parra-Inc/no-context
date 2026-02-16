@@ -13,8 +13,8 @@ html {
   --foreground: #1a1a1a;
   --muted: #f5f5f4;
   --muted-foreground: #4a4a4a;
-  --accent: #ede9fe;
-  --accent-foreground: #7c3aed;
+  --accent: #f5f5f4;
+  --accent-foreground: #1a1a1a;
   --accent-light: #ede9fe;
   --coral: #f97066;
   --card: #ffffff;
@@ -40,8 +40,8 @@ html {
   --sidebar-foreground: #1a1a1a;
   --sidebar-primary: #7c3aed;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #ede9fe;
-  --sidebar-accent-foreground: #7c3aed;
+  --sidebar-accent: #f5f5f4;
+  --sidebar-accent-foreground: #1a1a1a;
   --sidebar-border: #e5e5e5;
   --sidebar-ring: #7c3aed;
 }

@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  LayoutDashboard,
+  Home,
   Image,
+  FolderKanban,
   Settings,
   LogOut,
   ChevronsUpDown,
@@ -56,8 +57,9 @@ const TIER_LABELS: Record<string, string> = {
 };
 
 const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard", label: "Home", icon: Home },
   { href: "/dashboard/gallery", label: "Gallery", icon: Image },
+  { href: "/dashboard/collections", label: "Collections", icon: FolderKanban },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
@@ -119,9 +121,6 @@ export function AppSidebar({
       {/* Navigation */}
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-muted-foreground/60 text-[11px] font-semibold tracking-wider uppercase">
-            Menu
-          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navItems.map((item) => {

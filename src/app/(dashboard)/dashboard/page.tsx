@@ -4,7 +4,6 @@ import prisma from "@/lib/prisma";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import Image from "next/image";
 import {
   Zap,
   Hash,
@@ -14,6 +13,24 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { QuoteCard } from "@/components/quote-card";
+
+function timeAgo(date: Date): string {
+  const now = new Date();
+  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  if (seconds < 60) return "just now";
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
+}
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -35,6 +52,7 @@ export default async function DashboardPage() {
     totalFavorites,
     recentQuotes,
     usage,
+    styles,
   ] = await Promise.all([
     prisma.workspace.findUnique({
       where: { id: workspaceId },
@@ -66,6 +84,13 @@ export default async function DashboardPage() {
           1,
         ),
       },
+    }),
+    prisma.style.findMany({
+      where: {
+        OR: [{ workspaceId }, { workspaceId: null }],
+        isActive: true,
+      },
+      select: { name: true, displayName: true },
     }),
   ]);
 
@@ -124,18 +149,9 @@ export default async function DashboardPage() {
       )}
 
       {/* Header */}
-      <div className="flex items-center gap-3">
-        {workspace?.slackTeamIcon && (
-          <img
-            src={workspace.slackTeamIcon}
-            alt={workspace.slackTeamName ?? ""}
-            className="h-10 w-10 rounded-lg"
-          />
-        )}
-        <h1 className="text-foreground text-2xl font-bold">
-          {workspace?.slackTeamName}
-        </h1>
-      </div>
+      <h1 className="text-foreground text-2xl font-bold">
+        Welcome{session.user.name ? `, ${session.user.name}` : ""} 👋
+      </h1>
 
       {/* Stat cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -180,42 +196,28 @@ export default async function DashboardPage() {
         </div>
         {recentQuotes.length > 0 ? (
           <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {recentQuotes.map((quote) => (
-              <Link
-                key={quote.id}
-                href={`/dashboard/gallery/${quote.id}`}
-                className="group border-border bg-card overflow-hidden rounded-xl border transition-all hover:shadow-md"
-              >
-                {quote.imageUrl ? (
-                  <div className="relative aspect-[4/3]">
-                    <Image
-                      src={quote.imageUrl}
-                      alt={quote.quoteText}
-                      fill
-                      className="object-cover transition-transform group-hover:scale-[1.02]"
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                    />
-                  </div>
-                ) : (
-                  <div className="flex aspect-[4/3] items-center justify-center bg-gradient-to-br from-violet-50 to-orange-50">
-                    <ImageIcon className="text-muted-foreground/60 h-8 w-8" />
-                  </div>
-                )}
-                <div className="p-3">
-                  <p className="font-quote text-foreground line-clamp-2 text-xs">
-                    &ldquo;{quote.quoteText}&rdquo;
-                  </p>
-                  {quote.attributedTo && (
-                    <p className="text-muted-foreground/60 mt-1 text-[10px]">
-                      — {quote.attributedTo}
-                    </p>
-                  )}
-                  <p className="text-muted-foreground/60 mt-1 text-[10px]">
-                    #{quote.channel.channelName}
-                  </p>
-                </div>
-              </Link>
-            ))}
+            {recentQuotes.map((quote) => {
+              const styleName =
+                styles.find((s) => s.name === quote.styleId)?.displayName ||
+                null;
+
+              return (
+                <Link
+                  key={quote.id}
+                  href={`/dashboard/gallery/${quote.id}`}
+                  className="h-full"
+                >
+                  <QuoteCard
+                    imageUrl={quote.imageUrl}
+                    quoteText={quote.quoteText}
+                    author={quote.attributedTo}
+                    styleName={styleName}
+                    channelName={quote.channel.channelName}
+                    timeAgo={timeAgo(quote.createdAt)}
+                  />
+                </Link>
+              );
+            })}
           </div>
         ) : (
           <div className="border-border mt-4 flex flex-col items-center justify-center rounded-xl border border-dashed py-10">
