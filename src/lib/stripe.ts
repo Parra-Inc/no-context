@@ -34,6 +34,7 @@ export async function createCheckoutSession(
   return stripe.checkout.sessions.create({
     customer: customerId,
     payment_method_types: ["card"],
+    allow_promotion_codes: true,
     line_items: [{ price: priceId, quantity: 1 }],
     mode: "subscription",
     success_url: `${appUrl}/dashboard/settings/billing?success=true`,
@@ -146,6 +147,7 @@ export async function createTokenPackCheckoutSession(
   return stripe.checkout.sessions.create({
     customer: customerId,
     payment_method_types: ["card"],
+    allow_promotion_codes: true,
     line_items: [{ price: pack.stripePriceId, quantity: 1 }],
     mode: "payment",
     success_url: `${appUrl}/dashboard/settings/billing?tokens=success&pack=${pack.id}`,
