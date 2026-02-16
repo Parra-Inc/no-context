@@ -6,6 +6,7 @@ export interface DbStyle {
   name: string;
   displayName: string;
   description: string;
+  prompt: string;
 }
 
 export async function getEnabledStylesForChannel(

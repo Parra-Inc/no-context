@@ -6,7 +6,7 @@ import { z } from "zod/v4";
 const CreateStyleSchema = z.object({
   name: z.string().min(1),
   displayName: z.string().min(1),
-  description: z.string().min(1).max(500),
+  prompt: z.string().min(1).max(500),
 });
 
 // GET: returns all active styles (built-in + workspace custom)
@@ -58,14 +58,15 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { name, displayName, description } = result.data;
+  const { name, displayName, prompt } = result.data;
 
   const style = await prisma.style.create({
     data: {
       workspaceId: session.user.workspaceId,
       name,
       displayName,
-      description,
+      description: displayName,
+      prompt,
       createdBy: session.user.slackUserId,
     },
   });

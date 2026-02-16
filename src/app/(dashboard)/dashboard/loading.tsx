@@ -5,15 +5,9 @@ export default function DashboardLoading() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <div className="flex items-center gap-3">
-          <Skeleton className="h-10 w-10 rounded-lg" />
-          <div>
-            <Skeleton className="h-7 w-48" />
-            <Skeleton className="mt-1 h-4 w-64" />
-          </div>
-        </div>
-        <Skeleton className="mt-4 h-2 w-full rounded-full" />
+      <div className="flex items-center gap-3">
+        <Skeleton className="h-10 w-10 rounded-lg" />
+        <Skeleton className="h-7 w-48" />
       </div>
 
       {/* Stat cards */}
@@ -44,7 +38,7 @@ export default function DashboardLoading() {
           {Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
-              className="overflow-hidden rounded-xl border border-[#E5E5E5]"
+              className="border-border overflow-hidden rounded-xl border"
             >
               <Skeleton className="aspect-[4/3] w-full rounded-none" />
               <div className="space-y-2 p-3">
@@ -58,12 +52,15 @@ export default function DashboardLoading() {
 
       {/* Channels */}
       <div>
-        <Skeleton className="h-6 w-40" />
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-6 w-40" />
+          <Skeleton className="h-4 w-16" />
+        </div>
         <div className="mt-4 space-y-2">
           {Array.from({ length: 2 }).map((_, i) => (
             <div
               key={i}
-              className="flex items-center justify-between rounded-xl border border-[#E5E5E5] p-4"
+              className="border-border flex items-center justify-between rounded-xl border p-4"
             >
               <div className="flex items-center gap-3">
                 <Skeleton className="h-8 w-8 rounded-lg" />

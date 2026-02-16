@@ -165,6 +165,7 @@ model Style {
   name        String
   displayName String
   description String
+  prompt      String     @default("")
   createdBy        String?
   isActive         Boolean    @default(true)
   enabledByDefault Boolean    @default(true)

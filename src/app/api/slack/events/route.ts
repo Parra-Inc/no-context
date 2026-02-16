@@ -276,7 +276,7 @@ async function processMessage(event: SlackEvent, teamId: string) {
       slackUserId,
       [
         `You've used all ${used}/${quota} monthly images${bonusCredits === 0 ? "" : " and bonus credits"} for No Context. Your monthly usage resets on *${resetDateStr}*.`,
-        `<${appUrl}/dashboard/settings/billing|Upgrade your plan> or <${appUrl}/dashboard/settings/billing|buy a token pack> to keep generating!`,
+        `<${appUrl}/dashboard/settings/billing|Upgrade your plan> or <${appUrl}/dashboard/settings/billing|buy extra image generations> to keep generating!`,
       ].join("\n"),
     );
     return;
@@ -385,7 +385,7 @@ async function processMessage(event: SlackEvent, teamId: string) {
   const styleId = selectedStyle.name;
   // Custom styles (with a workspaceId) pass their description for prompt generation
   const customStyleDescription = selectedStyle.workspaceId
-    ? selectedStyle.description
+    ? selectedStyle.prompt
     : undefined;
 
   const { quote, imageGeneration } = await prisma.$transaction(async (tx) => {
@@ -661,7 +661,7 @@ async function generateFromMention(
 
   const styleId = selectedStyle.name;
   const customStyleDescription = selectedStyle.workspaceId
-    ? selectedStyle.description
+    ? selectedStyle.prompt
     : undefined;
 
   // Add processing reaction

@@ -287,21 +287,22 @@ export default function SettingsGeneral({
           <CardDescription>Workspace and channel settings</CardDescription>
           <div className="space-y-3 pt-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-[#4A4A4A]">Workspace</span>
-              <span className="text-sm font-medium text-[#1A1A1A]">
+              <span className="text-muted-foreground text-sm">Workspace</span>
+              <span className="text-foreground text-sm font-medium">
                 {workspaceName}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-[#4A4A4A]">Slack Connection</span>
+              <span className="text-muted-foreground text-sm">
+                Slack Connection
+              </span>
               {needsReconnection ? (
                 <div className="flex items-center gap-2">
                   <Badge variant="destructive">Disconnected</Badge>
-                  <a
-                    href="/api/slack/install"
-                    className="rounded-md bg-[#7C3AED] px-3 py-1 text-xs font-medium text-white hover:bg-[#6D28D9]"
-                  >
-                    Reconnect
+                  <a href="/api/slack/install">
+                    <Button size="xs" variant="default">
+                      Reconnect
+                    </Button>
                   </a>
                 </div>
               ) : (
@@ -310,13 +311,13 @@ export default function SettingsGeneral({
             </div>
           </div>
 
-          <div className="border-t border-[#E5E5E5] pt-4">
+          <div className="border-border border-t pt-4">
             <div className="flex items-center justify-between">
               <div>
-                <h4 className="text-sm font-medium text-[#1A1A1A]">
+                <h4 className="text-foreground text-sm font-medium">
                   Connected Channels
                 </h4>
-                <p className="mt-0.5 text-xs text-[#9A9A9A]">
+                <p className="text-muted-foreground/60 mt-0.5 text-xs">
                   {channels.length} of{" "}
                   {maxChannels === Infinity ? "unlimited" : maxChannels}{" "}
                   channels used
@@ -380,12 +381,12 @@ export default function SettingsGeneral({
             </div>
 
             {atChannelLimit && (
-              <p className="mt-2 text-xs text-[#9A9A9A]">
+              <p className="text-muted-foreground/60 mt-2 text-xs">
                 You&apos;ve reached the channel limit for your{" "}
                 {subscriptionTier} plan.{" "}
                 <Link
                   href="/dashboard/settings/billing"
-                  className="text-[#7C3AED] hover:underline"
+                  className="text-primary hover:underline"
                 >
                   Upgrade
                 </Link>{" "}
@@ -402,15 +403,15 @@ export default function SettingsGeneral({
                 return (
                   <div
                     key={channel.id}
-                    className={`overflow-hidden rounded-lg border transition-all ${channel.isPaused ? "border-border/50 opacity-60" : "border-[#E5E5E5]"}`}
+                    className={`overflow-hidden rounded-xl border transition-all ${channel.isPaused ? "border-border/50 opacity-60" : "border-border"}`}
                   >
                     <div
-                      className={`p-4 ${channel.isPaused ? "bg-muted/30" : "bg-gray-50"}`}
+                      className={`p-4 ${channel.isPaused ? "bg-muted/30" : "bg-muted/50"}`}
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <Hash className="h-4 w-4 text-[#9A9A9A]" />
-                          <span className="text-sm font-medium text-[#1A1A1A]">
+                          <Hash className="text-muted-foreground/60 h-4 w-4" />
+                          <span className="text-foreground text-sm font-medium">
                             {channel.channelName}
                           </span>
                         </div>
@@ -433,7 +434,7 @@ export default function SettingsGeneral({
                       </div>
                       <div className="mt-3 grid gap-3 sm:grid-cols-2">
                         <div>
-                          <label className="mb-1 block text-xs text-[#4A4A4A]">
+                          <label className="text-muted-foreground mb-1 block text-xs">
                             Style Mode
                           </label>
                           <Select
@@ -456,7 +457,7 @@ export default function SettingsGeneral({
                           </Select>
                         </div>
                         <div>
-                          <label className="mb-1 block text-xs text-[#4A4A4A]">
+                          <label className="text-muted-foreground mb-1 block text-xs">
                             Post To
                           </label>
                           <Select
@@ -493,7 +494,7 @@ export default function SettingsGeneral({
                       onClick={() =>
                         setExpandedChannel(isExpanded ? null : channel.id)
                       }
-                      className="flex w-full items-center justify-between border-t border-[#E5E5E5] bg-gray-50/50 px-4 py-2.5 text-xs text-[#4A4A4A] transition-colors hover:bg-gray-100/80"
+                      className="border-border bg-muted/30 text-muted-foreground hover:bg-muted/50 flex w-full items-center justify-between border-t px-4 py-2.5 text-xs transition-colors"
                     >
                       <span>
                         {enabledCount} of {styles.length} styles enabled
@@ -510,7 +511,7 @@ export default function SettingsGeneral({
                       }}
                     >
                       <div className="overflow-hidden">
-                        <div className="grid grid-cols-2 gap-2 border-t border-[#E5E5E5] p-4 sm:grid-cols-3">
+                        <div className="border-border grid grid-cols-2 gap-2 border-t p-4 sm:grid-cols-3">
                           {styles.map((style) => {
                             const isEnabled =
                               !channel.disabledStyleIds.includes(style.id);
@@ -567,9 +568,9 @@ export default function SettingsGeneral({
               })}
 
               {channels.length === 0 && (
-                <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#E5E5E5] py-8">
-                  <Hash className="h-8 w-8 text-[#D4D4D4]" />
-                  <p className="mt-2 text-sm text-[#4A4A4A]">
+                <div className="border-border flex flex-col items-center justify-center rounded-xl border border-dashed py-10">
+                  <Hash className="text-muted-foreground/30 h-8 w-8" />
+                  <p className="text-muted-foreground mt-2 text-sm">
                     No channels connected yet.
                   </p>
                   <Button

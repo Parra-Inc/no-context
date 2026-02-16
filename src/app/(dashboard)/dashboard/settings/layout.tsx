@@ -7,7 +7,7 @@ export default function SettingsLayout({
 }) {
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-bold">Settings</h1>
+      <h1 className="text-foreground text-2xl font-bold">Settings</h1>
       <SettingsNav />
       {children}
     </div>

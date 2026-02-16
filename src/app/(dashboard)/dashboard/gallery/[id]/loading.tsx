@@ -14,7 +14,7 @@ export default function QuoteDetailLoading() {
           <Skeleton className="h-4 w-48" />
         </div>
         <Skeleton className="h-5 w-20 rounded-full" />
-        <div className="flex gap-3 border-t border-[#E5E5E5] pt-4">
+        <div className="border-border flex gap-3 border-t pt-4">
           <Skeleton className="h-8 w-24 rounded-md" />
           <Skeleton className="h-8 w-24 rounded-md" />
           <Skeleton className="h-8 w-28 rounded-md" />

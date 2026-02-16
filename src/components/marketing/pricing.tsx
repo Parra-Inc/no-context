@@ -23,8 +23,8 @@ const tiers = [
   },
   {
     name: "Starter",
-    monthlyPrice: 9,
-    annualPrice: 7,
+    monthlyPrice: 8,
+    annualPrice: 6,
     images: 25,
     popular: false,
     cta: "Try Starter Free",
@@ -39,8 +39,8 @@ const tiers = [
   },
   {
     name: "Team",
-    monthlyPrice: 29,
-    annualPrice: 24,
+    monthlyPrice: 20,
+    annualPrice: 15,
     images: 100,
     popular: true,
     cta: "Try Team Free for 14 Days",
@@ -56,8 +56,8 @@ const tiers = [
   },
   {
     name: "Business",
-    monthlyPrice: 79,
-    annualPrice: 66,
+    monthlyPrice: 60,
+    annualPrice: 45,
     images: 500,
     popular: false,
     description: "For really big teams or excessively ridiculous small ones.",
@@ -109,7 +109,7 @@ export function Pricing() {
               >
                 Annual
               </span>
-              {isAnnual && <Badge variant="default">Save 17%</Badge>}
+              {isAnnual && <Badge variant="default">Save 25%</Badge>}
             </div>
           </div>
         </FadeIn>
@@ -145,6 +145,16 @@ export function Pricing() {
                 <p className="mt-2 text-sm font-medium text-[#7C3AED]">
                   {tier.images} images/month
                 </p>
+                {tier.monthlyPrice > 0 && (
+                  <p className="mt-1 text-xs text-[#4A4A4A]">
+                    $
+                    {(
+                      (isAnnual ? tier.annualPrice : tier.monthlyPrice) /
+                      tier.images
+                    ).toFixed(2)}{" "}
+                    per image
+                  </p>
+                )}
                 <ul className="mt-6 space-y-3">
                   {tier.features.map((feature, j) => (
                     <li

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { hash } from "bcryptjs";
 import prisma from "@/lib/prisma";
 import { sendVerificationEmail } from "@/lib/email/send-verification";
+import { notifyNewUserSignup } from "@/lib/slack-notifications";
 import { z } from "zod/v4";
 
 const SignupSchema = z.object({
@@ -48,6 +49,12 @@ export async function POST(request: NextRequest) {
     });
 
     await sendVerificationEmail(user.id);
+
+    notifyNewUserSignup({
+      userId: user.id,
+      email: normalizedEmail,
+      name: name || null,
+    });
 
     return NextResponse.json(
       {

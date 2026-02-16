@@ -7,6 +7,11 @@ import {
   TIER_IMAGE_SIZE,
 } from "@/lib/stripe";
 import prisma from "@/lib/prisma";
+import {
+  notifyTokenPackPurchase,
+  notifySubscriptionPurchase,
+  notifySubscriptionCanceled,
+} from "@/lib/slack-notifications";
 import type { SubscriptionTier, SubscriptionStatus } from "@prisma/client";
 import type Stripe from "stripe";
 
@@ -100,6 +105,19 @@ export async function POST(request: NextRequest) {
           }),
         ]);
 
+        const tokenWorkspace = await prisma.workspace.findUnique({
+          where: { id: workspaceId },
+          select: { slackTeamName: true },
+        });
+
+        notifyTokenPackPurchase({
+          workspaceId,
+          teamName: tokenWorkspace?.slackTeamName || workspaceId,
+          packType: packId || "UNKNOWN",
+          credits: creditsToAdd,
+          amountCents: session.amount_total || 0,
+        });
+
         break;
       }
 
@@ -113,7 +131,7 @@ export async function POST(request: NextRequest) {
       const priceId = sub.items.data[0]?.price?.id || "";
       const tier = tierFromPriceId(priceId);
 
-      await prisma.subscription.update({
+      const updatedSub = await prisma.subscription.update({
         where: { stripeCustomerId: customerId },
         data: {
           stripeSubscriptionId: subscriptionId,
@@ -131,6 +149,14 @@ export async function POST(request: NextRequest) {
             ? new Date(sub.current_period_end * 1000)
             : null,
         },
+        include: { workspace: { select: { slackTeamName: true } } },
+      });
+
+      notifySubscriptionPurchase({
+        workspaceId: updatedSub.workspaceId,
+        teamName: updatedSub.workspace.slackTeamName,
+        tier,
+        priceId,
       });
       break;
     }
@@ -173,7 +199,7 @@ export async function POST(request: NextRequest) {
       const sub = event.data.object as unknown as StripeSubscriptionData;
       const customerId = sub.customer;
 
-      await prisma.subscription.update({
+      const canceledSub = await prisma.subscription.update({
         where: { stripeCustomerId: customerId },
         data: {
           tier: "FREE",
@@ -185,6 +211,12 @@ export async function POST(request: NextRequest) {
           stripeSubscriptionId: null,
           stripePriceId: null,
         },
+        include: { workspace: { select: { slackTeamName: true } } },
+      });
+
+      notifySubscriptionCanceled({
+        workspaceId: canceledSub.workspaceId,
+        teamName: canceledSub.workspace.slackTeamName,
       });
       break;
     }

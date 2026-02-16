@@ -86,12 +86,12 @@ export function QuoteDetail({ quote }: QuoteDetailProps) {
     <div className="mx-auto max-w-3xl space-y-6">
       <Link
         href="/dashboard/gallery"
-        className="inline-flex items-center gap-2 text-sm text-[#4A4A4A] transition-colors hover:text-[#1A1A1A]"
+        className="text-muted-foreground hover:text-foreground inline-flex items-center gap-2 text-sm transition-colors"
       >
         <ArrowLeft className="h-4 w-4" /> Back to Gallery
       </Link>
 
-      <div className="overflow-hidden rounded-2xl border border-[#E5E5E5] bg-white shadow-sm">
+      <div className="border-border bg-card overflow-hidden rounded-2xl border shadow-sm">
         {quote.imageUrl ? (
           <div className="relative aspect-[4/3]">
             <Image
@@ -105,18 +105,18 @@ export function QuoteDetail({ quote }: QuoteDetailProps) {
           </div>
         ) : (
           <div className="flex aspect-[4/3] items-center justify-center bg-gradient-to-br from-violet-50 to-orange-50">
-            <ImageIcon className="h-16 w-16 text-[#D4D4D4]" />
+            <ImageIcon className="text-muted-foreground/30 h-16 w-16" />
           </div>
         )}
       </div>
 
       <div className="space-y-4">
-        <p className="font-quote text-xl leading-relaxed text-[#1A1A1A]">
+        <p className="font-quote text-foreground text-xl leading-relaxed">
           &ldquo;{quote.quoteText}&rdquo;
         </p>
 
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2 text-sm text-[#4A4A4A]">
+          <div className="text-muted-foreground flex items-center gap-2 text-sm">
             {quote.slackUserAvatarUrl && (
               <Image
                 src={quote.slackUserAvatarUrl}
@@ -134,10 +134,12 @@ export function QuoteDetail({ quote }: QuoteDetailProps) {
                   : ""}
             </span>
           </div>
-          <span className="text-[#D4D4D4]">&middot;</span>
-          <span className="text-sm text-[#4A4A4A]">#{quote.channelName}</span>
-          <span className="text-[#D4D4D4]">&middot;</span>
-          <span className="text-sm text-[#9A9A9A]">
+          <span className="text-muted-foreground/30">&middot;</span>
+          <span className="text-muted-foreground text-sm">
+            #{quote.channelName}
+          </span>
+          <span className="text-muted-foreground/30">&middot;</span>
+          <span className="text-muted-foreground/60 text-sm">
             {timeAgo(quote.createdAt)}
           </span>
         </div>
@@ -146,7 +148,7 @@ export function QuoteDetail({ quote }: QuoteDetailProps) {
           <Badge variant="secondary">{quote.styleName}</Badge>
         )}
 
-        <div className="flex gap-3 border-t border-[#E5E5E5] pt-4">
+        <div className="border-border flex gap-3 border-t pt-4">
           <Button
             variant={isFavorited ? "default" : "secondary"}
             size="sm"

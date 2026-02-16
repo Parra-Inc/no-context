@@ -10,8 +10,14 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import Link from "next/link";
-import { Palette, Lock } from "lucide-react";
+import { Palette, Lock, Info } from "lucide-react";
 import { CustomStylesManager } from "@/components/dashboard/custom-styles-manager";
 import { toggleStyleEnabled } from "@/app/(dashboard)/dashboard/settings/styles/actions";
 
@@ -24,6 +30,7 @@ interface BuiltInStyle {
   name: string;
   displayName: string;
   description: string;
+  prompt: string;
   enabledByDefault: boolean;
 }
 
@@ -31,7 +38,7 @@ interface CustomStyle {
   id: string;
   name: string;
   displayName: string;
-  description: string;
+  prompt: string;
   enabledByDefault: boolean;
 }
 
@@ -42,13 +49,7 @@ interface SettingsStylesProps {
   canCreateCustom: boolean;
 }
 
-function StyleRow({
-  style,
-  hasImage,
-}: {
-  style: BuiltInStyle | CustomStyle;
-  hasImage: boolean;
-}) {
+function StyleCard({ style }: { style: BuiltInStyle }) {
   const [isPending, startTransition] = useTransition();
   const [optimisticEnabled, setOptimisticEnabled] = useOptimistic(
     style.enabledByDefault,
@@ -63,38 +64,41 @@ function StyleRow({
 
   return (
     <div
-      className={`flex items-center gap-4 rounded-lg border p-3 transition-all ${
+      className={`overflow-hidden rounded-lg border transition-all ${
         optimisticEnabled
           ? "border-border bg-background"
           : "border-border/50 bg-muted/30 opacity-50"
       }`}
     >
-      {hasImage ? (
-        <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border">
-          <Image
-            src={getStyleImagePath(style.name)}
-            alt={`${style.displayName} preview`}
-            fill
-            className="object-cover"
-            sizes="48px"
-          />
-        </div>
-      ) : (
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border bg-gradient-to-br from-violet-100 to-purple-100">
-          <Palette className="h-5 w-5 text-violet-500" />
-        </div>
-      )}
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium">{style.displayName}</p>
-        <p className="text-muted-foreground mt-0.5 line-clamp-1 text-xs">
-          {style.description}
-        </p>
+      <div className="bg-muted relative aspect-[3/2]">
+        <Image
+          src={getStyleImagePath(style.name)}
+          alt={`${style.displayName} preview`}
+          fill
+          className="object-cover"
+          sizes="(max-width: 640px) 50vw, 33vw"
+        />
       </div>
-      <Switch
-        checked={optimisticEnabled}
-        onCheckedChange={handleToggle}
-        disabled={isPending}
-      />
+      <div className="flex items-center justify-between gap-2 px-2.5 py-2">
+        <div className="flex min-w-0 items-center gap-1">
+          <p className="truncate text-xs font-medium">{style.displayName}</p>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="text-muted-foreground h-3 w-3 shrink-0" />
+              </TooltipTrigger>
+              <TooltipContent side="top" className="max-w-xs">
+                {style.description}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+        <Switch
+          checked={optimisticEnabled}
+          onCheckedChange={handleToggle}
+          disabled={isPending}
+        />
+      </div>
     </div>
   );
 }
@@ -118,22 +122,6 @@ export function SettingsStyles({
 
       <Card>
         <CardContent className="space-y-4 pt-6">
-          <div>
-            <CardTitle>Built-in Styles</CardTitle>
-            <CardDescription className="mt-1">
-              Pre-configured art styles available to all plans
-            </CardDescription>
-          </div>
-          <div className="space-y-2">
-            {builtInStyles.map((style) => (
-              <StyleRow key={style.id} style={style} hasImage={true} />
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="space-y-4 pt-6">
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Custom Styles</CardTitle>
@@ -151,19 +139,35 @@ export function SettingsStyles({
           {canCreateCustom ? (
             <CustomStylesManager customStyles={customStyles} />
           ) : (
-            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-8">
+            <div className="border-border flex flex-col items-center justify-center rounded-xl border border-dashed py-10">
               <Palette className="text-muted-foreground/30 h-8 w-8" />
               <p className="text-muted-foreground mt-2 text-sm">
                 Custom styles are available on Team and Business plans.
               </p>
               <Link
                 href="/dashboard/settings/billing"
-                className="mt-2 text-sm text-[#7C3AED] hover:underline"
+                className="text-primary mt-2 text-sm hover:underline"
               >
                 View plans
               </Link>
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="space-y-4 pt-6">
+          <div>
+            <CardTitle>Built-in Styles</CardTitle>
+            <CardDescription className="mt-1">
+              Pre-configured art styles available to all plans
+            </CardDescription>
+          </div>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {builtInStyles.map((style) => (
+              <StyleCard key={style.id} style={style} />
+            ))}
+          </div>
         </CardContent>
       </Card>
     </div>

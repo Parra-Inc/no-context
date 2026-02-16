@@ -19,7 +19,7 @@ interface CustomStyle {
   id: string;
   name: string;
   displayName: string;
-  description: string;
+  prompt: string;
 }
 
 interface CustomStylesManagerProps {
@@ -36,10 +36,10 @@ export function CustomStylesManager({
 
   const [newName, setNewName] = useState("");
   const [newDisplayName, setNewDisplayName] = useState("");
-  const [newDescription, setNewDescription] = useState("");
+  const [newPrompt, setNewPrompt] = useState("");
 
   async function createStyle() {
-    if (!newName || !newDisplayName || !newDescription) {
+    if (!newName || !newDisplayName || !newPrompt) {
       toast.error("All fields are required");
       return;
     }
@@ -52,7 +52,7 @@ export function CustomStylesManager({
         body: JSON.stringify({
           name: newName.toLowerCase().replace(/\s+/g, "-"),
           displayName: newDisplayName,
-          description: newDescription,
+          prompt: newPrompt,
         }),
       });
 
@@ -67,7 +67,7 @@ export function CustomStylesManager({
       setCreateOpen(false);
       setNewName("");
       setNewDisplayName("");
-      setNewDescription("");
+      setNewPrompt("");
       toast.success(`"${newDisplayName}" style created`);
     } catch {
       toast.error("Failed to create style");
@@ -126,24 +126,22 @@ export function CustomStylesManager({
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                 />
-                <p className="mt-1 text-xs text-[#9A9A9A]">
+                <p className="text-muted-foreground/60 mt-1 text-xs">
                   Lowercase letters, numbers, and hyphens only.
                 </p>
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium">
-                  Prompt Modifier
-                </label>
+                <label className="mb-1 block text-sm font-medium">Prompt</label>
                 <textarea
                   placeholder="Describe the art style for the AI image generator..."
-                  value={newDescription}
-                  onChange={(e) => setNewDescription(e.target.value)}
+                  value={newPrompt}
+                  onChange={(e) => setNewPrompt(e.target.value)}
                   rows={3}
                   maxLength={500}
                   className="border-input w-full rounded-md border px-3 py-2 text-sm"
                 />
-                <p className="mt-1 text-xs text-[#9A9A9A]">
-                  {newDescription.length}/500 characters
+                <p className="text-muted-foreground/60 mt-1 text-xs">
+                  {newPrompt.length}/500 characters
                 </p>
               </div>
             </div>
@@ -164,18 +162,18 @@ export function CustomStylesManager({
           {styles.map((style) => (
             <div
               key={style.id}
-              className="flex items-center justify-between rounded-lg border border-[#E5E5E5] bg-gray-50 p-4"
+              className="border-border bg-muted/50 flex items-center justify-between rounded-xl border p-4"
             >
               <div className="flex items-center gap-3">
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-violet-200 to-purple-200">
                   <Palette className="h-4 w-4 text-violet-600" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-[#1A1A1A]">
+                  <p className="text-foreground text-sm font-medium">
                     {style.displayName}
                   </p>
-                  <p className="line-clamp-1 text-xs text-[#4A4A4A]">
-                    {style.description}
+                  <p className="text-muted-foreground line-clamp-1 text-xs">
+                    {style.prompt}
                   </p>
                 </div>
               </div>
@@ -191,10 +189,12 @@ export function CustomStylesManager({
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#E5E5E5] py-8">
-          <Palette className="h-8 w-8 text-[#D4D4D4]" />
-          <p className="mt-2 text-sm text-[#4A4A4A]">No custom styles yet.</p>
-          <p className="mt-1 text-xs text-[#9A9A9A]">
+        <div className="border-border flex flex-col items-center justify-center rounded-xl border border-dashed py-10">
+          <Palette className="text-muted-foreground/30 h-8 w-8" />
+          <p className="text-muted-foreground mt-2 text-sm">
+            No custom styles yet.
+          </p>
+          <p className="text-muted-foreground/60 mt-1 text-xs">
             Create one to add your own art style to the mix.
           </p>
         </div>

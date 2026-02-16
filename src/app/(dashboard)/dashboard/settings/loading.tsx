@@ -20,7 +20,7 @@ export default function SettingsLoading() {
               <Skeleton className="h-5 w-20 rounded-full" />
             </div>
           </div>
-          <div className="border-t border-[#E5E5E5] pt-4">
+          <div className="border-border border-t pt-4">
             <div className="flex items-center justify-between">
               <div>
                 <Skeleton className="h-4 w-36" />

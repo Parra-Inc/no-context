@@ -264,8 +264,8 @@ export default function GalleryPage() {
     debouncedSearch || channelId || styleId || debouncedAuthor || favoritesOnly;
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-[#1A1A1A]">Gallery</h1>
+    <div className="space-y-8">
+      <h1 className="text-foreground text-2xl font-bold">Gallery</h1>
 
       {/* Search bar */}
       <div className="flex gap-2">
@@ -296,7 +296,7 @@ export default function GalleryPage() {
 
       {/* Filter bar */}
       {filtersOpen && (
-        <div className="rounded-xl border border-[#E5E5E5] bg-white p-4">
+        <div className="border-border bg-card rounded-xl border p-4">
           <div className="flex flex-wrap items-end gap-4">
             {/* Channel filter */}
             <div className="min-w-[160px] flex-1">
@@ -403,7 +403,7 @@ export default function GalleryPage() {
 
       {/* Results count */}
       {pagination && !loading && (
-        <p className="text-sm text-[#4A4A4A]">
+        <p className="text-muted-foreground text-sm">
           {pagination.total} {pagination.total === 1 ? "quote" : "quotes"} found
         </p>
       )}
@@ -447,11 +447,11 @@ export default function GalleryPage() {
                     </div>
                   ) : (
                     <div className="flex aspect-[4/3] items-center justify-center bg-gradient-to-br from-violet-50 to-orange-50">
-                      <ImageIcon className="h-8 w-8 text-[#D4D4D4]" />
+                      <ImageIcon className="text-muted-foreground/30 h-8 w-8" />
                     </div>
                   )}
                   <div className="flex flex-1 flex-col p-4">
-                    <p className="font-quote line-clamp-2 text-sm text-[#1A1A1A]">
+                    <p className="font-quote text-foreground line-clamp-2 text-sm">
                       &ldquo;{quote.quoteText}&rdquo;
                     </p>
                     {quote.attributedTo && (
@@ -465,30 +465,32 @@ export default function GalleryPage() {
                             className="rounded-full"
                           />
                         )}
-                        <p className="text-xs text-[#4A4A4A]">
+                        <p className="text-muted-foreground text-xs">
                           — {quote.attributedTo}
                         </p>
                       </div>
                     )}
                     <div className="mt-auto flex items-center justify-between pt-3">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-[#9A9A9A]">
+                        <span className="text-muted-foreground/60 text-xs">
                           #{quote.channel.channelName}
                         </span>
-                        <span className="text-[10px] text-[#D4D4D4]">
+                        <span className="text-muted-foreground/30 text-[10px]">
                           {timeAgo(quote.createdAt)}
                         </span>
                       </div>
                       <div className="flex gap-2">
                         <button
                           onClick={(e) => toggleFavorite(e, quote.id)}
-                          className="text-[#4A4A4A] transition-colors hover:text-[#F97066]"
+                          className="text-muted-foreground hover:text-coral transition-colors"
                         >
                           <Heart
                             className="h-4 w-4"
-                            fill={quote.isFavorited ? "#F97066" : "none"}
+                            fill={quote.isFavorited ? "var(--coral)" : "none"}
                             stroke={
-                              quote.isFavorited ? "#F97066" : "currentColor"
+                              quote.isFavorited
+                                ? "var(--coral)"
+                                : "currentColor"
                             }
                           />
                         </button>
@@ -497,7 +499,7 @@ export default function GalleryPage() {
                             href={quote.imageUrl}
                             download
                             onClick={(e) => e.stopPropagation()}
-                            className="text-[#4A4A4A] hover:text-[#1A1A1A]"
+                            className="text-muted-foreground hover:text-foreground"
                           >
                             <Download className="h-4 w-4" />
                           </a>
@@ -524,7 +526,7 @@ export default function GalleryPage() {
               {loadingMore ? "Loading..." : "Load More"}
             </Button>
           )}
-          <p className="text-xs text-[#4A4A4A]">
+          <p className="text-muted-foreground text-xs">
             Showing {quotes.length} of {pagination.total} · Page {page} of{" "}
             {pagination.totalPages}
           </p>
@@ -533,14 +535,14 @@ export default function GalleryPage() {
 
       {/* Empty state */}
       {!loading && quotes.length === 0 && (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[#E5E5E5] py-16">
+        <div className="border-border flex flex-col items-center justify-center rounded-xl border border-dashed py-10">
           {hasActiveFilters ? (
             <>
-              <SearchX className="h-12 w-12 text-[#D4D4D4]" />
-              <p className="mt-4 text-sm font-medium text-[#4A4A4A]">
+              <SearchX className="text-muted-foreground/30 h-10 w-10" />
+              <p className="text-muted-foreground mt-4 text-sm font-medium">
                 No quotes match your filters
               </p>
-              <p className="mt-1 text-xs text-[#9A9A9A]">
+              <p className="text-muted-foreground/60 mt-1 text-xs">
                 Try adjusting your search or clearing some filters.
               </p>
               <Button
@@ -555,11 +557,11 @@ export default function GalleryPage() {
             </>
           ) : (
             <>
-              <ImageIcon className="h-12 w-12 text-[#D4D4D4]" />
-              <p className="mt-4 text-sm font-medium text-[#4A4A4A]">
+              <ImageIcon className="text-muted-foreground/30 h-10 w-10" />
+              <p className="text-muted-foreground mt-4 text-sm font-medium">
                 No quotes yet
               </p>
-              <p className="mt-1 text-xs text-[#9A9A9A]">
+              <p className="text-muted-foreground/60 mt-1 text-xs">
                 Post something in your connected Slack channel to get started.
               </p>
             </>

@@ -10,6 +10,7 @@ import {
   TIER_IMAGE_SIZE,
 } from "@/lib/stripe";
 import { findOrCreateUserBySlack } from "@/lib/user";
+import { notifyNewWorkspace } from "@/lib/slack-notifications";
 import { log } from "@/lib/logger";
 
 export async function GET(request: NextRequest) {
@@ -198,6 +199,18 @@ export async function GET(request: NextRequest) {
       log.info(
         `Slack callback: created free subscription for workspace=${workspace.id}`,
       );
+
+      const installer = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { email: true },
+      });
+
+      notifyNewWorkspace({
+        workspaceId: workspace.id,
+        slackTeamName,
+        slackTeamIcon,
+        installedByEmail: installer?.email || null,
+      });
     }
 
     // Link the user to the workspace

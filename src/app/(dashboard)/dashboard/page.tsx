@@ -127,7 +127,7 @@ export default async function DashboardPage() {
             className="h-10 w-10 rounded-lg"
           />
         )}
-        <h1 className="text-2xl font-bold text-[#1A1A1A]">
+        <h1 className="text-foreground text-2xl font-bold">
           {workspace?.slackTeamName}
         </h1>
       </div>
@@ -139,13 +139,15 @@ export default async function DashboardPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-3xl font-bold text-[#1A1A1A]">
+                  <p className="text-foreground text-3xl font-bold">
                     {stat.value}
                   </p>
-                  <p className="text-sm font-medium text-[#4A4A4A]">
+                  <p className="text-muted-foreground text-sm font-medium">
                     {stat.label}
                   </p>
-                  <p className="mt-0.5 text-xs text-[#9A9A9A]">{stat.detail}</p>
+                  <p className="text-muted-foreground/60 mt-0.5 text-xs">
+                    {stat.detail}
+                  </p>
                 </div>
                 <div
                   className={`flex h-10 w-10 items-center justify-center rounded-lg ${stat.color}`}
@@ -161,12 +163,12 @@ export default async function DashboardPage() {
       {/* Recent Quotes */}
       <div>
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-[#1A1A1A]">
+          <h2 className="text-foreground text-lg font-semibold">
             Recent Quotes
           </h2>
           <Link
             href="/dashboard/gallery"
-            className="text-sm text-[#7C3AED] hover:underline"
+            className="text-primary text-sm hover:underline"
           >
             View All
           </Link>
@@ -177,7 +179,7 @@ export default async function DashboardPage() {
               <Link
                 key={quote.id}
                 href={`/dashboard/gallery/${quote.id}`}
-                className="group overflow-hidden rounded-xl border border-[#E5E5E5] bg-white transition-all hover:shadow-md"
+                className="group border-border bg-card overflow-hidden rounded-xl border transition-all hover:shadow-md"
               >
                 {quote.imageUrl ? (
                   <div className="relative aspect-[4/3]">
@@ -191,19 +193,19 @@ export default async function DashboardPage() {
                   </div>
                 ) : (
                   <div className="flex aspect-[4/3] items-center justify-center bg-gradient-to-br from-violet-50 to-orange-50">
-                    <ImageIcon className="h-8 w-8 text-[#9A9A9A]" />
+                    <ImageIcon className="text-muted-foreground/60 h-8 w-8" />
                   </div>
                 )}
                 <div className="p-3">
-                  <p className="font-quote line-clamp-2 text-xs text-[#1A1A1A]">
+                  <p className="font-quote text-foreground line-clamp-2 text-xs">
                     &ldquo;{quote.quoteText}&rdquo;
                   </p>
                   {quote.attributedTo && (
-                    <p className="mt-1 text-[10px] text-[#9A9A9A]">
+                    <p className="text-muted-foreground/60 mt-1 text-[10px]">
                       — {quote.attributedTo}
                     </p>
                   )}
-                  <p className="mt-1 text-[10px] text-[#9A9A9A]">
+                  <p className="text-muted-foreground/60 mt-1 text-[10px]">
                     #{quote.channel.channelName}
                   </p>
                 </div>
@@ -211,12 +213,12 @@ export default async function DashboardPage() {
             ))}
           </div>
         ) : (
-          <div className="mt-4 flex flex-col items-center justify-center rounded-xl border border-dashed border-[#E5E5E5] py-12">
-            <ImageIcon className="h-10 w-10 text-[#D4D4D4]" />
-            <p className="mt-3 text-sm font-medium text-[#4A4A4A]">
+          <div className="border-border mt-4 flex flex-col items-center justify-center rounded-xl border border-dashed py-10">
+            <ImageIcon className="text-muted-foreground/30 h-10 w-10" />
+            <p className="text-muted-foreground mt-3 text-sm font-medium">
               No quotes yet
             </p>
-            <p className="mt-1 text-xs text-[#9A9A9A]">
+            <p className="text-muted-foreground/60 mt-1 text-xs">
               Post something in your connected Slack channel to get started.
             </p>
           </div>
@@ -226,12 +228,12 @@ export default async function DashboardPage() {
       {/* Connected Channels */}
       <div>
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-[#1A1A1A]">
+          <h2 className="text-foreground text-lg font-semibold">
             Connected Channels
           </h2>
           <Link
             href="/dashboard/settings"
-            className="text-sm text-[#7C3AED] hover:underline"
+            className="text-primary text-sm hover:underline"
           >
             Manage
           </Link>
@@ -240,17 +242,17 @@ export default async function DashboardPage() {
           {channels.map((channel) => (
             <div
               key={channel.id}
-              className="flex items-center justify-between rounded-xl border border-[#E5E5E5] bg-white p-4"
+              className="border-border bg-card flex items-center justify-between rounded-xl border p-4"
             >
               <div className="flex items-center gap-3">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
                   <Hash className="h-4 w-4" />
                 </div>
                 <div>
-                  <span className="text-sm font-medium text-[#1A1A1A]">
+                  <span className="text-foreground text-sm font-medium">
                     {channel.channelName}
                   </span>
-                  <p className="text-xs text-[#9A9A9A]">
+                  <p className="text-muted-foreground/60 text-xs">
                     {channel._count.quotes}{" "}
                     {channel._count.quotes === 1 ? "quote" : "quotes"}
                   </p>
@@ -260,12 +262,12 @@ export default async function DashboardPage() {
                 <Badge variant={channel.isPaused ? "warning" : "success"}>
                   {channel.isPaused ? "Paused" : "Active"}
                 </Badge>
-                <span className="text-xs text-[#4A4A4A]">
+                <span className="text-muted-foreground text-xs">
                   {channel.styleMode === "AI" ? "AI Selection" : "Random"}
                 </span>
                 <Link
                   href="/dashboard/settings"
-                  className="text-[#9A9A9A] hover:text-[#4A4A4A]"
+                  className="text-muted-foreground/60 hover:text-muted-foreground"
                 >
                   <Settings className="h-4 w-4" />
                 </Link>
@@ -273,12 +275,12 @@ export default async function DashboardPage() {
             </div>
           ))}
           {channels.length === 0 && (
-            <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[#E5E5E5] py-8">
-              <Hash className="h-8 w-8 text-[#D4D4D4]" />
-              <p className="mt-2 text-sm text-[#4A4A4A]">
+            <div className="border-border flex flex-col items-center justify-center rounded-xl border border-dashed py-10">
+              <Hash className="text-muted-foreground/30 h-8 w-8" />
+              <p className="text-muted-foreground mt-2 text-sm">
                 No channels connected yet.
               </p>
-              <Link href="/dashboard/settings" className="mt-2">
+              <Link href="/dashboard/settings" className="mt-3">
                 <Button size="sm" variant="secondary">
                   Add a channel
                 </Button>

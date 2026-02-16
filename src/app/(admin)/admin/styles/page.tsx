@@ -19,6 +19,7 @@ export default async function AdminStylesPage() {
           name: s.name,
           displayName: s.displayName,
           description: s.description,
+          prompt: s.prompt,
           isActive: s.isActive,
           enabledByDefault: s.enabledByDefault,
           channelStyleCount: s._count.channelStyles,

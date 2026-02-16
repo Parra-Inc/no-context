@@ -17,14 +17,14 @@ const CreateStyleSchema = z.object({
     .min(1)
     .regex(/^[a-z0-9-]+$/, "Name must be lowercase alphanumeric with hyphens"),
   displayName: z.string().min(1),
-  description: z.string().min(1).max(1000),
+  prompt: z.string().min(1).max(1000),
   enabledByDefault: z.boolean().default(true),
 });
 
 const UpdateStyleSchema = z.object({
   id: z.string().min(1),
   displayName: z.string().min(1).optional(),
-  description: z.string().min(1).max(1000).optional(),
+  prompt: z.string().min(1).max(1000).optional(),
   enabledByDefault: z.boolean().optional(),
 });
 
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { name, displayName, description, enabledByDefault } = result.data;
+  const { name, displayName, prompt, enabledByDefault } = result.data;
 
   const existing = await prisma.style.findFirst({
     where: { workspaceId: null, name },
@@ -80,7 +80,8 @@ export async function POST(request: NextRequest) {
         workspaceId: null,
         name,
         displayName,
-        description,
+        description: displayName,
+        prompt,
         enabledByDefault,
         createdBy: session.user.id,
       },

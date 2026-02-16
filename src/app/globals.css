@@ -116,6 +116,26 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+  a,
+  button,
+  [role="button"],
+  [role="link"],
+  [role="tab"],
+  [role="menuitem"],
+  [role="option"],
+  [role="checkbox"],
+  [role="radio"],
+  [role="switch"],
+  input[type="submit"],
+  input[type="button"],
+  input[type="reset"],
+  input[type="checkbox"],
+  input[type="radio"],
+  select,
+  label[for],
+  summary {
+    cursor: pointer;
+  }
 }
 
 /* Onboarding connection line animation */

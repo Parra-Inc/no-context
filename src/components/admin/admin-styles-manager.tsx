@@ -20,6 +20,7 @@ interface AdminStyle {
   name: string;
   displayName: string;
   description: string;
+  prompt: string;
   isActive: boolean;
   enabledByDefault: boolean;
   channelStyleCount: number;
@@ -42,14 +43,14 @@ export function AdminStylesManager({ initialStyles }: AdminStylesManagerProps) {
   const [createForm, setCreateForm] = useState({
     name: "",
     displayName: "",
-    description: "",
+    prompt: "",
     enabledByDefault: true,
   });
 
   // Edit form state
   const [editForm, setEditForm] = useState({
     displayName: "",
-    description: "",
+    prompt: "",
     enabledByDefault: true,
   });
 
@@ -57,7 +58,7 @@ export function AdminStylesManager({ initialStyles }: AdminStylesManagerProps) {
     setCreateForm({
       name: "",
       displayName: "",
-      description: "",
+      prompt: "",
       enabledByDefault: true,
     });
     setError(null);
@@ -115,7 +116,7 @@ export function AdminStylesManager({ initialStyles }: AdminStylesManagerProps) {
             ? {
                 ...s,
                 displayName: updated.displayName,
-                description: updated.description,
+                prompt: updated.prompt,
                 enabledByDefault: updated.enabledByDefault,
               }
             : s,
@@ -149,7 +150,7 @@ export function AdminStylesManager({ initialStyles }: AdminStylesManagerProps) {
   function openEdit(style: AdminStyle) {
     setEditForm({
       displayName: style.displayName,
-      description: style.description,
+      prompt: style.prompt,
       enabledByDefault: style.enabledByDefault,
     });
     setError(null);
@@ -187,7 +188,7 @@ export function AdminStylesManager({ initialStyles }: AdminStylesManagerProps) {
                     Name
                   </th>
                   <th className="pr-4 pb-3 text-left font-medium text-[#4A4A4A]">
-                    Description
+                    Prompt
                   </th>
                   <th className="pr-4 pb-3 text-left font-medium text-[#4A4A4A]">
                     Default
@@ -212,7 +213,7 @@ export function AdminStylesManager({ initialStyles }: AdminStylesManagerProps) {
                       </code>
                     </td>
                     <td className="max-w-xs truncate py-3 pr-4 text-[#4A4A4A]">
-                      {style.description}
+                      {style.prompt}
                     </td>
                     <td className="py-3 pr-4">
                       <Badge
@@ -298,15 +299,15 @@ export function AdminStylesManager({ initialStyles }: AdminStylesManagerProps) {
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium text-[#1A1A1A]">
-                Description / Prompt Modifier
+                Prompt
               </label>
               <textarea
                 className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
                 rows={3}
                 placeholder="Describe the art style for the AI image generator..."
-                value={createForm.description}
+                value={createForm.prompt}
                 onChange={(e) =>
-                  setCreateForm((f) => ({ ...f, description: e.target.value }))
+                  setCreateForm((f) => ({ ...f, prompt: e.target.value }))
                 }
               />
             </div>
@@ -379,14 +380,14 @@ export function AdminStylesManager({ initialStyles }: AdminStylesManagerProps) {
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium text-[#1A1A1A]">
-                Description / Prompt Modifier
+                Prompt
               </label>
               <textarea
                 className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
                 rows={3}
-                value={editForm.description}
+                value={editForm.prompt}
                 onChange={(e) =>
-                  setEditForm((f) => ({ ...f, description: e.target.value }))
+                  setEditForm((f) => ({ ...f, prompt: e.target.value }))
                 }
               />
             </div>

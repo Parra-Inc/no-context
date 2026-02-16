@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { TOKEN_PACKS, createTokenPackCheckoutSession } from "@/lib/stripe";
+import {
+  stripe,
+  TOKEN_PACKS,
+  createTokenPackCheckoutSession,
+} from "@/lib/stripe";
 
 export async function POST(request: NextRequest) {
   const session = await auth();
@@ -17,19 +21,34 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid pack" }, { status: 400 });
   }
 
-  const subscription = await prisma.subscription.findUnique({
+  let subscription = await prisma.subscription.findUnique({
     where: { workspaceId: session.user.workspaceId },
   });
 
+  // Create a Stripe customer + subscription record for free users
   if (!subscription?.stripeCustomerId) {
-    return NextResponse.json(
-      { error: "No billing account found" },
-      { status: 404 },
-    );
+    const customer = await stripe.customers.create({
+      email: session.user.email || undefined,
+      metadata: { workspaceId: session.user.workspaceId },
+    });
+
+    if (subscription) {
+      subscription = await prisma.subscription.update({
+        where: { workspaceId: session.user.workspaceId },
+        data: { stripeCustomerId: customer.id },
+      });
+    } else {
+      subscription = await prisma.subscription.create({
+        data: {
+          workspaceId: session.user.workspaceId,
+          stripeCustomerId: customer.id,
+        },
+      });
+    }
   }
 
   const checkoutSession = await createTokenPackCheckoutSession(
-    subscription.stripeCustomerId,
+    subscription.stripeCustomerId!,
     session.user.workspaceId,
     pack,
   );
