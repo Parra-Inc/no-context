@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { getUserWorkspaces } from "@/lib/workspace";
+import { getUserWorkspaces, autoLinkSlackWorkspace } from "@/lib/workspace";
 import { WorkspaceSelector } from "./workspace-selector";
 import type { Metadata } from "next";
 
@@ -14,6 +14,11 @@ export default async function WorkspacesPage() {
 
   if (!session?.user?.id) {
     redirect("/signin");
+  }
+
+  // Auto-link Slack user to their team's workspace if not already a member
+  if (session.user.authType === "slack" && session.user.slackTeamId) {
+    await autoLinkSlackWorkspace(session.user.id, session.user.slackTeamId);
   }
 
   const workspaceUsers = await getUserWorkspaces(session.user.id);

@@ -96,6 +96,30 @@ export async function getUserWorkspaces(userId: string) {
   });
 }
 
+export async function autoLinkSlackWorkspace(
+  userId: string,
+  slackTeamId: string,
+) {
+  const workspace = await prisma.workspace.findUnique({
+    where: { slackTeamId },
+  });
+
+  if (!workspace) return;
+
+  await prisma.workspaceUser.upsert({
+    where: {
+      userId_workspaceId: { userId, workspaceId: workspace.id },
+    },
+    create: {
+      userId,
+      workspaceId: workspace.id,
+      role: "member",
+      isDefault: true,
+    },
+    update: {},
+  });
+}
+
 export async function getWorkspaceFromRequest(userId: string): Promise<string> {
   const hdrs = await headers();
   const workspaceId = hdrs.get("x-workspace-id");
