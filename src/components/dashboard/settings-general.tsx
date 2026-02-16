@@ -247,9 +247,10 @@ export default function SettingsGeneral({
   async function updateChannelRouting(
     channelId: string,
     postToChannelId: string | null,
+    overrideName?: string,
   ) {
     const slackChannel = slackChannels.find((ch) => ch.id === postToChannelId);
-    const postToChannelName = slackChannel?.name || null;
+    const postToChannelName = overrideName || slackChannel?.name || null;
 
     setSaving(`routing-${channelId}`);
     setChannels((prev) =>
@@ -461,13 +462,27 @@ export default function SettingsGeneral({
                             Post To
                           </label>
                           <Select
-                            value={channel.postToChannelId || "same"}
-                            onValueChange={(v) =>
-                              updateChannelRouting(
-                                channel.id,
-                                v === "same" ? null : v,
-                              )
+                            value={
+                              channel.postToChannelId === null
+                                ? "same"
+                                : channel.postToChannelId ===
+                                    channel.slackChannelId
+                                  ? "same-new"
+                                  : channel.postToChannelId
                             }
+                            onValueChange={(v) => {
+                              if (v === "same") {
+                                updateChannelRouting(channel.id, null);
+                              } else if (v === "same-new") {
+                                updateChannelRouting(
+                                  channel.id,
+                                  channel.slackChannelId,
+                                  channel.channelName,
+                                );
+                              } else {
+                                updateChannelRouting(channel.id, v);
+                              }
+                            }}
                             disabled={saving === `routing-${channel.id}`}
                           >
                             <SelectTrigger className="w-full">
@@ -476,6 +491,9 @@ export default function SettingsGeneral({
                             <SelectContent>
                               <SelectItem value="same">
                                 Same channel (thread reply)
+                              </SelectItem>
+                              <SelectItem value="same-new">
+                                Same channel (new message)
                               </SelectItem>
                               {slackChannels.map((ch) => (
                                 <SelectItem key={ch.id} value={ch.id}>

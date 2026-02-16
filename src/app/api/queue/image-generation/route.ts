@@ -117,9 +117,9 @@ async function handler(request: NextRequest) {
     }
     const storedUrl = await uploadImage(imageBuffer, workspaceId, quoteId);
 
-    // Post to Slack — either routed to a different channel or as a thread reply
+    // Post to Slack — routed to a channel (same or different) or as a thread reply
     const postTargetChannelId = job.postToSlackChannelId;
-    if (postTargetChannelId && postTargetChannelId !== slackChannelId) {
+    if (postTargetChannelId) {
       await postToChannel(
         slackClient,
         postTargetChannelId,

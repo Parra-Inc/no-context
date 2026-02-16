@@ -10,8 +10,8 @@ export const TIER_MAX_CHANNELS: Record<string, number> = {
   FREE: 1,
   STARTER: 1,
   TEAM: 3,
-  BUSINESS: Infinity,
-  ENTERPRISE: Infinity,
+  BUSINESS: 999999,
+  ENTERPRISE: 999999,
 };
 
 export const TIER_IMAGE_SIZE: Record<string, string> = {
