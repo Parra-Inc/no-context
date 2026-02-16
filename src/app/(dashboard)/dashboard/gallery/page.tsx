@@ -24,6 +24,7 @@ import {
   SearchX,
 } from "lucide-react";
 import { Lightbox } from "@/components/marketing/lightbox";
+import { motion } from "motion/react";
 import { toast } from "sonner";
 
 interface Quote {
@@ -484,15 +485,27 @@ export default function GalleryPage() {
                           onClick={(e) => toggleFavorite(e, quote.id)}
                           className="text-muted-foreground hover:text-coral transition-colors"
                         >
-                          <Heart
-                            className="h-4 w-4"
-                            fill={quote.isFavorited ? "var(--coral)" : "none"}
-                            stroke={
-                              quote.isFavorited
-                                ? "var(--coral)"
-                                : "currentColor"
-                            }
-                          />
+                          <motion.div
+                            key={String(quote.isFavorited)}
+                            initial={{ scale: 0.8 }}
+                            animate={{ scale: 1 }}
+                            transition={{
+                              type: "spring",
+                              stiffness: 400,
+                              damping: 10,
+                            }}
+                            className="inline-flex"
+                          >
+                            <Heart
+                              className="h-4 w-4"
+                              fill={quote.isFavorited ? "var(--coral)" : "none"}
+                              stroke={
+                                quote.isFavorited
+                                  ? "var(--coral)"
+                                  : "currentColor"
+                              }
+                            />
+                          </motion.div>
                         </button>
                         {quote.imageUrl && (
                           <a

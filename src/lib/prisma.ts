@@ -36,6 +36,13 @@ function createExtendedClient(base: PrismaClient) {
           }
           return query(args);
         },
+        async upsert({ model, args, query }) {
+          const prefix = getModelPrefix(model);
+          if (prefix && !(args.create as Record<string, unknown>).id) {
+            (args.create as Record<string, unknown>).id = createId(prefix);
+          }
+          return query(args);
+        },
       },
     },
   });

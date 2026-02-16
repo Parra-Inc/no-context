@@ -21,6 +21,16 @@ export async function GET(
     },
     include: {
       channel: { select: { channelName: true } },
+      imageGenerations: {
+        orderBy: { createdAt: "asc" },
+        select: {
+          id: true,
+          styleId: true,
+          imageUrl: true,
+          status: true,
+          createdAt: true,
+        },
+      },
     },
   });
 

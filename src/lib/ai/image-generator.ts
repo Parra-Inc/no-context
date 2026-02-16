@@ -39,7 +39,7 @@ The image should:
 - Depict the scene or situation described in the quote
 - Capture the humor or absurdity of the quote
 - Be whimsical and lighthearted
-- Not contain any text or words in the image
+- IMPORTANT: Do NOT include any text, words, letters, or typography in the image — especially do NOT render the quote itself as text. The image should be purely illustrative with no written words.
 - Be suitable for a workplace setting (no violence, explicit content)`;
   }
 
@@ -50,7 +50,7 @@ The image should:
 The image should:
 - Capture the humor or absurdity of the quote
 - Be whimsical and lighthearted
-- Not contain any text or words in the image
+- IMPORTANT: Do NOT include any text, words, letters, or typography in the image — especially do NOT render the quote itself as text. The image should be purely illustrative with no written words.
 - Be suitable for a workplace setting (no violence, explicit content)`;
 }
 

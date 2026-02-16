@@ -7,9 +7,12 @@ const MODEL_PREFIXES: Record<string, string> = {
   Quote: "qt",
   Style: "sty",
   ChannelStyle: "chs",
+  ImageGeneration: "ig",
   UsageRecord: "ur",
+  TokenPurchase: "tp",
   ContactFormSubmission: "cfs",
   User: "usr",
+  SlackEvent: "se",
   EmailVerificationCode: "evc",
 };
 
