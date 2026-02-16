@@ -139,6 +139,14 @@ export const authConfig: NextAuthConfig = {
         if (workspace) {
           token.workspaceId = workspace.id;
           token.workspaceName = workspace.slackTeamName;
+
+          // Link user to workspace in DB if not already linked
+          if (dbUser) {
+            await prisma.user.update({
+              where: { id: dbUser.id },
+              data: { workspaceId: workspace.id },
+            });
+          }
         }
       }
 

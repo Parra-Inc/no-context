@@ -31,10 +31,12 @@ import {
 } from "@/components/ui/popover";
 import { Logo } from "@/components/logo";
 import { Progress } from "@/components/ui/progress";
+import { FeedbackDialog } from "@/components/dashboard/feedback-dialog";
 
 interface AppSidebarProps {
   user: {
     name: string;
+    email?: string;
     image?: string;
     workspaceName?: string;
     isAdmin?: boolean;
@@ -193,6 +195,9 @@ export function AppSidebar({
             </Button>
           </Link>
         </div>
+
+        {/* Feedback */}
+        <FeedbackDialog userName={user.name} userEmail={user.email} />
 
         {/* User */}
         <Popover>

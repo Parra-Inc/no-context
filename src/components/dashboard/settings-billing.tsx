@@ -14,6 +14,7 @@ import {
   type TokenPurchaseData,
 } from "@/components/dashboard/billing-history";
 import { TIER_QUOTAS, TIER_MAX_CHANNELS } from "@/lib/tier-constants";
+import { Switch } from "@/components/ui/switch";
 import { Check, AlertTriangle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -24,6 +25,7 @@ const PLANS = [
     tier: "FREE",
     name: "Free",
     price: 0,
+    annualPrice: 0,
     period: "",
     description: "Get started with the basics",
     features: [
@@ -36,6 +38,7 @@ const PLANS = [
     tier: "STARTER",
     name: "Starter",
     price: 8,
+    annualPrice: 6,
     period: "/mo",
     description: "For individuals getting serious",
     features: [
@@ -49,6 +52,7 @@ const PLANS = [
     tier: "TEAM",
     name: "Team",
     price: 20,
+    annualPrice: 15,
     period: "/mo",
     description: "For teams that want more",
     popular: true,
@@ -64,6 +68,7 @@ const PLANS = [
     tier: "BUSINESS",
     name: "Business",
     price: 60,
+    annualPrice: 45,
     period: "/mo",
     description: "For organizations at scale",
     features: [
@@ -120,6 +125,7 @@ export function SettingsBilling({
   tokenPurchases,
 }: SettingsBillingProps) {
   const [loadingTier, setLoadingTier] = useState<string | null>(null);
+  const [isAnnual, setIsAnnual] = useState(false);
   const statusInfo = STATUS_LABEL[status] || STATUS_LABEL.ACTIVE;
   const currentTierIndex = TIER_ORDER.indexOf(tier);
   const maxChannels = TIER_MAX_CHANNELS[tier] ?? 1;
@@ -131,7 +137,10 @@ export function SettingsBilling({
       const res = await fetch("/api/stripe/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tier: targetTier, interval: "monthly" }),
+        body: JSON.stringify({
+          tier: targetTier,
+          interval: isAnnual ? "annual" : "monthly",
+        }),
       });
       if (!res.ok) {
         const data = await res.json();
@@ -168,14 +177,6 @@ export function SettingsBilling({
 
   return (
     <div className="space-y-8">
-      {/* Page header */}
-      <div>
-        <h2 className="text-foreground text-xl font-semibold">Billing</h2>
-        <p className="text-muted-foreground/60 mt-1 text-sm">
-          Manage your plan, usage, and payment history
-        </p>
-      </div>
-
       {/* Usage overview */}
       <Card>
         <CardContent className="pt-6">
@@ -285,6 +286,21 @@ export function SettingsBilling({
           Choose the plan that works for your team
         </p>
 
+        <div className="mt-4 flex items-center gap-3">
+          <span
+            className={`text-sm ${!isAnnual ? "text-foreground font-medium" : "text-muted-foreground"}`}
+          >
+            Monthly
+          </span>
+          <Switch checked={isAnnual} onCheckedChange={setIsAnnual} />
+          <span
+            className={`text-sm ${isAnnual ? "text-foreground font-medium" : "text-muted-foreground"}`}
+          >
+            Annual
+          </span>
+          {isAnnual && <Badge variant="default">Save 25%</Badge>}
+        </div>
+
         <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {PLANS.map((plan) => {
             const action = getPlanAction(plan.tier);
@@ -327,17 +343,26 @@ export function SettingsBilling({
 
                 <div className="mb-5">
                   <span className="text-foreground text-3xl font-bold tracking-tight">
-                    ${plan.price}
+                    ${isAnnual ? plan.annualPrice : plan.price}
                   </span>
                   {plan.period && (
                     <span className="text-muted-foreground/60 text-sm">
                       {plan.period}
                     </span>
                   )}
-                  {plan.price > 0 && (
+                  {isAnnual && plan.annualPrice > 0 && (
+                    <p className="text-muted-foreground/60 mt-1 text-xs">
+                      billed annually
+                    </p>
+                  )}
+                  {(isAnnual ? plan.annualPrice : plan.price) > 0 && (
                     <p className="text-muted-foreground mt-1 text-xs">
-                      ${(plan.price / TIER_QUOTAS[plan.tier]).toFixed(2)} per
-                      image
+                      $
+                      {(
+                        (isAnnual ? plan.annualPrice : plan.price) /
+                        TIER_QUOTAS[plan.tier]
+                      ).toFixed(2)}{" "}
+                      per image
                     </p>
                   )}
                 </div>

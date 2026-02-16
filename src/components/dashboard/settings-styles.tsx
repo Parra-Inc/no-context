@@ -109,17 +109,8 @@ export function SettingsStyles({
   customStyles,
   canCreateCustom,
 }: SettingsStylesProps) {
-  const enabledCount =
-    builtInStyles.filter((s) => s.enabledByDefault).length +
-    customStyles.filter((s) => s.enabledByDefault).length;
-
   return (
     <div className="space-y-8">
-      <p className="text-muted-foreground text-sm">
-        {enabledCount} of {builtInStyles.length + customStyles.length} styles
-        enabled
-      </p>
-
       <Card>
         <CardContent className="space-y-4 pt-6">
           <div className="flex items-center justify-between">

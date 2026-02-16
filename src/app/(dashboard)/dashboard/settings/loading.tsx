@@ -4,8 +4,6 @@ import { Card, CardContent } from "@/components/ui/card";
 export default function SettingsLoading() {
   return (
     <div className="space-y-8">
-      <Skeleton className="h-8 w-24" />
-
       <Card>
         <CardContent className="space-y-4 pt-6">
           <Skeleton className="h-6 w-20" />

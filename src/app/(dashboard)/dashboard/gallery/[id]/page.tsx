@@ -11,7 +11,12 @@ export default async function QuoteDetailPage({
 }) {
   const session = await auth();
   const { id } = await params;
-  const workspaceId = session!.user.workspaceId;
+
+  if (!session?.user?.id) {
+    redirect("/signin");
+  }
+
+  const workspaceId = session.user.workspaceId;
 
   if (!workspaceId) {
     redirect("/onboarding");

@@ -302,3 +302,56 @@ export async function notifySubscriptionCanceled(
 
   await sendSlackNotification(blocks, `Subscription canceled: ${teamName}`);
 }
+
+// ---------------------------------------------------------------------------
+// Contact / Feedback Form Submission
+// ---------------------------------------------------------------------------
+
+interface NotifyContactFormParams {
+  name: string;
+  email: string;
+  subject?: string;
+  message: string;
+  submissionId: string;
+}
+
+export async function notifyContactFormSubmission(
+  params: NotifyContactFormParams,
+): Promise<void> {
+  const { name, email, subject, message, submissionId } = params;
+
+  const blocks: SlackBlock[] = [
+    {
+      type: "header",
+      text: {
+        type: "plain_text",
+        text: ":incoming_envelope: New Contact Form Submission",
+        emoji: true,
+      },
+    },
+    {
+      type: "section",
+      fields: [
+        { type: "mrkdwn", text: `*Name:*\n${name}` },
+        { type: "mrkdwn", text: `*Email:*\n${email}` },
+        {
+          type: "mrkdwn",
+          text: `*Subject:*\n${subject || "Not provided"}`,
+        },
+        { type: "mrkdwn", text: `*ID:*\n\`${submissionId}\`` },
+      ],
+    },
+    {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: `*Message:*\n${message}`,
+      },
+    },
+  ];
+
+  await sendSlackNotification(
+    blocks,
+    `New contact form: ${name} (${email}) — ${subject || "No subject"}`,
+  );
+}

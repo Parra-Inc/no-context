@@ -6,7 +6,12 @@ import SettingsGeneral from "@/components/dashboard/settings-general";
 
 export default async function SettingsGeneralPage() {
   const session = await auth();
-  const workspaceId = session!.user.workspaceId;
+
+  if (!session?.user?.id) {
+    redirect("/signin");
+  }
+
+  const workspaceId = session.user.workspaceId;
 
   if (!workspaceId) {
     redirect("/onboarding");

@@ -17,7 +17,12 @@ import { Button } from "@/components/ui/button";
 
 export default async function DashboardPage() {
   const session = await auth();
-  const workspaceId = session!.user.workspaceId;
+
+  if (!session?.user?.id) {
+    redirect("/signin");
+  }
+
+  const workspaceId = session.user.workspaceId;
 
   if (!workspaceId) {
     redirect("/onboarding");

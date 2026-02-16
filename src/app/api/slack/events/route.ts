@@ -11,13 +11,14 @@ import {
 } from "@/lib/slack";
 import { detectQuote } from "@/lib/ai/quote-detector";
 import { enqueueImageGeneration } from "@/lib/queue/queue";
-import { TIER_QUOTAS, TIER_PRIORITY } from "@/lib/stripe";
+import { TIER_QUOTAS, TIER_MAX_CHANNELS, TIER_PRIORITY } from "@/lib/stripe";
 import { log } from "@/lib/logger";
 import {
   getEnabledStylesForChannel,
   pickRandomStyle,
 } from "@/lib/styles.server";
 import type { DbStyle } from "@/lib/styles.server";
+import { getOrCreateCheckoutToken } from "@/lib/checkout";
 
 interface SlackEvent {
   type: string;
@@ -208,19 +209,17 @@ async function processMessage(event: SlackEvent, teamId: string) {
     return;
   }
 
-  // Check if channel is connected
-  const channelRecord = await prisma.channel.findUnique({
-    where: {
-      workspaceId_slackChannelId: {
-        workspaceId: workspace.id,
-        slackChannelId,
-      },
-    },
-  });
+  // Find or auto-create channel
+  const channelRecord = await findOrCreateChannel(
+    workspace.id,
+    slackChannelId,
+    workspace.slackBotToken,
+    workspace.subscription,
+  );
 
   if (!channelRecord) {
     log.warn(
-      `Slack events: no channel record found workspaceId=${workspace.id} slackChannelId=${slackChannelId}`,
+      `Slack events: no channel record and could not create one workspaceId=${workspace.id} slackChannelId=${slackChannelId}`,
     );
     return;
   }
@@ -270,13 +269,14 @@ async function processMessage(event: SlackEvent, teamId: string) {
       month: "long",
       day: "numeric",
     });
+    const checkoutToken = await getOrCreateCheckoutToken(workspace.id);
     await postEphemeral(
       slackClient,
       slackChannelId,
       slackUserId,
       [
         `You've used all ${used}/${quota} monthly images${bonusCredits === 0 ? "" : " and bonus credits"} for No Context. Your monthly usage resets on *${resetDateStr}*.`,
-        `<${appUrl}/dashboard/settings/billing|Upgrade your plan> or <${appUrl}/dashboard/settings/billing|buy extra image generations> to keep generating!`,
+        `<${appUrl}/checkout/${checkoutToken}|Buy extra image generations> or <${appUrl}/dashboard/settings/billing|upgrade your plan> to keep generating!`,
       ].join("\n"),
     );
     return;
@@ -511,15 +511,13 @@ async function processMentionInThread(event: SlackEvent, teamId: string) {
     `Slack events: bot mentioned in thread channel=${slackChannelId} thread=${threadTs} user=${slackUserId}`,
   );
 
-  // Look up channel
-  const channelRecord = await prisma.channel.findUnique({
-    where: {
-      workspaceId_slackChannelId: {
-        workspaceId: workspace.id,
-        slackChannelId,
-      },
-    },
-  });
+  // Find or auto-create channel
+  const channelRecord = await findOrCreateChannel(
+    workspace.id,
+    slackChannelId,
+    workspace.slackBotToken,
+    workspace.subscription,
+  );
 
   if (!channelRecord || !channelRecord.isActive || channelRecord.isPaused) {
     return;
@@ -938,4 +936,82 @@ function findChannel(workspaceId: string, slackChannelId: string) {
   return prisma.channel.findUnique({
     where: { workspaceId_slackChannelId: { workspaceId, slackChannelId } },
   });
+}
+
+async function findOrCreateChannel(
+  workspaceId: string,
+  slackChannelId: string,
+  slackBotToken: string,
+  subscription: { tier?: string; maxChannels?: number | null } | null,
+) {
+  const existing = await prisma.channel.findUnique({
+    where: {
+      workspaceId_slackChannelId: { workspaceId, slackChannelId },
+    },
+  });
+
+  if (existing) return existing;
+
+  // Check tier channel limit
+  const tier = subscription?.tier || "FREE";
+  const maxChannels = subscription?.maxChannels ?? TIER_MAX_CHANNELS[tier] ?? 1;
+  const currentCount = await prisma.channel.count({
+    where: { workspaceId, isActive: true },
+  });
+
+  if (currentCount >= maxChannels) {
+    log.warn(
+      `Slack events: channel limit reached workspaceId=${workspaceId} current=${currentCount} max=${maxChannels}`,
+    );
+    return null;
+  }
+
+  // Fetch channel name from Slack
+  let channelName = slackChannelId;
+  try {
+    const slackClient = getSlackClient(slackBotToken);
+    const info = await slackClient.conversations.info({
+      channel: slackChannelId,
+    });
+    channelName = info.channel?.name || slackChannelId;
+  } catch (err) {
+    log.warn(
+      `Slack events: could not fetch channel name for ${slackChannelId}`,
+      err,
+    );
+  }
+
+  // Create channel and default ChannelStyle disable records in a transaction
+  const channel = await prisma.$transaction(async (tx) => {
+    const ch = await tx.channel.create({
+      data: {
+        workspaceId,
+        slackChannelId,
+        channelName,
+      },
+    });
+
+    // Disable styles that are not enabled by default
+    const disabledByDefaultStyles = await tx.style.findMany({
+      where: { enabledByDefault: false, isActive: true },
+      select: { id: true },
+    });
+
+    if (disabledByDefaultStyles.length > 0) {
+      await tx.channelStyle.createMany({
+        data: disabledByDefaultStyles.map((s) => ({
+          channelId: ch.id,
+          styleId: s.id,
+        })),
+      });
+    }
+
+    return ch;
+  });
+
+  log.info(
+    `Slack events: auto-created channel id=${channel.id} name=${channelName} workspaceId=${workspaceId}`,
+  );
+
+  return channel;
 }

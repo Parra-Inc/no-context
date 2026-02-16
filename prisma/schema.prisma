@@ -15,6 +15,7 @@ model Workspace {
   slackBotToken     String
   slackBotUserId    String
   installedByUserId String
+  checkoutToken     String?  @unique
   isActive           Boolean  @default(true)
   needsReconnection   Boolean  @default(false)
   onboardingCompleted Boolean  @default(false)

@@ -6,7 +6,12 @@ import { SettingsBilling } from "@/components/dashboard/settings-billing";
 
 export default async function BillingPage() {
   const session = await auth();
-  const workspaceId = session!.user.workspaceId;
+
+  if (!session?.user?.id) {
+    redirect("/signin");
+  }
+
+  const workspaceId = session.user.workspaceId;
 
   if (!workspaceId) {
     redirect("/onboarding");

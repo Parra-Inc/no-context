@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { z } from "zod/v4";
+import { notifyContactFormSubmission } from "@/lib/slack-notifications";
 
 const ContactSchema = z.object({
   name: z.string().min(1).max(100),
@@ -31,6 +32,14 @@ export async function POST(request: Request) {
         message,
         status: "new",
       },
+    });
+
+    notifyContactFormSubmission({
+      submissionId: submission.id,
+      name,
+      email,
+      subject,
+      message,
     });
 
     return NextResponse.json(

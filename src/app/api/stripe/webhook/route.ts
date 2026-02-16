@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
 
         await prisma.$transaction([
           prisma.subscription.update({
-            where: { stripeCustomerId: customerId },
+            where: { workspaceId },
             data: { bonusCredits: { increment: creditsToAdd } },
           }),
           prisma.tokenPurchase.create({
