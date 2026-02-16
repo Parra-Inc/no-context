@@ -8,6 +8,15 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -88,6 +97,7 @@ export function QuoteDetail({
   const [copied, setCopied] = useState(false);
   const [isRerolling, setIsRerolling] = useState(false);
   const [rerollStyleId, setRerollStyleId] = useState("random");
+  const [rerollDialogOpen, setRerollDialogOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   // Build lightbox items from all generations that have images
@@ -175,6 +185,7 @@ export function QuoteDetail({
       }
 
       toast.success("Generating new image...");
+      setRerollDialogOpen(false);
       router.refresh();
     } catch {
       toast.error("Failed to start generation");
@@ -301,34 +312,60 @@ export function QuoteDetail({
             )}
             {copied ? "Copied!" : "Share Link"}
           </Button>
-          <div className="flex items-center gap-1.5">
-            <Select value={rerollStyleId} onValueChange={setRerollStyleId}>
-              <SelectTrigger className="h-8 w-[140px] text-xs">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="random">Random</SelectItem>
-                {availableStyles.map((s) => (
-                  <SelectItem key={s.name} value={s.name}>
-                    {s.displayName}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={handleReroll}
-              disabled={isRerolling || hasPendingGeneration}
-            >
-              {isRerolling || hasPendingGeneration ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <RefreshCw className="mr-2 h-4 w-4" />
-              )}
-              Re-roll
-            </Button>
-          </div>
+          <Dialog open={rerollDialogOpen} onOpenChange={setRerollDialogOpen}>
+            <DialogTrigger asChild>
+              <Button
+                variant="secondary"
+                size="sm"
+                disabled={isRerolling || hasPendingGeneration}
+              >
+                {isRerolling || hasPendingGeneration ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="mr-2 h-4 w-4" />
+                )}
+                Re-roll
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Re-roll Image</DialogTitle>
+                <DialogDescription>
+                  Choose a style for the new image generation. This will use 1
+                  image generation from your monthly quota.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Style</label>
+                <Select value={rerollStyleId} onValueChange={setRerollStyleId}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="random">Random</SelectItem>
+                    {availableStyles.map((s) => (
+                      <SelectItem key={s.name} value={s.name}>
+                        {s.displayName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <DialogFooter>
+                <Button
+                  onClick={handleReroll}
+                  disabled={isRerolling || hasPendingGeneration}
+                >
+                  {isRerolling || hasPendingGeneration ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                  )}
+                  Generate
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
