@@ -139,7 +139,10 @@ export function OnboardingWizard({
   const next = () => setCurrentStep((s) => Math.min(s + 1, steps.length - 1));
 
   function handleLinkWorkspace() {
-    const params = new URLSearchParams({ returnTo: "/onboarding" });
+    const returnTo = workspaceId
+      ? `/onboarding?workspaceId=${workspaceId}`
+      : "/onboarding";
+    const params = new URLSearchParams({ returnTo });
     if (authType === "email") {
       params.set("userId", userId);
     }

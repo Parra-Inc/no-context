@@ -4,7 +4,11 @@ import prisma from "@/lib/prisma";
 import { assertUser } from "@/lib/user";
 import { OnboardingWizard } from "./onboarding-wizard";
 
-export default async function OnboardingPage() {
+export default async function OnboardingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ workspaceId?: string }>;
+}) {
   const session = await auth();
 
   if (!session?.user?.id) {
@@ -20,17 +24,23 @@ export default async function OnboardingPage() {
     authType: session.user.authType,
   });
 
-  // Check if the user already has a workspace via WorkspaceUser
-  const workspaceUser = await prisma.workspaceUser.findFirst({
-    where: { userId },
-    select: { workspaceId: true },
-  });
+  const { workspaceId: workspaceIdParam } = await searchParams;
+
+  // Use the workspace from the query param if provided, otherwise find the first one
+  let workspaceId = workspaceIdParam;
+  if (!workspaceId) {
+    const workspaceUser = await prisma.workspaceUser.findFirst({
+      where: { userId },
+      select: { workspaceId: true },
+    });
+    workspaceId = workspaceUser?.workspaceId ?? undefined;
+  }
 
   return (
     <OnboardingWizard
       authType={session.user.authType}
       userId={userId}
-      workspaceId={workspaceUser?.workspaceId}
+      workspaceId={workspaceId}
     />
   );
 }

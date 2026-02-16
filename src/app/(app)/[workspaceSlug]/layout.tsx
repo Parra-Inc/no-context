@@ -43,7 +43,7 @@ export default async function WorkspaceLayout({
   const { workspace } = await assertWorkspace(session.user.id, workspaceSlug);
 
   if (!workspace.onboardingCompleted) {
-    redirect("/onboarding");
+    redirect(`/onboarding?workspaceId=${workspace.id}`);
   }
 
   const [subscription, usage] = await Promise.all([
