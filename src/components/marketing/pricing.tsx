@@ -6,6 +6,10 @@ import { Badge } from "@/components/ui/badge";
 import { Check } from "lucide-react";
 import { FadeIn } from "@/components/marketing/fade-in";
 import { ART_STYLES, FREE_STYLES, roundedStyleCount } from "@/lib/styles";
+import {
+  TIER_IMAGE_QUALITY_LABEL,
+  TIER_IMAGE_SIZE,
+} from "@/lib/tier-constants";
 
 const allStyleCount = `${roundedStyleCount(ART_STYLES.length)}+`;
 const freeStyleCount = `${roundedStyleCount(FREE_STYLES.length)}+`;
@@ -20,6 +24,8 @@ const tiers = [
     cta: "Add to Slack — Free",
     features: [
       "3 generated images/month",
+      `${TIER_IMAGE_QUALITY_LABEL.FREE} image quality`,
+      `${TIER_IMAGE_SIZE.FREE} resolution`,
       "1 connected channel",
       `${freeStyleCount} basic art styles`,
       "7-day image history",
@@ -34,6 +40,8 @@ const tiers = [
     cta: "Try Starter Free",
     features: [
       "25 generated images/month",
+      `${TIER_IMAGE_QUALITY_LABEL.STARTER} image quality`,
+      `${TIER_IMAGE_SIZE.STARTER} resolution`,
       "1 connected channel",
       `All ${allStyleCount} art styles`,
       "No watermark",
@@ -50,6 +58,8 @@ const tiers = [
     cta: "Try Team Free for 14 Days",
     features: [
       "100 generated images/month",
+      `${TIER_IMAGE_QUALITY_LABEL.TEAM} image quality`,
+      `${TIER_IMAGE_SIZE.TEAM} resolution`,
       "3 connected channels",
       `All ${allStyleCount} art styles`,
       "Custom style prompts",
@@ -68,6 +78,8 @@ const tiers = [
     cta: "Try Business Free",
     features: [
       "500 generated images/month",
+      `${TIER_IMAGE_QUALITY_LABEL.BUSINESS} image quality`,
+      `${TIER_IMAGE_SIZE.BUSINESS} resolution`,
       "Unlimited channels",
       "Everything in Team",
       "Priority generation queue",

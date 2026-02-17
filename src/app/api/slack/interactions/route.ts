@@ -8,7 +8,13 @@ import {
   markWorkspaceDisconnected,
 } from "@/lib/slack";
 import { enqueueImageGeneration } from "@/lib/queue/queue";
-import { TIER_QUOTAS, TIER_PRIORITY } from "@/lib/stripe";
+import {
+  TIER_QUOTAS,
+  TIER_PRIORITY,
+  TIER_IMAGE_MODEL,
+  TIER_IMAGE_QUALITY,
+  TIER_IMAGE_SIZE,
+} from "@/lib/stripe";
 import { getEnabledStylesForChannel } from "@/lib/styles.server";
 import { log } from "@/lib/logger";
 
@@ -274,6 +280,9 @@ async function handleStyleSelection(payload: any, action: any) {
       hasWatermark:
         (workspace.subscription?.hasWatermark ?? true) && used < quota,
       priority: TIER_PRIORITY[tier] || 4,
+      imageModel: TIER_IMAGE_MODEL[tier],
+      imageQuality: TIER_IMAGE_QUALITY[tier],
+      imageSize: TIER_IMAGE_SIZE[tier],
     });
 
     await prisma.imageGeneration.update({

@@ -3,7 +3,12 @@ import { verifySignatureAppRouter } from "@upstash/qstash/nextjs";
 import prisma from "@/lib/prisma";
 import { generateImage, downloadImage } from "@/lib/ai/image-generator";
 import { uploadImage } from "@/lib/storage";
-import { TIER_HAS_WATERMARK } from "@/lib/stripe";
+import {
+  TIER_HAS_WATERMARK,
+  TIER_IMAGE_MODEL,
+  TIER_IMAGE_QUALITY,
+  TIER_IMAGE_SIZE,
+} from "@/lib/stripe";
 import { applyWatermark } from "@/lib/watermark";
 import {
   getSlackClient,
@@ -72,12 +77,20 @@ async function handler(request: NextRequest) {
     data: { status: "PROCESSING" },
   });
 
+  // Resolve image model config (from job, falling back to tier constants for old jobs)
+  const imageModel = job.imageModel || TIER_IMAGE_MODEL[tier] || "dall-e-3";
+  const imageQuality =
+    job.imageQuality !== undefined
+      ? job.imageQuality
+      : (TIER_IMAGE_QUALITY[tier] ?? "standard");
+  const imageSize = job.imageSize || TIER_IMAGE_SIZE[tier] || "1792x1024";
+
   try {
-    // Generate image (1024x1024, cropped to 4:3)
     const result = await generateImage(
       quoteText,
       styleId,
       customStyleDescription,
+      { model: imageModel, quality: imageQuality, size: imageSize },
     );
 
     if (!result) {
@@ -107,8 +120,14 @@ async function handler(request: NextRequest) {
     }
 
     // Download, apply watermark if enabled, and upload to Vercel Blob
+    // Scale target dimensions proportionally for smaller source images
+    const [srcW] = imageSize.split("x").map(Number);
+    const targetWidth = srcW <= 512 ? 512 : 1360;
+    const targetHeight = srcW <= 512 ? 384 : 1020;
     let imageBuffer = await downloadImage(
       result.imageBuffer ?? result.imageUrl,
+      targetWidth,
+      targetHeight,
     );
     // Use job.hasWatermark; fall back to tier lookup for old in-flight jobs
     const shouldWatermark =

@@ -14,6 +14,12 @@ export interface ImageGenerationResult {
   prompt: string;
 }
 
+export interface ImageModelConfig {
+  model: string;
+  quality: string | null;
+  size: string;
+}
+
 // Styles that have reference images for better generation
 const STYLE_REFERENCE_IMAGES: Record<string, string> = {
   southpark: "public/images/examples/south-park.jpg",
@@ -64,16 +70,21 @@ function softenPrompt(prompt: string): string {
 async function generateWithReference(
   prompt: string,
   refImagePath: string,
+  size: string,
 ): Promise<ImageGenerationResult | null> {
   // Use curl for gpt-image-1 edits (Node.js FormData doesn't work with this endpoint)
   const refPath = resolve(process.cwd(), refImagePath);
+
+  // gpt-image-1 edits supports: 1024x1024, 1536x1024, auto
+  const supportedSizes = ["1024x1024", "1536x1024"];
+  const editSize = supportedSizes.includes(size) ? size : "1536x1024";
 
   const curlResult = execSync(
     `curl -s https://api.openai.com/v1/images/edits ` +
       `-H "Authorization: Bearer ${process.env.OPENAI_API_KEY}" ` +
       `-F "model=gpt-image-1" ` +
       `-F "prompt=${prompt.replace(/"/g, '\\"')}" ` +
-      `-F "size=1536x1024" ` +
+      `-F "size=${editSize}" ` +
       `-F "n=1" ` +
       `-F "image=@${refPath}"`,
     { maxBuffer: 50 * 1024 * 1024 },
@@ -98,15 +109,50 @@ async function generateWithReference(
   };
 }
 
-async function generateWithDallE(
+async function generateWithGptImage(
   prompt: string,
+  quality: string,
+  size: string,
 ): Promise<ImageGenerationResult | null> {
   const response = await openai.images.generate({
-    model: "dall-e-3",
+    model: "gpt-image-1",
     prompt,
     n: 1,
-    size: "1792x1024",
-    quality: "standard",
+    size: size as "1024x1024" | "1536x1024" | "1024x1536" | "auto",
+    quality: quality as "low" | "medium" | "high",
+  });
+
+  const b64 = response.data?.[0]?.b64_json;
+  if (!b64) {
+    throw new Error("No image data in gpt-image-1 response");
+  }
+
+  return {
+    imageUrl: "",
+    imageBuffer: Buffer.from(b64, "base64"),
+    prompt,
+  };
+}
+
+async function generateWithDallE(
+  prompt: string,
+  model: "dall-e-2" | "dall-e-3",
+  quality: string | null,
+  size: string,
+): Promise<ImageGenerationResult | null> {
+  const response = await openai.images.generate({
+    model,
+    prompt,
+    n: 1,
+    size: size as
+      | "256x256"
+      | "512x512"
+      | "1024x1024"
+      | "1792x1024"
+      | "1024x1792",
+    ...(quality && model === "dall-e-3"
+      ? { quality: quality as "standard" | "hd" }
+      : {}),
     response_format: "url",
   });
 
@@ -122,20 +168,41 @@ export async function generateImage(
   quote: string,
   styleId: string,
   customStyleDescription?: string,
+  config?: ImageModelConfig,
 ): Promise<ImageGenerationResult | null> {
+  const {
+    model = "dall-e-3",
+    quality = "standard",
+    size = "1792x1024",
+  } = config || {};
+
   const refImage = STYLE_REFERENCE_IMAGES[styleId];
+  // Reference images only work with gpt-image-1 edits, not dall-e-2
+  const useReference = !!refImage && model !== "dall-e-2";
   const prompt = buildPrompt(
     quote,
     styleId,
-    !!refImage,
+    useReference,
     customStyleDescription,
   );
 
-  try {
-    if (refImage) {
-      return await generateWithReference(prompt, refImage);
+  const generate = async (p: string) => {
+    if (useReference) {
+      return generateWithReference(p, refImage, size);
     }
-    return await generateWithDallE(prompt);
+    if (model === "gpt-image-1") {
+      return generateWithGptImage(p, quality || "medium", size);
+    }
+    return generateWithDallE(
+      p,
+      model as "dall-e-2" | "dall-e-3",
+      quality,
+      size,
+    );
+  };
+
+  try {
+    return await generate(prompt);
   } catch (error: unknown) {
     // Check for content policy violation
     const isContentPolicy =
@@ -145,11 +212,7 @@ export async function generateImage(
     if (isContentPolicy) {
       // Retry with softened prompt
       try {
-        const softened = softenPrompt(prompt);
-        if (refImage) {
-          return await generateWithReference(softened, refImage);
-        }
-        return await generateWithDallE(softened);
+        return await generate(softenPrompt(prompt));
       } catch {
         // Second attempt also failed
         return null;
@@ -162,6 +225,8 @@ export async function generateImage(
 
 export async function downloadImage(
   urlOrBuffer: string | Buffer,
+  targetWidth = 1360,
+  targetHeight = 1020,
 ): Promise<Buffer> {
   let buffer: Buffer;
   if (Buffer.isBuffer(urlOrBuffer)) {
@@ -172,7 +237,7 @@ export async function downloadImage(
     buffer = Buffer.from(arrayBuffer);
   }
 
-  // Center-crop to 4:3 (1360x1020)
+  // Center-crop to 4:3 then resize to target dimensions
   const meta = await sharp(buffer).metadata();
   const srcWidth = meta.width!;
   const srcHeight = meta.height!;
@@ -198,6 +263,6 @@ export async function downloadImage(
       width: cropWidth,
       height: cropHeight,
     })
-    .resize(1360, 1020)
+    .resize(targetWidth, targetHeight)
     .toBuffer();
 }

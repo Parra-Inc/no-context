@@ -13,7 +13,13 @@ import {
   type InvoiceData,
   type TokenPurchaseData,
 } from "@/components/dashboard/billing-history";
-import { TIER_QUOTAS, TIER_MAX_CHANNELS, INFINITY } from "@/lib/tier-constants";
+import {
+  TIER_QUOTAS,
+  TIER_MAX_CHANNELS,
+  TIER_IMAGE_QUALITY_LABEL,
+  TIER_IMAGE_SIZE,
+  INFINITY,
+} from "@/lib/tier-constants";
 import { Switch } from "@/components/ui/switch";
 import { Check, AlertTriangle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -31,6 +37,8 @@ const PLANS = [
     description: "Get started with the basics",
     features: [
       `${TIER_QUOTAS.FREE} images per month`,
+      `${TIER_IMAGE_QUALITY_LABEL.FREE} image quality`,
+      `${TIER_IMAGE_SIZE.FREE} resolution`,
       `${TIER_MAX_CHANNELS.FREE} channel`,
       "AI style selection",
     ],
@@ -44,6 +52,8 @@ const PLANS = [
     description: "For individuals getting serious",
     features: [
       `${TIER_QUOTAS.STARTER} images per month`,
+      `${TIER_IMAGE_QUALITY_LABEL.STARTER} image quality`,
+      `${TIER_IMAGE_SIZE.STARTER} resolution`,
       `${TIER_MAX_CHANNELS.STARTER} channel`,
       "No watermark",
       "Collections",
@@ -60,6 +70,8 @@ const PLANS = [
     popular: true,
     features: [
       `${TIER_QUOTAS.TEAM} images per month`,
+      `${TIER_IMAGE_QUALITY_LABEL.TEAM} image quality`,
+      `${TIER_IMAGE_SIZE.TEAM} resolution`,
       `${TIER_MAX_CHANNELS.TEAM} channels`,
       "No watermark",
       "Collections",
@@ -76,6 +88,8 @@ const PLANS = [
     description: "For organizations at scale",
     features: [
       `${TIER_QUOTAS.BUSINESS} images per month`,
+      `${TIER_IMAGE_QUALITY_LABEL.BUSINESS} image quality`,
+      `${TIER_IMAGE_SIZE.BUSINESS} resolution`,
       "Unlimited channels",
       "No watermark",
       "Collections",

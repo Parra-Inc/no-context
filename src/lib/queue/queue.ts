@@ -20,6 +20,9 @@ export interface ImageGenerationJob {
   tier: string;
   hasWatermark: boolean;
   priority: number;
+  imageModel?: string;
+  imageQuality?: string | null;
+  imageSize?: string;
 }
 
 export async function enqueueImageGeneration(

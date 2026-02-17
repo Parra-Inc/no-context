@@ -11,7 +11,15 @@ import {
 } from "@/lib/slack";
 import { detectQuote } from "@/lib/ai/quote-detector";
 import { enqueueImageGeneration } from "@/lib/queue/queue";
-import { TIER_QUOTAS, TIER_MAX_CHANNELS, TIER_PRIORITY } from "@/lib/stripe";
+import {
+  TIER_QUOTAS,
+  TIER_MAX_CHANNELS,
+  TIER_PRIORITY,
+  TIER_IMAGE_MODEL,
+  TIER_IMAGE_QUALITY,
+  TIER_IMAGE_SIZE,
+  TIER_LLM_MODEL,
+} from "@/lib/stripe";
 import { log } from "@/lib/logger";
 import {
   getEnabledStylesForChannel,
@@ -307,6 +315,7 @@ async function processMessage(event: SlackEvent, teamId: string) {
 
   let detection;
   try {
+    const llmModel = TIER_LLM_MODEL[tier] || "claude-haiku-4-5-20251001";
     if (channelRecord.styleMode === "AI") {
       detection = await detectQuote(
         text,
@@ -316,9 +325,10 @@ async function processMessage(event: SlackEvent, teamId: string) {
           displayName: s.displayName,
           description: s.description,
         })),
+        llmModel,
       );
     } else {
-      detection = await detectQuote(text);
+      detection = await detectQuote(text, undefined, llmModel);
     }
   } catch (err) {
     log.error("Slack events: detectQuote threw an error", err);
@@ -447,6 +457,9 @@ async function processMessage(event: SlackEvent, teamId: string) {
       hasWatermark:
         (workspace.subscription?.hasWatermark ?? true) && used < quota,
       priority: TIER_PRIORITY[tier] || 4,
+      imageModel: TIER_IMAGE_MODEL[tier],
+      imageQuality: TIER_IMAGE_QUALITY[tier],
+      imageSize: TIER_IMAGE_SIZE[tier],
     });
 
     await prisma.imageGeneration.update({
@@ -798,6 +811,9 @@ async function generateFromMention(
       hasWatermark:
         (workspace.subscription?.hasWatermark ?? true) && used < quota,
       priority: TIER_PRIORITY[tier] || 4,
+      imageModel: TIER_IMAGE_MODEL[tier],
+      imageQuality: TIER_IMAGE_QUALITY[tier],
+      imageSize: TIER_IMAGE_SIZE[tier],
     });
 
     await prisma.imageGeneration.update({

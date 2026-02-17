@@ -1,9 +1,14 @@
 import Anthropic from "@anthropic-ai/sdk";
+import OpenAI from "openai";
 import { z } from "zod/v4";
 import { log } from "@/lib/logger";
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
+});
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 const QuoteDetectionSchema = z.object({
@@ -86,10 +91,101 @@ const NOT_QUOTE: QuoteDetectionResult = {
   selectedStyleId: null,
 };
 
+async function detectWithAnthropic(
+  messageText: string,
+  systemPrompt: string,
+  schema: typeof QuoteDetectionSchema | typeof QuoteDetectionWithStyleSchema,
+  useStyleSelection: boolean,
+  model: string,
+): Promise<z.infer<typeof QuoteDetectionWithStyleSchema> | null> {
+  const response = await anthropic.messages.create({
+    model,
+    max_tokens: 256,
+    system: systemPrompt,
+    tools: [
+      {
+        name: "classify_quote",
+        description:
+          "Classify whether a Slack message is an out-of-context quote" +
+          (useStyleSelection ? " and select the best art style for it" : ""),
+        input_schema: z.toJSONSchema(schema) as Anthropic.Tool["input_schema"],
+      },
+    ],
+    tool_choice: { type: "tool", name: "classify_quote" },
+    messages: [
+      {
+        role: "user",
+        content: `Message to classify:\n"""\n${messageText}\n"""`,
+      },
+    ],
+  });
+
+  const toolBlock = response.content.find(
+    (block): block is Anthropic.ToolUseBlock => block.type === "tool_use",
+  );
+
+  if (!toolBlock) {
+    log.warn("detectQuote: no tool_use block in Anthropic response");
+    return null;
+  }
+
+  log.info(`detectQuote: raw tool input=${JSON.stringify(toolBlock.input)}`);
+  return toolBlock.input as z.infer<typeof QuoteDetectionWithStyleSchema>;
+}
+
+async function detectWithOpenAI(
+  messageText: string,
+  systemPrompt: string,
+  schema: typeof QuoteDetectionSchema | typeof QuoteDetectionWithStyleSchema,
+  useStyleSelection: boolean,
+  model: string,
+): Promise<z.infer<typeof QuoteDetectionWithStyleSchema> | null> {
+  const response = await openai.chat.completions.create({
+    model,
+    max_tokens: 256,
+    messages: [
+      { role: "system", content: systemPrompt },
+      {
+        role: "user",
+        content: `Message to classify:\n"""\n${messageText}\n"""`,
+      },
+    ],
+    tools: [
+      {
+        type: "function",
+        function: {
+          name: "classify_quote",
+          description:
+            "Classify whether a Slack message is an out-of-context quote" +
+            (useStyleSelection ? " and select the best art style for it" : ""),
+          parameters: z.toJSONSchema(schema) as Record<string, unknown>,
+        },
+      },
+    ],
+    tool_choice: { type: "function", function: { name: "classify_quote" } },
+  });
+
+  const toolCall = response.choices[0]?.message?.tool_calls?.[0];
+  if (!toolCall || toolCall.type !== "function") {
+    log.warn("detectQuote: no function tool_call in OpenAI response");
+    return null;
+  }
+
+  log.info(
+    `detectQuote: raw function arguments=${toolCall.function.arguments}`,
+  );
+  return JSON.parse(toolCall.function.arguments) as z.infer<
+    typeof QuoteDetectionWithStyleSchema
+  >;
+}
+
 export async function detectQuote(
   messageText: string,
   availableStyles?: StyleOption[],
+  model?: string,
 ): Promise<QuoteDetectionResult> {
+  const llmModel = model || "claude-haiku-4-5-20251001";
+
   // Check for explicit Slack blockquote syntax (> text)
   const blockquoteLines = messageText
     .split("\n")
@@ -128,36 +224,26 @@ ${styleList}`;
     ? QuoteDetectionWithStyleSchema
     : QuoteDetectionSchema;
 
-  log.info(`detectQuote: calling Anthropic API for text="${messageText}"`);
+  log.info(`detectQuote: calling ${llmModel} for text="${messageText}"`);
 
-  const response = await anthropic.messages.create({
-    model: "claude-haiku-4-5-20251001",
-    max_tokens: 256,
-    system: systemPrompt,
-    tools: [
-      {
-        name: "classify_quote",
-        description:
-          "Classify whether a Slack message is an out-of-context quote" +
-          (useStyleSelection ? " and select the best art style for it" : ""),
-        input_schema: z.toJSONSchema(schema) as Anthropic.Tool["input_schema"],
-      },
-    ],
-    tool_choice: { type: "tool", name: "classify_quote" },
-    messages: [
-      {
-        role: "user",
-        content: `Message to classify:\n"""\n${messageText}\n"""`,
-      },
-    ],
-  });
+  const isOpenAI = llmModel.startsWith("gpt-");
+  const rawData = isOpenAI
+    ? await detectWithOpenAI(
+        messageText,
+        systemPrompt,
+        schema,
+        !!useStyleSelection,
+        llmModel,
+      )
+    : await detectWithAnthropic(
+        messageText,
+        systemPrompt,
+        schema,
+        !!useStyleSelection,
+        llmModel,
+      );
 
-  const toolBlock = response.content.find(
-    (block): block is Anthropic.ToolUseBlock => block.type === "tool_use",
-  );
-
-  if (!toolBlock) {
-    log.warn("detectQuote: no tool_use block in response");
+  if (!rawData) {
     return {
       isQuote: false,
       confidence: 0,
@@ -167,9 +253,7 @@ ${styleList}`;
     };
   }
 
-  log.info(`detectQuote: raw tool input=${JSON.stringify(toolBlock.input)}`);
-
-  const parsed = schema.safeParse(toolBlock.input);
+  const parsed = schema.safeParse(rawData);
 
   if (!parsed.success) {
     log.warn(
