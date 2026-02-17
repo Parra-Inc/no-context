@@ -1,7 +1,7 @@
 export const INFINITY = 999999;
 
 export const TIER_QUOTAS: Record<string, number> = {
-  FREE: 5,
+  FREE: 3,
   STARTER: 25,
   TEAM: 100,
   BUSINESS: 500,

@@ -38,7 +38,7 @@ export default async function SuccessPage({
       workspaceName={workspace.slackTeamName}
       workspaceIcon={workspace.slackTeamIcon}
       bonusCredits={workspace.subscription?.bonusCredits ?? 0}
-      monthlyQuota={workspace.subscription?.monthlyQuota ?? 5}
+      monthlyQuota={workspace.subscription?.monthlyQuota ?? 3}
     />
   );
 }

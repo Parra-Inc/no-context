@@ -8,7 +8,7 @@ No Context uses Stripe for subscription billing with three paid tiers: Starter, 
 
 | Tier     | Monthly | Annual (per month) | Images/mo | Channels  |
 | -------- | ------- | ------------------ | --------- | --------- |
-| Free     | $0      | $0                 | 5         | 1         |
+| Free     | $0      | $0                 | 3         | 1         |
 | Starter  | $9      | $7 ($84/yr)        | 25        | 1         |
 | Team     | $29     | $24 ($288/yr)      | 100       | 3         |
 | Business | $79     | $66 ($792/yr)      | 500       | Unlimited |

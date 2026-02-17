@@ -10,6 +10,7 @@ export function Navbar() {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const navLinks = [
+    { href: "/explore", label: "Explore" },
     { href: "/#how-it-works", label: "How It Works" },
     { href: "/#styles", label: "Styles" },
     { href: "/#pricing", label: "Pricing" },

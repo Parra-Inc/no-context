@@ -13,31 +13,24 @@ export const size = {
 
 export const contentType = "image/png";
 
-async function loadImage(filename: string): Promise<string> {
-  const path = join(
-    process.cwd(),
-    "public",
-    "images",
-    "landing",
-    "showcase",
-    filename,
-  );
+async function loadImage(...pathSegments: string[]): Promise<string> {
+  const path = join(process.cwd(), "public", "images", ...pathSegments);
   const data = await readFile(path);
   return `data:image/png;base64,${data.toString("base64")}`;
 }
 
 export default async function Image() {
-  const [img1, img2, img3, img4, img5, img6] = await Promise.all([
-    loadImage("vangogh.png"),
-    loadImage("hokusai.png"),
-    loadImage("dali.png"),
-    loadImage("comic.png"),
-    loadImage("pixel.png"),
-    loadImage("warhol.png"),
+  const [logo, img1, img2, img3, img4, img5] = await Promise.all([
+    loadImage("logo.png"),
+    loadImage("landing", "showcase", "vangogh.png"),
+    loadImage("landing", "showcase", "hokusai.png"),
+    loadImage("landing", "showcase", "dali.png"),
+    loadImage("landing", "showcase", "comic.png"),
+    loadImage("landing", "showcase", "pixel.png"),
   ]);
 
-  const images = [img1, img2, img3, img4, img5, img6];
-  const rotations = [-3, 2, -1.5, 2.5, -2, 1.5];
+  const images = [img1, img2, img3, img4, img5];
+  const rotations = [-4, -1.5, 1, 3, -2.5];
 
   return new ImageResponse(
     <div
@@ -45,12 +38,15 @@ export default async function Image() {
         width: "100%",
         height: "100%",
         display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
         backgroundColor: "#fafaf8",
         position: "relative",
         overflow: "hidden",
       }}
     >
-      {/* Subtle background pattern */}
+      {/* Background gradient orbs */}
       <div
         style={{
           position: "absolute",
@@ -59,181 +55,73 @@ export default async function Image() {
           right: 0,
           bottom: 0,
           backgroundImage:
-            "radial-gradient(circle at 20% 80%, rgba(124, 58, 237, 0.06) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(249, 112, 102, 0.06) 0%, transparent 50%)",
+            "radial-gradient(ellipse 600px 400px at 15% 20%, rgba(124, 58, 237, 0.08) 0%, transparent 70%), radial-gradient(ellipse 500px 350px at 85% 80%, rgba(249, 112, 102, 0.08) 0%, transparent 70%), radial-gradient(ellipse 400px 300px at 50% 50%, rgba(124, 58, 237, 0.03) 0%, transparent 70%)",
           display: "flex",
         }}
       />
 
-      {/* Left section - Branding */}
+      {/* Decorative top line */}
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 4,
+          background: "linear-gradient(90deg, #7C3AED, #F97066, #7C3AED)",
+          display: "flex",
+        }}
+      />
+
+      {/* Logo */}
       <div
         style={{
           display: "flex",
-          flexDirection: "column",
+          alignItems: "center",
           justifyContent: "center",
-          paddingLeft: 72,
-          paddingRight: 32,
-          width: "50%",
+          marginTop: 40,
           position: "relative",
           zIndex: 2,
         }}
       >
-        {/* Logo */}
-        <div
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={logo}
+          alt="No Context"
+          height={72}
           style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 20,
-            marginBottom: 24,
+            height: 72,
+            objectFit: "contain",
           }}
-        >
-          {/* Robot icon */}
-          <div
-            style={{
-              width: 72,
-              height: 72,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <svg viewBox="0 0 64 64" fill="none" width="72" height="72">
-              <line
-                x1="32"
-                y1="6"
-                x2="32"
-                y2="14"
-                stroke="#7C3AED"
-                strokeWidth="3"
-                strokeLinecap="round"
-              />
-              <circle cx="32" cy="5" r="3" fill="#F97066" />
-              <rect
-                x="12"
-                y="14"
-                width="40"
-                height="32"
-                rx="8"
-                fill="#7C3AED"
-              />
-              <circle cx="24" cy="28" r="5" fill="white" />
-              <circle cx="40" cy="28" r="5" fill="white" />
-              <circle cx="25" cy="27" r="2.5" fill="#1A1A1A" />
-              <circle cx="41" cy="27" r="2.5" fill="#1A1A1A" />
-              <rect x="22" y="37" width="20" height="4" rx="2" fill="#F97066" />
-              <rect
-                x="4"
-                y="24"
-                width="6"
-                height="12"
-                rx="3"
-                fill="#7C3AED"
-                opacity="0.7"
-              />
-              <rect
-                x="54"
-                y="24"
-                width="6"
-                height="12"
-                rx="3"
-                fill="#7C3AED"
-                opacity="0.7"
-              />
-              <rect
-                x="22"
-                y="48"
-                width="20"
-                height="10"
-                rx="4"
-                fill="#7C3AED"
-                opacity="0.5"
-              />
-            </svg>
-          </div>
-        </div>
-
-        {/* Title */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 8,
-          }}
-        >
-          <div
-            style={{
-              fontSize: 64,
-              fontWeight: 800,
-              color: "#1a1a1a",
-              lineHeight: 1,
-              letterSpacing: -2,
-              display: "flex",
-            }}
-          >
-            No Context
-          </div>
-          <div
-            style={{
-              fontSize: 26,
-              fontWeight: 500,
-              color: "#4a4a4a",
-              lineHeight: 1.3,
-              marginTop: 8,
-              display: "flex",
-            }}
-          >
-            Turn Slack Quotes into AI Art
-          </div>
-        </div>
-
-        {/* Quote bubble */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            marginTop: 36,
-            backgroundColor: "white",
-            border: "2px solid #1a1a1a",
-            borderRadius: 12,
-            padding: "16px 20px",
-            boxShadow: "4px 4px 0px 0px #1a1a1a",
-            maxWidth: 420,
-          }}
-        >
-          <div
-            style={{
-              fontSize: 18,
-              fontStyle: "italic",
-              color: "#4a4a4a",
-              fontFamily: "Georgia, serif",
-              display: "flex",
-            }}
-          >
-            &ldquo;I swear the printer is haunted&rdquo;
-          </div>
-          <div
-            style={{
-              fontSize: 13,
-              color: "#7c3aed",
-              marginTop: 8,
-              fontWeight: 600,
-              display: "flex",
-            }}
-          >
-            — #no-context
-          </div>
-        </div>
+        />
       </div>
 
-      {/* Right section - Art grid */}
+      {/* Subheading */}
       <div
         style={{
           display: "flex",
-          flexWrap: "wrap",
-          width: "50%",
-          padding: "32px 48px 32px 16px",
-          gap: 16,
+          fontSize: 30,
+          fontWeight: 600,
+          color: "#4a4a4a",
+          lineHeight: 1.3,
+          marginTop: 16,
+          textAlign: "center",
+          position: "relative",
+          zIndex: 2,
+          letterSpacing: -0.5,
+        }}
+      >
+        Your funniest Slack messages, reimagined as AI art
+      </div>
+
+      {/* Art image row */}
+      <div
+        style={{
+          display: "flex",
           alignItems: "center",
           justifyContent: "center",
+          gap: 20,
+          marginTop: 32,
           position: "relative",
           zIndex: 2,
         }}
@@ -242,11 +130,12 @@ export default async function Image() {
           <div
             key={i}
             style={{
-              width: 168,
-              height: 168,
-              borderRadius: 12,
-              border: "2px solid #1a1a1a",
-              boxShadow: "3px 3px 0px 0px #1a1a1a",
+              width: 160,
+              height: 160,
+              borderRadius: 16,
+              border: "3px solid rgba(26, 26, 26, 0.12)",
+              boxShadow:
+                "0 8px 24px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06)",
               overflow: "hidden",
               transform: `rotate(${rotations[i]}deg)`,
               display: "flex",
@@ -256,8 +145,8 @@ export default async function Image() {
             <img
               src={src}
               alt=""
-              width={168}
-              height={168}
+              width={160}
+              height={160}
               style={{
                 objectFit: "cover",
                 width: "100%",
@@ -266,6 +155,67 @@ export default async function Image() {
             />
           </div>
         ))}
+      </div>
+
+      {/* Quote at the bottom */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 12,
+          marginTop: 32,
+          position: "relative",
+          zIndex: 2,
+        }}
+      >
+        <div
+          style={{
+            width: 40,
+            height: 2,
+            backgroundColor: "#e0e0e0",
+            borderRadius: 1,
+            display: "flex",
+          }}
+        />
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+          }}
+        >
+          <div
+            style={{
+              fontSize: 20,
+              fontStyle: "italic",
+              color: "#6b6b6b",
+              fontFamily: "Georgia, serif",
+              display: "flex",
+            }}
+          >
+            &ldquo;I swear the printer is haunted&rdquo;
+          </div>
+          <div
+            style={{
+              fontSize: 14,
+              color: "#7c3aed",
+              fontWeight: 700,
+              display: "flex",
+            }}
+          >
+            — #no-context
+          </div>
+        </div>
+        <div
+          style={{
+            width: 40,
+            height: 2,
+            backgroundColor: "#e0e0e0",
+            borderRadius: 1,
+            display: "flex",
+          }}
+        />
       </div>
     </div>,
     {

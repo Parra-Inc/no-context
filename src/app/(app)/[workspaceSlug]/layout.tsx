@@ -75,7 +75,7 @@ export default async function WorkspaceLayout({
     }));
 
   const tier = subscription?.tier || "FREE";
-  const quota = subscription?.monthlyQuota || 5;
+  const quota = subscription?.monthlyQuota || 3;
   const used = usage?.quotesUsed || 0;
 
   return (

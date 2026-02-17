@@ -47,7 +47,7 @@ model Subscription {
   stripePriceId          String?
   tier                   SubscriptionTier   @default(FREE)
   status                 SubscriptionStatus @default(ACTIVE)
-  monthlyQuota           Int                @default(5)
+  monthlyQuota           Int                @default(3)
   currentPeriodStart     DateTime?
   currentPeriodEnd       DateTime?
   cancelAtPeriodEnd      Boolean            @default(false)

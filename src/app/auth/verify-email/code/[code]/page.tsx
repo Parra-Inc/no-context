@@ -26,7 +26,7 @@ export default async function VerifyEmailTokenPage({
       <div className="w-full max-w-md text-center">
         <div className="mb-8">
           <Link href="/">
-            <Logo size="lg" className="justify-center" />
+            <Logo size="lg" className="mx-auto" />
           </Link>
         </div>
 

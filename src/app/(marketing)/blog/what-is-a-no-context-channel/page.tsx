@@ -809,7 +809,7 @@ export default function WhatIsNoContextChannelPage() {
                 </Link>
               </div>
               <p className="mt-3 text-sm text-[#4A4A4A]">
-                Free plan includes 5 AI-generated images per month. No credit
+                Free plan includes 3 AI-generated images per month. No credit
                 card required.
               </p>
             </section>

@@ -92,7 +92,7 @@ export function QuoteCard({
                 {onFavoriteToggle && (
                   <button
                     onClick={onFavoriteToggle}
-                    className="text-muted-foreground hover:text-coral transition-colors"
+                    className="text-muted-foreground hover:text-coral inline-flex items-center justify-center transition-colors"
                   >
                     <motion.div
                       key={String(isFavorited)}
@@ -120,7 +120,7 @@ export function QuoteCard({
                       e.stopPropagation();
                       window.open(imageUrl, "_blank");
                     }}
-                    className="text-muted-foreground hover:text-foreground"
+                    className="text-muted-foreground hover:text-foreground inline-flex items-center justify-center"
                   >
                     <Download className="h-4 w-4" />
                   </button>

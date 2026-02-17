@@ -8,7 +8,7 @@ export const mockStripe = {
 
 export const stripe = mockStripe;
 export const TIER_QUOTAS = {
-  FREE: 5,
+  FREE: 3,
   STARTER: 25,
   TEAM: 100,
   BUSINESS: 500,

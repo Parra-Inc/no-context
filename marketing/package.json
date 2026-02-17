@@ -1,0 +1,14 @@
+{
+  "name": "no-context-marketing",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Marketing slide/image generator for No Context",
+  "scripts": {
+    "screenshot": "node screenshot.mjs",
+    "screenshot:slide": "node screenshot.mjs --slide"
+  },
+  "dependencies": {
+    "puppeteer": "^24.2.0",
+    "qrcode": "^1.5.4"
+  }
+}

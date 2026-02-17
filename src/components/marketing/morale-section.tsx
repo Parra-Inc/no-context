@@ -85,7 +85,7 @@ export function MoraleSection() {
                 <span className="absolute bottom-1 left-0 -z-0 h-3 w-full bg-[#EDE9FE]" />
               </span>
               <br />
-              We make them beautiful.
+              We make them immortal.
             </h2>
           </FadeIn>
           <FadeIn delay={100}>

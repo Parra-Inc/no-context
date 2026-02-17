@@ -58,7 +58,7 @@ model Subscription {
   stripePriceId        String?
   tier                 SubscriptionTier   @default(FREE)
   status               SubscriptionStatus @default(ACTIVE)
-  monthlyQuota         Int                @default(5)
+  monthlyQuota         Int                @default(3)
   bonusCredits         Int                @default(0)
   maxChannels          Int                @default(1)
   hasWatermark         Boolean            @default(true)
@@ -136,6 +136,7 @@ model Quote {
   @@unique([workspaceId, slackMessageTs])
   @@index([workspaceId, createdAt])
   @@index([workspaceId, status])
+  @@index([status, createdAt])
 }
 
 enum QuoteStatus {

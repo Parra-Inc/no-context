@@ -41,7 +41,7 @@ const softwareAppSchema = {
       price: "0",
       priceCurrency: "USD",
       name: "Free",
-      description: "5 AI-generated images per month",
+      description: "3 AI-generated images per month",
     },
     {
       "@type": "Offer",

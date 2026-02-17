@@ -146,7 +146,7 @@ export function EmailVerificationClient({
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <Link href="/">
-            <Logo size="lg" className="justify-center" />
+            <Logo size="lg" className="mx-auto" />
           </Link>
         </div>
 

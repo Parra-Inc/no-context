@@ -41,6 +41,14 @@ export function Footer() {
                   Gallery
                 </a>
               </li>
+              <li>
+                <Link
+                  href="/explore"
+                  className="cursor-pointer text-sm text-[#4A4A4A] hover:text-[#1A1A1A]"
+                >
+                  Explore
+                </Link>
+              </li>
             </ul>
           </div>
           <div>

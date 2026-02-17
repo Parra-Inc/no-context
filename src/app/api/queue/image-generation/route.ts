@@ -202,7 +202,7 @@ async function handler(request: NextRequest) {
         periodStart,
         periodEnd,
         quotesUsed: 1,
-        quotaLimit: 5,
+        quotaLimit: 3,
       },
     });
 
@@ -213,7 +213,7 @@ async function handler(request: NextRequest) {
     });
 
     if (
-      usageRecord.quotesUsed > (subscription?.monthlyQuota || 5) &&
+      usageRecord.quotesUsed > (subscription?.monthlyQuota || 3) &&
       (subscription?.bonusCredits || 0) > 0
     ) {
       await prisma.$executeRaw`

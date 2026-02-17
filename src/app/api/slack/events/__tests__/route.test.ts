@@ -20,7 +20,7 @@ jest.mock("@/lib/prisma", () => ({
 
 jest.mock("@/lib/stripe", () => ({
   TIER_QUOTAS: {
-    FREE: 5,
+    FREE: 3,
     STARTER: 25,
     TEAM: 100,
     BUSINESS: 500,

@@ -48,7 +48,7 @@ jest.mock("@/lib/slack", () => ({
 
 jest.mock("@/lib/stripe", () => ({
   TIER_QUOTAS: {
-    FREE: 5,
+    FREE: 3,
     STARTER: 25,
     TEAM: 100,
     BUSINESS: 500,
@@ -191,7 +191,7 @@ const WORKSPACE = {
   slug: "test-workspace",
   subscription: {
     tier: "FREE",
-    monthlyQuota: 5,
+    monthlyQuota: 3,
     bonusCredits: 0,
     hasWatermark: true,
     status: "ACTIVE",
@@ -328,7 +328,7 @@ describe("Image Generation Flow: Slack Event → Image → Slack Post", () => {
       quotesUsed: 1,
     });
     (prisma.subscription.findUnique as jest.Mock).mockResolvedValue({
-      monthlyQuota: 5,
+      monthlyQuota: 3,
       bonusCredits: 0,
     });
     (prisma.$executeRaw as jest.Mock).mockResolvedValue(0);
@@ -472,7 +472,7 @@ describe("Image Generation Flow: Slack Event → Image → Slack Post", () => {
 
     it("stops processing when monthly quota is exceeded", async () => {
       (prisma.usageRecord.findUnique as jest.Mock).mockResolvedValue({
-        quotesUsed: 5, // FREE tier limit
+        quotesUsed: 3, // FREE tier limit
       });
 
       const req = createSlackEventRequest({

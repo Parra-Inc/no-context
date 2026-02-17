@@ -15,11 +15,11 @@ const tiers = [
     name: "Free",
     monthlyPrice: 0,
     annualPrice: 0,
-    images: 5,
+    images: 3,
     popular: false,
     cta: "Add to Slack — Free",
     features: [
-      "5 generated images/month",
+      "3 generated images/month",
       "1 connected channel",
       `${freeStyleCount} basic art styles`,
       "7-day image history",
