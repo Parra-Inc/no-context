@@ -173,6 +173,67 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    case "usage": {
+      const now = new Date();
+      const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const usage = await prisma.usageRecord.findUnique({
+        where: {
+          workspaceId_periodStart: {
+            workspaceId: workspace.id,
+            periodStart,
+          },
+        },
+      });
+
+      const tier = workspace.subscription?.tier || "FREE";
+      const monthlyQuota =
+        workspace.subscription?.monthlyQuota || TIER_QUOTAS.FREE;
+      const bonus = workspace.subscription?.bonusCredits || 0;
+      const totalQuota = monthlyQuota + bonus;
+      const used = usage?.quotesUsed || 0;
+      const remaining = Math.max(0, totalQuota - used);
+      const pct = totalQuota > 0 ? Math.min(used / totalQuota, 1) : 0;
+
+      // Build a 20-char progress bar
+      const barLen = 20;
+      const filled = Math.round(pct * barLen);
+      const bar = "\u2588".repeat(filled) + "\u2591".repeat(barLen - filled);
+
+      // Billing reset date
+      const resetDate = workspace.subscription?.currentPeriodEnd;
+      const resetStr = resetDate
+        ? `<!date^${Math.floor(resetDate.getTime() / 1000)}^{date_short}|${resetDate.toLocaleDateString()}>`
+        : "End of month";
+
+      log.info(
+        `Slack commands: usage response team=${teamId} tier=${tier} used=${used}/${totalQuota}`,
+      );
+
+      const lines = [
+        `*No Context — Usage*`,
+        ``,
+        `\`${bar}\` ${used} / ${totalQuota} images`,
+        ``,
+        `*Plan:* ${tier} (${monthlyQuota}/mo)`,
+      ];
+
+      if (bonus > 0) {
+        lines.push(`*Bonus credits:* ${bonus}`);
+      }
+
+      lines.push(
+        `*Remaining:* ${remaining}`,
+        `*Resets:* ${resetStr}`,
+        ``,
+        `<${appUrl}/${workspace.slug}/settings/billing|Manage Billing>`,
+      );
+
+      return NextResponse.json({
+        response_type: "ephemeral",
+        text: lines.join("\n"),
+      });
+    }
+
     case "help": {
       log.info(`Slack commands: help response team=${teamId}`);
 
@@ -199,6 +260,7 @@ export async function POST(request: NextRequest) {
           `*Commands*`,
           `\`/nocontext help\` — Show this help message`,
           `\`/nocontext status\` — View usage, plan info, and connected channels`,
+          `\`/nocontext usage\` — See a visual usage bar and billing reset date`,
           `\`/nocontext style\` — See current style mode and available art styles`,
           `\`/nocontext pause\` — Pause the bot in this channel`,
           `\`/nocontext resume\` — Resume the bot in this channel`,

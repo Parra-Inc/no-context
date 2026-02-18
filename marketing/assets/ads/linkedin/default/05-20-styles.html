@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1200, initial-scale=1" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    body { margin: 0; width: 1200px; height: 628px; overflow: hidden; }
+  </style>
+</head>
+<body class="bg-[#fafaf8]">
+  <div class="relative w-[1200px] h-[628px] flex items-center overflow-hidden">
+
+    <!-- Left side: headline -->
+    <div class="relative z-10 w-[360px] pl-14 flex-shrink-0">
+      <h1 class="font-display text-[42px] font-extrabold leading-[1.1] tracking-tight text-[#1A1A1A]">
+        <span class="relative inline-block">
+          <span class="relative z-10">20+ art styles.</span>
+          <span class="absolute inset-0 -skew-x-2 rounded-lg bg-[#EDE9FE]"></span>
+        </span>
+        <br/>
+        Powered by your team.
+      </h1>
+
+      <p class="mt-5 text-lg text-[#4A4A4A]">
+        Every quote. A masterpiece.
+      </p>
+
+      <!-- Logo -->
+      <div class="mt-10">
+        <img src="../../../../public/img/logo-with-bot.png" alt="No Context Bot" class="h-9" />
+      </div>
+    </div>
+
+    <!-- Right side: 3x2 grid of gallery images -->
+    <div class="relative z-10 flex-1 pr-10 pl-6">
+      <div class="grid grid-cols-3 gap-3">
+
+        <!-- Ghibli -->
+        <div class="rotate-[-1deg]">
+          <div class="overflow-hidden rounded-xl border-2 border-[#1A1A1A] shadow-[3px_3px_0px_0px_#1A1A1A]">
+            <img src="../../../../public/img/landing/gallery/duck-ghibli.png" alt="Ghibli" class="w-full aspect-[4/3] object-cover" />
+          </div>
+          <div class="mt-1.5 text-center">
+            <span class="inline-flex rounded-full border-2 border-[#1A1A1A] bg-white px-2.5 py-0.5 text-[10px] font-bold shadow-[2px_2px_0px_0px_#1A1A1A]">Ghibli</span>
+          </div>
+        </div>
+
+        <!-- Cubism -->
+        <div class="rotate-[1deg]">
+          <div class="overflow-hidden rounded-xl border-2 border-[#1A1A1A] shadow-[3px_3px_0px_0px_#1A1A1A]">
+            <img src="../../../../public/img/landing/gallery/goat-cubism.png" alt="Cubism" class="w-full aspect-[4/3] object-cover" />
+          </div>
+          <div class="mt-1.5 text-center">
+            <span class="inline-flex rounded-full border-2 border-[#1A1A1A] bg-white px-2.5 py-0.5 text-[10px] font-bold shadow-[2px_2px_0px_0px_#1A1A1A]">Cubism</span>
+          </div>
+        </div>
+
+        <!-- Pixel Art -->
+        <div class="rotate-[-0.5deg]">
+          <div class="overflow-hidden rounded-xl border-2 border-[#1A1A1A] shadow-[3px_3px_0px_0px_#1A1A1A]">
+            <img src="../../../../public/img/landing/gallery/raccoon-pixel.png" alt="Pixel Art" class="w-full aspect-[4/3] object-cover" />
+          </div>
+          <div class="mt-1.5 text-center">
+            <span class="inline-flex rounded-full border-2 border-[#1A1A1A] bg-white px-2.5 py-0.5 text-[10px] font-bold shadow-[2px_2px_0px_0px_#1A1A1A]">Pixel Art</span>
+          </div>
+        </div>
+
+        <!-- Pop Art -->
+        <div class="rotate-[1.5deg]">
+          <div class="overflow-hidden rounded-xl border-2 border-[#1A1A1A] shadow-[3px_3px_0px_0px_#1A1A1A]">
+            <img src="../../../../public/img/landing/gallery/love-popart.png" alt="Pop Art" class="w-full aspect-[4/3] object-cover" />
+          </div>
+          <div class="mt-1.5 text-center">
+            <span class="inline-flex rounded-full border-2 border-[#1A1A1A] bg-white px-2.5 py-0.5 text-[10px] font-bold shadow-[2px_2px_0px_0px_#1A1A1A]">Pop Art</span>
+          </div>
+        </div>
+
+        <!-- Watercolor -->
+        <div class="rotate-[-1.5deg]">
+          <div class="overflow-hidden rounded-xl border-2 border-[#1A1A1A] shadow-[3px_3px_0px_0px_#1A1A1A]">
+            <img src="../../../../public/img/landing/gallery/plants-watercolor.png" alt="Watercolor" class="w-full aspect-[4/3] object-cover" />
+          </div>
+          <div class="mt-1.5 text-center">
+            <span class="inline-flex rounded-full border-2 border-[#1A1A1A] bg-white px-2.5 py-0.5 text-[10px] font-bold shadow-[2px_2px_0px_0px_#1A1A1A]">Watercolor</span>
+          </div>
+        </div>
+
+        <!-- Van Gogh -->
+        <div class="rotate-[0.5deg]">
+          <div class="overflow-hidden rounded-xl border-2 border-[#1A1A1A] shadow-[3px_3px_0px_0px_#1A1A1A]">
+            <img src="../../../../public/img/landing/gallery/throne-vangogh.png" alt="Van Gogh" class="w-full aspect-[4/3] object-cover" />
+          </div>
+          <div class="mt-1.5 text-center">
+            <span class="inline-flex rounded-full border-2 border-[#1A1A1A] bg-white px-2.5 py-0.5 text-[10px] font-bold shadow-[2px_2px_0px_0px_#1A1A1A]">Van Gogh</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</body>
+</html>

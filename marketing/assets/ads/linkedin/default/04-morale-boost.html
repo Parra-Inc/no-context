@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1200, initial-scale=1" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Inter', 'system-ui', 'sans-serif'],
+            quote: ['Georgia', 'Times New Roman', 'serif'],
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    body { margin: 0; width: 1200px; height: 628px; overflow: hidden; }
+    .font-quote { font-family: Georgia, 'Times New Roman', serif; font-style: italic; }
+  </style>
+</head>
+<body class="bg-[#fafaf8]">
+  <div class="relative w-[1200px] h-[628px] flex items-center overflow-hidden">
+
+    <!-- Left side: headline + subtext -->
+    <div class="relative z-10 flex-1 pl-14 pr-6">
+      <div class="max-w-[440px]">
+        <h1 class="font-display text-[40px] font-extrabold leading-[1.1] tracking-tight text-[#1A1A1A]">
+          The easiest
+          <span class="relative inline-block">
+            <span class="relative z-10">morale boost</span>
+            <span class="absolute inset-0 -skew-x-2 rounded-lg bg-[#EDE9FE]"></span>
+          </span>
+          you'll ever ship.
+        </h1>
+
+        <p class="mt-5 text-lg leading-relaxed text-[#4A4A4A]">
+          Your team already says funny things.<br/>
+          <span class="font-semibold text-[#1A1A1A]">We just turn them into art.</span>
+        </p>
+
+        <div class="mt-6 inline-flex items-center gap-2 rounded-full border-2 border-[#1A1A1A] bg-white px-4 py-2 shadow-[3px_3px_0px_0px_#1A1A1A]">
+          <span class="text-sm font-bold text-[#7C3AED]">Free to start</span>
+          <span class="text-sm text-[#4A4A4A]">· 60 sec install</span>
+        </div>
+      </div>
+
+      <!-- Logo bottom-left -->
+      <div class="absolute bottom-8 left-14">
+        <img src="../../../../public/img/logo-with-bot.png" alt="No Context Bot" class="h-9" />
+      </div>
+    </div>
+
+    <!-- Right side: Slack thread mockup -->
+    <div class="relative z-10 flex-shrink-0 pr-12">
+      <div class="w-[440px] overflow-hidden rounded-2xl border-2 border-[#1A1A1A] bg-white shadow-[6px_6px_0px_0px_#1A1A1A]">
+        <!-- Slack header bar -->
+        <div class="border-b-2 border-[#1A1A1A] bg-[#3F0E40] px-4 py-2.5 flex items-center gap-2">
+          <span class="text-xs font-bold text-white/60">#</span>
+          <span class="text-xs font-bold text-white">no-context</span>
+        </div>
+
+        <!-- Message area -->
+        <div class="p-4 space-y-3">
+          <!-- User message -->
+          <div class="flex gap-2.5">
+            <img src="../../../../public/img/landing/avatar/sarah.jpg" alt="Sarah" class="w-9 h-9 rounded-lg object-cover flex-shrink-0" />
+            <div class="min-w-0">
+              <div class="flex items-baseline gap-1.5">
+                <span class="text-sm font-bold text-[#1D1C1D]">Sarah C.</span>
+                <span class="text-[10px] text-[#616061]">3:12 PM</span>
+              </div>
+              <p class="font-quote mt-1 text-[14px] text-[#1D1C1D]">
+                "I'm not saying it was aliens, but it was definitely the intern"
+              </p>
+              <p class="text-[11px] text-[#4A4A4A]">— Mike, Engineering</p>
+              <div class="mt-1.5 flex gap-1.5">
+                <span class="rounded-full bg-[#F8F8F8] border border-[#E5E5E5] px-2 py-0.5 text-[10px]">🔥 5</span>
+                <span class="rounded-full bg-[#F8F8F8] border border-[#E5E5E5] px-2 py-0.5 text-[10px]">😂 3</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bot reply -->
+          <div class="ml-[46px] border-l-[3px] border-[#7C3AED]/30 pl-4">
+            <div class="flex gap-2.5">
+              <img src="../../../../public/img/landing/avatar/bot.svg" alt="No Context Bot" class="w-9 h-9 rounded-lg bg-[#EDE9FE] p-1 flex-shrink-0" />
+              <div class="min-w-0">
+                <div class="flex items-baseline gap-1.5">
+                  <span class="text-sm font-bold text-[#1D1C1D]">No Context</span>
+                  <span class="rounded bg-[#EDE9FE] px-1.5 py-0.5 text-[9px] font-bold text-[#7C3AED]">APP</span>
+                </div>
+              </div>
+            </div>
+            <div class="mt-2 aspect-[4/3] w-full overflow-hidden rounded-lg border-2 border-[#1A1A1A] shadow-[3px_3px_0px_0px_#1A1A1A]">
+              <img src="../../../../public/img/landing/gallery/love-popart.png" alt="Pop Art" class="w-full h-full object-cover" />
+            </div>
+            <p class="mt-1.5 text-[10px] text-[#616061] italic">Style: Pop Art</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
