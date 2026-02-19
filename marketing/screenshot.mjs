@@ -1,5 +1,12 @@
 import puppeteer from "puppeteer";
-import { readdirSync, readFileSync, mkdirSync, rmSync, unlinkSync } from "fs";
+import {
+  readdirSync,
+  readFileSync,
+  existsSync,
+  mkdirSync,
+  rmSync,
+  unlinkSync,
+} from "fs";
 import { resolve, relative, dirname, join } from "path";
 
 const DEFAULT_WIDTH = 1270;
@@ -30,18 +37,53 @@ function parseDimensions(htmlPath) {
   };
 }
 
+function findManifest(htmlPath) {
+  let dir = dirname(htmlPath);
+  while (dir.startsWith(ASSETS_DIR)) {
+    const manifestPath = join(dir, "manifest.json");
+    if (existsSync(manifestPath)) {
+      return JSON.parse(readFileSync(manifestPath, "utf-8"));
+    }
+    dir = dirname(dir);
+  }
+  return null;
+}
+
 async function screenshot(browser, htmlPath, outputPath) {
   mkdirSync(dirname(outputPath), { recursive: true });
   const { width, height } = parseDimensions(htmlPath);
+  const manifest = findManifest(htmlPath);
+  const outputSize = manifest?.output?.size;
   const page = await browser.newPage();
   await page.setViewport({ width, height, deviceScaleFactor: 2 });
   await page.goto(`file://${htmlPath}`, { waitUntil: "networkidle0" });
   // Small delay for any CSS transitions / font loading
   await new Promise((r) => setTimeout(r, 500));
-  await page.screenshot({ path: outputPath, type: "png" });
-  await page.close();
-  const relPath = relative(OUTPUT_DIR, outputPath);
-  console.log(`  ✓ ${relPath} (${width}x${height} @2x)`);
+
+  if (outputSize) {
+    // Capture at 2x for quality, then resize to exact manifest pixel dimensions
+    const buf = await page.screenshot({ type: "png", encoding: "binary" });
+    await page.setViewport({
+      width: outputSize.width,
+      height: outputSize.height,
+      deviceScaleFactor: 1,
+    });
+    await page.setContent(`
+      <html><body style="margin:0;padding:0;overflow:hidden;width:${outputSize.width}px;height:${outputSize.height}px;">
+        <img src="data:image/png;base64,${buf.toString("base64")}"
+             style="width:${outputSize.width}px;height:${outputSize.height}px;" />
+      </body></html>
+    `);
+    await page.screenshot({ path: outputPath, type: "png" });
+    await page.close();
+    const relPath = relative(OUTPUT_DIR, outputPath);
+    console.log(`  ✓ ${relPath} (${outputSize.width}x${outputSize.height})`);
+  } else {
+    await page.screenshot({ path: outputPath, type: "png" });
+    await page.close();
+    const relPath = relative(OUTPUT_DIR, outputPath);
+    console.log(`  ✓ ${relPath} (${width}x${height} @2x)`);
+  }
 }
 
 async function main() {
