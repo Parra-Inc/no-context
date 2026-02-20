@@ -55,53 +55,11 @@ const SEED_CHANNELS = [
   },
 ];
 
-const SEED_MESSAGES = [
-  {
-    channel_id: "C000000001",
-    user_id: "U001",
-    text: "Hey everyone! 👋 Welcome to the test workspace!",
-  },
-  {
-    channel_id: "C000000001",
-    user_id: "U002",
-    text: "Thanks Alice! Excited to test out the bot here.",
-  },
-  {
-    channel_id: "C000000001",
-    user_id: "U003",
-    text: "This is going to be fun! Let's try generating some art.",
-  },
-  {
-    channel_id: "C000000002",
-    user_id: "U002",
-    text: "Random thought: what if AI could paint dreams? 🎨",
-  },
-  {
-    channel_id: "C000000002",
-    user_id: "U001",
-    text: "That's basically what we're building! 😄",
-  },
-  {
-    channel_id: "C000000003",
-    user_id: "U003",
-    text: "I'd love to see a watercolor painting of a sunset over mountains",
-  },
-  {
-    channel_id: "C000000003",
-    user_id: "UBOT001",
-    text: "I can help you with that! Just mention me with your request.",
-  },
-  {
-    channel_id: "C000000004",
-    user_id: "U001",
-    text: "Team sync: Let's make sure the bot integration is working smoothly",
-  },
-  {
-    channel_id: "C000000004",
-    user_id: "U002",
-    text: "On it! Testing all the endpoints now.",
-  },
-];
+const SEED_MESSAGES: Array<{
+  channel_id: string;
+  user_id: string;
+  text: string;
+}> = [];
 
 export async function POST() {
   try {

@@ -11,18 +11,6 @@ interface MessageListProps {
 
 export function MessageList({ messages, onThreadClick }: MessageListProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const prevMessageCountRef = useRef(messages.length);
-
-  useEffect(() => {
-    // Auto-scroll to bottom when new messages arrive
-    if (messages.length > prevMessageCountRef.current) {
-      scrollRef.current?.scrollTo({
-        top: scrollRef.current.scrollHeight,
-        behavior: "smooth",
-      });
-    }
-    prevMessageCountRef.current = messages.length;
-  }, [messages]);
 
   if (messages.length === 0) {
     return (
