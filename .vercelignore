@@ -12,3 +12,4 @@ jest.config.ts
 jest.setup.ts
 src/**/__tests__/
 src/__mocks__/
+dev/
