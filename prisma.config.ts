@@ -9,4 +9,7 @@ export default {
   datasource: {
     url: databaseUrl,
   },
+  migrations: {
+    seed: "pnpm exec tsx prisma/seed.ts",
+  },
 } satisfies PrismaConfig;
