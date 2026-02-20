@@ -17,8 +17,13 @@ COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Rebuild native modules for Alpine
-RUN npm install -g pnpm && pnpm rebuild better-sqlite3
+# Rebuild native modules for Alpine - need to rebuild from source
+RUN npm install -g pnpm && \
+    echo '{"approvals":{"better-sqlite3":true}}' > .pnpm-approvals.json && \
+    pnpm config set enable-pre-post-scripts true && \
+    cd node_modules/.pnpm/better-sqlite3@*/node_modules/better-sqlite3 && \
+    npm run install && \
+    cd /app
 
 RUN pnpm run build
 
