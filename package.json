@@ -2,9 +2,10 @@
   "name": "no-context",
   "version": "1.0.0",
   "description": "",
+  "packageManager": "pnpm@10.12.4",
   "scripts": {
     "dev": "concurrently --kill-others \"next dev --turbopack\" \"pnpm run db:sync --accept-data-loss && pnpm run db:studio\"",
-    "build": "prisma generate && prisma db push && next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint . && prettier --check .",
     "format": "prettier --write .",
