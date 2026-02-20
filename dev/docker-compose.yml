@@ -1,4 +1,4 @@
-version: "3.8"
+name: no-context-bot
 
 services:
   db:
@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: nocontext
       POSTGRES_DB: nocontext
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -17,8 +17,20 @@ services:
     image: mailhog/mailhog:latest
     platform: linux/amd64
     ports:
-      - "1025:1025"
-      - "8025:8025"
+      - "1026:1025"
+      - "8026:8026"
+
+  slackhog:
+    build: ./slackhog
+    restart: unless-stopped
+    ports:
+      - "9002:9002"
+    environment:
+      - SLACK_BOT_TOKEN=xoxb-test-token
+      - SLACK_SIGNING_SECRET=test_signing_secret
+    volumes:
+      - slackhog_data:/app/data
 
 volumes:
   postgres_data:
+  slackhog_data:

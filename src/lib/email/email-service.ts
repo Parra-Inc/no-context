@@ -53,7 +53,7 @@ async function sendViaMailHog(
     console.log("Email sent via MailHog:");
     console.log(`  To: ${options.to}`);
     console.log(`  Subject: ${options.subject}`);
-    console.log("  Check MailHog UI at http://localhost:8025");
+    console.log("  Check MailHog UI at http://localhost:8026");
 
     return { success: true };
   } catch (error) {

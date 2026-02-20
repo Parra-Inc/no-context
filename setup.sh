@@ -33,7 +33,7 @@ fi
 echo ""
 echo "Starting Postgres..."
 docker compose up -d
-echo "✓ Postgres running on localhost:5432"
+echo "✓ Postgres running on localhost:5433"
 
 # 3. Install dependencies & set up database
 echo ""

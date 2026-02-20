@@ -4,7 +4,7 @@ import { PrismaPg } from "@prisma/adapter-pg";
 
 const adapter = new PrismaPg({
   connectionString:
-    process.env.DATABASE_URL || "postgresql://localhost:5432/nocontext",
+    process.env.DATABASE_URL || "postgresql://localhost:5433/nocontext",
 });
 const prisma = new PrismaClient({ adapter });
 
@@ -208,8 +208,10 @@ const BUILT_IN_STYLES = [
 ];
 
 async function main() {
-  console.log("Seeding built-in styles...");
+  console.log("🌱 Seeding database...\n");
 
+  // Seed built-in styles
+  console.log("🎨 Seeding built-in styles...");
   for (const style of BUILT_IN_STYLES) {
     const existing = await prisma.style.findFirst({
       where: { workspaceId: null, name: style.name },
@@ -238,8 +240,136 @@ async function main() {
       });
     }
   }
+  console.log(`   ✓ Seeded ${BUILT_IN_STYLES.length} styles\n`);
 
-  console.log("Done seeding built-in styles.");
+  // Seed test user
+  console.log("👤 Seeding test user...");
+  let user = await prisma.user.findUnique({
+    where: { email: "test@example.com" },
+  });
+
+  if (!user) {
+    user = await prisma.user.create({
+      data: {
+        email: "test@example.com",
+        name: "Test User",
+        slackUserId: "U001",
+        emailVerified: new Date(),
+      },
+    });
+    console.log("   ✓ Created test user: test@example.com");
+  } else {
+    console.log("   ℹ Test user already exists");
+  }
+
+  // Seed test workspace (aligned with slackhog)
+  console.log("\n🏢 Seeding test workspace...");
+  let workspace = await prisma.workspace.findUnique({
+    where: { slackTeamId: "T001DEV" },
+  });
+
+  if (!workspace) {
+    workspace = await prisma.workspace.create({
+      data: {
+        slug: "dev-test-workspace",
+        slackTeamId: "T001DEV",
+        slackTeamName: "Dev Test Workspace",
+        slackBotToken: "xoxb-test-token",
+        slackBotUserId: "UBOT001",
+        installedByUserId: user.id,
+        isActive: true,
+        onboardingCompleted: true,
+      },
+    });
+    console.log("   ✓ Created workspace: Dev Test Workspace");
+
+    // Create workspace user
+    await prisma.workspaceUser.create({
+      data: {
+        userId: user.id,
+        workspaceId: workspace.id,
+        role: "admin",
+        isDefault: true,
+      },
+    });
+    console.log("   ✓ Added user to workspace");
+
+    // Create subscription
+    await prisma.subscription.create({
+      data: {
+        workspaceId: workspace.id,
+        stripeCustomerId: "cus_test_dev",
+        tier: "TEAM",
+        status: "ACTIVE",
+        monthlyQuota: 100,
+        maxChannels: 10,
+        hasWatermark: false,
+        imageSize: "1792x1024",
+      },
+    });
+    console.log("   ✓ Created TEAM tier subscription");
+  } else {
+    console.log("   ℹ Test workspace already exists");
+  }
+
+  // Seed channels (aligned with slackhog channels)
+  console.log("\n📺 Seeding channels...");
+  const channelsToSeed = [
+    {
+      slackChannelId: "C000000001",
+      channelName: "general",
+    },
+    {
+      slackChannelId: "C000000002",
+      channelName: "random",
+    },
+    {
+      slackChannelId: "C000000003",
+      channelName: "art-requests",
+    },
+    {
+      slackChannelId: "C000000004",
+      channelName: "dev-team",
+    },
+  ];
+
+  for (const channelData of channelsToSeed) {
+    const existing = await prisma.channel.findUnique({
+      where: {
+        workspaceId_slackChannelId: {
+          workspaceId: workspace.id,
+          slackChannelId: channelData.slackChannelId,
+        },
+      },
+    });
+
+    if (!existing) {
+      await prisma.channel.create({
+        data: {
+          workspaceId: workspace.id,
+          slackChannelId: channelData.slackChannelId,
+          channelName: channelData.channelName,
+          isActive: true,
+          styleMode: "RANDOM",
+        },
+      });
+      console.log(`   ✓ Created channel: #${channelData.channelName}`);
+    } else {
+      console.log(`   ℹ Channel #${channelData.channelName} already exists`);
+    }
+  }
+
+  console.log("\n✅ Database seeding complete!\n");
+  console.log("📊 Summary:");
+  console.log(`   • ${BUILT_IN_STYLES.length} art styles`);
+  console.log(`   • 1 test user (test@example.com)`);
+  console.log(`   • 1 workspace (Dev Test Workspace)`);
+  console.log(`   • 1 subscription (TEAM tier)`);
+  console.log(`   • ${channelsToSeed.length} channels`);
+  console.log("\n💡 Next steps:");
+  console.log("   1. Seed slackhog: cd dev/slackhog && pnpm exec tsx seed.ts");
+  console.log("   2. Start the app: pnpm dev");
+  console.log("   3. Open slackhog GUI: http://localhost:9002");
 }
 
 main()

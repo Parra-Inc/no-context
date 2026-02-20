@@ -191,7 +191,7 @@ services:
       POSTGRES_PASSWORD: nocontext
       POSTGRES_DB: nocontext
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 

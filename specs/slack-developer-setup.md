@@ -175,7 +175,7 @@ NEXTAUTH_URL=http://localhost:3000
 NEXTAUTH_SECRET=generate-a-random-secret
 
 # Database
-DATABASE_URL=postgresql://nocontext:nocontext@localhost:5432/nocontext
+DATABASE_URL=postgresql://nocontext:nocontext@localhost:5433/nocontext
 
 # Redis
 REDIS_URL=redis://localhost:6379
