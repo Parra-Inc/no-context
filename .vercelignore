@@ -1,3 +1,14 @@
-marketing/
+/marketing/
 specs/
 scripts/
+.agents/
+.claude/
+.github/
+.husky/
+*.md
+docker-compose.yml
+setup.sh
+jest.config.ts
+jest.setup.ts
+src/**/__tests__/
+src/__mocks__/
