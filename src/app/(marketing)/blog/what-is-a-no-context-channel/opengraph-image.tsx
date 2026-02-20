@@ -193,7 +193,6 @@ export default async function Image() {
               display: "flex",
             }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={src}
               alt=""

@@ -85,6 +85,7 @@ export function FinalCTA() {
         {/* CTA Button */}
         <FadeIn delay={200}>
           <div className="mt-10 text-center">
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a href="/api/slack/install">
               <MarketingButton
                 size="lg"

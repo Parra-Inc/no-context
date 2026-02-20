@@ -137,7 +137,7 @@ export function CollectionDetailClient({
         setLoadingMore(false);
       }
     },
-    [collectionId, debouncedSearch],
+    [collectionId, debouncedSearch, workspaceId],
   );
 
   useEffect(() => {

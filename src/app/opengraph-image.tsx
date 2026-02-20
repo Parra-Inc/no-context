@@ -84,7 +84,6 @@ export default async function Image() {
           zIndex: 2,
         }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={logo}
           alt="No Context"
@@ -141,7 +140,6 @@ export default async function Image() {
               display: "flex",
             }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={src}
               alt=""

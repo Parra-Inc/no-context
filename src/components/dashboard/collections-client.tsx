@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -208,11 +208,7 @@ export function CollectionsClient({
     collection.name.toLowerCase().includes(search.toLowerCase()),
   );
 
-  useEffect(() => {
-    fetchCollections();
-  }, []);
-
-  const fetchCollections = async () => {
+  const fetchCollections = useCallback(async () => {
     try {
       const res = await fetch("/api/collections", {
         headers: { "X-Workspace-Id": workspaceId },
@@ -226,7 +222,11 @@ export function CollectionsClient({
     } finally {
       setLoading(false);
     }
-  };
+  }, [workspaceId]);
+
+  useEffect(() => {
+    fetchCollections();
+  }, [fetchCollections]);
 
   const handleCreateCollection = async (
     name: string,
@@ -569,6 +569,7 @@ export function CollectionsClient({
                 {/* Cover Image */}
                 <div className="bg-muted relative aspect-[16/10] overflow-hidden">
                   {collection.coverImage ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
                     <img
                       src={collection.coverImage}
                       alt={collection.name}

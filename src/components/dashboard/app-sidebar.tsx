@@ -120,6 +120,7 @@ export function AppSidebar({
           <PopoverTrigger asChild>
             <button className="bg-sidebar-accent/40 hover:bg-sidebar-accent/60 flex w-full items-center gap-2.5 rounded-lg border px-3 py-2.5 text-left shadow-sm transition-colors">
               {workspaceIcon ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
                 <img
                   src={workspaceIcon}
                   alt={workspaceName || "Workspace"}
@@ -158,6 +159,7 @@ export function AppSidebar({
                 }`}
               >
                 {ws.icon ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
                   <img
                     src={ws.icon}
                     alt={ws.name}
@@ -262,6 +264,7 @@ export function AppSidebar({
           <PopoverTrigger asChild>
             <button className="hover:bg-sidebar-accent flex w-full items-center gap-2.5 rounded-lg p-2 text-left transition-colors">
               {user.image ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
                 <img
                   src={user.image}
                   alt={user.name}

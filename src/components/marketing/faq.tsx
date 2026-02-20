@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 import { ChevronDown } from "lucide-react";
 import { FadeIn } from "@/components/marketing/fade-in";
@@ -53,12 +54,12 @@ const faqs = [
         Not yet — No Context Bot is Slack-only for now. If you want Teams,
         Discord, or another platform, let us know! The more people ask, the
         faster we&apos;ll build it.{" "}
-        <a
+        <Link
           href="/contact"
           className="font-medium text-[#7C3AED] underline hover:text-[#6D28D9]"
         >
           Bug us here
-        </a>
+        </Link>
         .
       </>
     ),
@@ -123,12 +124,12 @@ export function FAQ() {
         <FadeIn delay={faqs.length * 50}>
           <p className="mt-10 text-center text-sm text-[#4A4A4A]">
             Don&apos;t see what you&apos;re looking for?{" "}
-            <a
+            <Link
               href="/contact"
               className="font-medium text-[#7C3AED] underline hover:text-[#6D28D9]"
             >
               Contact us
-            </a>
+            </Link>
           </p>
         </FadeIn>
       </div>

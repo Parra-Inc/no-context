@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element, jsx-a11y/alt-text */
 import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { SignInContent } from "../sign-in-content";

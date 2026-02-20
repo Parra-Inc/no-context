@@ -27,6 +27,7 @@ export function Hero() {
           </p>
           <div className="lg:inline-block">
             <div className="mt-10 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-center sm:gap-4 lg:justify-start">
+              {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
               <a href="/api/slack/install" className="w-full sm:w-auto">
                 <MarketingButton
                   size="lg"
@@ -79,9 +80,11 @@ export function Hero() {
             </div>
             <div className="space-y-4 p-4">
               <div className="flex gap-3">
-                <img
+                <Image
                   src="/images/landing/avatar/sarah.jpg"
                   alt="Sarah Chen"
+                  width={36}
+                  height={36}
                   className="h-9 w-9 shrink-0 rounded-lg object-cover"
                 />
                 <div>

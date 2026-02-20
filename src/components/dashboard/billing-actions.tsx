@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ExternalLink } from "lucide-react";
 import { toast } from "sonner";
@@ -47,9 +48,9 @@ export function BillingActions({
         </Button>
       )}
       {tier === "FREE" && (
-        <a href="/#pricing">
+        <Link href="/#pricing">
           <Button>Upgrade Plan</Button>
-        </a>
+        </Link>
       )}
     </div>
   );

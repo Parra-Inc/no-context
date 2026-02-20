@@ -58,6 +58,7 @@ export default async function OnboardingLayout({
           <PopoverTrigger asChild>
             <button className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-[#1A1A1A] shadow-[2px_2px_0px_0px_#1A1A1A] transition-shadow hover:shadow-[3px_3px_0px_0px_#1A1A1A] focus:outline-none">
               {user.image ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
                 <img
                   src={user.image}
                   alt={user.name || "User"}

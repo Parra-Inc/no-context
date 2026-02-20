@@ -68,7 +68,6 @@ export async function POST(request: NextRequest) {
   }
 
   const payload: SlackEventPayload = JSON.parse(body);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const rawEvent = (payload as any).event;
   const eventType = payload.event?.type || payload.type;
 

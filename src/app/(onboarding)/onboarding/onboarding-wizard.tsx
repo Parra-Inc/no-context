@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { LogoIcon } from "@/components/logo";
@@ -149,7 +149,7 @@ export function OnboardingWizard({
     window.location.href = `/api/slack/install?${params.toString()}`;
   }
 
-  async function fetchChannels() {
+  const fetchChannels = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
@@ -165,13 +165,13 @@ export function OnboardingWizard({
     } finally {
       setLoading(false);
     }
-  }
+  }, [workspaceId]);
 
   useEffect(() => {
     if (currentStep === 2) {
       fetchChannels();
     }
-  }, [currentStep]);
+  }, [currentStep, fetchChannels]);
 
   async function handleConnectChannel() {
     const channel = slackChannels.find((ch) => ch.id === selectedChannelId);

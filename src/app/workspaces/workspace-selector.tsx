@@ -49,6 +49,7 @@ export function WorkspaceSelector({
               className="flex w-full items-center gap-3 rounded-lg border-2 border-[#1A1A1A] bg-white px-4 py-3 shadow-[2px_2px_0px_0px_#1A1A1A] transition-shadow hover:shadow-[3px_3px_0px_0px_#1A1A1A] disabled:opacity-60"
             >
               {ws.icon ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
                 <img
                   src={ws.icon}
                   alt={ws.name}

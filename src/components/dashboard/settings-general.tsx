@@ -104,7 +104,7 @@ export default function SettingsGeneral({
         if (Array.isArray(data)) setSlackChannels(data);
       })
       .catch(() => {});
-  }, []);
+  }, [workspaceId]);
 
   async function addChannel() {
     if (!selectedSlackChannel) return;
@@ -342,6 +342,7 @@ export default function SettingsGeneral({
               {needsReconnection ? (
                 <div className="flex items-center gap-2">
                   <Badge variant="destructive">Disconnected</Badge>
+                  {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
                   <a href="/api/slack/install">
                     <Button size="xs" variant="default">
                       Reconnect

@@ -102,6 +102,7 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
           <PopoverTrigger asChild>
             <button className="hover:bg-sidebar-accent flex w-full items-center gap-2.5 rounded-lg p-2 text-left transition-colors">
               {user.image ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
                 <img
                   src={user.image}
                   alt={user.name}

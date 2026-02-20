@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -36,13 +36,7 @@ export function ManageCollectionsDialog({
   const [newCollectionName, setNewCollectionName] = useState("");
   const [showNewCollectionInput, setShowNewCollectionInput] = useState(false);
 
-  useEffect(() => {
-    if (open && quoteId) {
-      fetchCollections();
-    }
-  }, [open, quoteId]);
-
-  const fetchCollections = async () => {
+  const fetchCollections = useCallback(async () => {
     try {
       setLoading(true);
       const res = await fetch(`/api/quotes/${quoteId}/collections`, {
@@ -61,7 +55,13 @@ export function ManageCollectionsDialog({
     } finally {
       setLoading(false);
     }
-  };
+  }, [quoteId, workspaceId]);
+
+  useEffect(() => {
+    if (open && quoteId) {
+      fetchCollections();
+    }
+  }, [open, quoteId, fetchCollections]);
 
   const handleToggleCollection = (collectionId: string) => {
     setSelectedIds((prev) => {

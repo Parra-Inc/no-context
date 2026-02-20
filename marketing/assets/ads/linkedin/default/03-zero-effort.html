@@ -1,91 +1,160 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=1200, initial-scale=1" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'system-ui', 'sans-serif'],
-            display: ['Inter', 'system-ui', 'sans-serif'],
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1200, initial-scale=1" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "system-ui", "sans-serif"],
+              display: ["Inter", "system-ui", "sans-serif"],
+            },
           },
         },
-      },
-    }
-  </script>
-  <style>
-    body { margin: 0; width: 1200px; height: 628px; overflow: hidden; }
-  </style>
-</head>
-<body class="bg-[#fafaf8]">
-  <div class="relative w-[1200px] h-[628px] flex flex-col items-center justify-center overflow-hidden">
+      };
+    </script>
+    <style>
+      body {
+        margin: 0;
+        width: 1200px;
+        height: 628px;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body class="bg-[#fafaf8]">
+    <div
+      class="relative flex h-[628px] w-[1200px] flex-col items-center justify-center overflow-hidden"
+    >
+      <!-- Background decorative art at low opacity -->
+      <div class="pointer-events-none absolute inset-0 overflow-hidden">
+        <div
+          class="absolute top-4 left-8 h-20 w-20 rotate-[-8deg] overflow-hidden rounded-xl border-2 border-[#1A1A1A] opacity-[0.06]"
+        >
+          <img
+            src="../../../../public/img/landing/gallery/printer-dali.png"
+            alt=""
+            class="h-full w-full object-cover"
+          />
+        </div>
+        <div
+          class="absolute right-10 bottom-6 h-24 w-24 rotate-[10deg] overflow-hidden rounded-xl border-2 border-[#1A1A1A] opacity-[0.06]"
+        >
+          <img
+            src="../../../../public/img/landing/gallery/horse-rockwell.png"
+            alt=""
+            class="h-full w-full object-cover"
+          />
+        </div>
+        <div
+          class="absolute top-10 right-16 h-16 w-16 rotate-[5deg] overflow-hidden rounded-xl border-2 border-[#1A1A1A] opacity-[0.05]"
+        >
+          <img
+            src="../../../../public/img/landing/gallery/seagull-hokusai.png"
+            alt=""
+            class="h-full w-full object-cover"
+          />
+        </div>
+      </div>
 
-    <!-- Background decorative art at low opacity -->
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
-      <div class="absolute top-4 left-8 w-20 h-20 rotate-[-8deg] opacity-[0.06] overflow-hidden rounded-xl border-2 border-[#1A1A1A]">
-        <img src="../../../../public/img/landing/gallery/printer-dali.png" alt="" class="w-full h-full object-cover" />
+      <!-- Main headline -->
+      <div class="relative z-10 text-center">
+        <h1
+          class="font-display text-[56px] leading-[1.1] font-extrabold tracking-tight text-[#1A1A1A]"
+        >
+          Install
+          <span class="relative inline-block">
+            <span class="relative z-10">once.</span>
+            <span
+              class="absolute inset-0 -skew-x-2 rounded-lg bg-[#EDE9FE]"
+            ></span>
+          </span>
+          Fun
+          <span class="relative inline-block">
+            <span class="relative z-10">forever.</span>
+            <span
+              class="absolute inset-0 -skew-x-2 rounded-lg bg-[#EDE9FE]"
+            ></span>
+          </span>
+        </h1>
+        <p class="mt-4 text-xl text-[#4A4A4A]">No Context Bot does the rest.</p>
       </div>
-      <div class="absolute bottom-6 right-10 w-24 h-24 rotate-[10deg] opacity-[0.06] overflow-hidden rounded-xl border-2 border-[#1A1A1A]">
-        <img src="../../../../public/img/landing/gallery/horse-rockwell.png" alt="" class="w-full h-full object-cover" />
+
+      <!-- Row of art thumbnails -->
+      <div class="relative z-10 mt-10 flex items-center gap-4">
+        <div
+          class="w-[160px] rotate-[-2deg] overflow-hidden rounded-xl border-2 border-[#1A1A1A] shadow-[3px_3px_0px_0px_#1A1A1A]"
+        >
+          <img
+            src="../../../../public/img/landing/gallery/duck-ghibli.png"
+            alt="Ghibli"
+            class="aspect-[4/3] w-full object-cover"
+          />
+        </div>
+        <div
+          class="w-[160px] rotate-[1deg] overflow-hidden rounded-xl border-2 border-[#1A1A1A] shadow-[3px_3px_0px_0px_#1A1A1A]"
+        >
+          <img
+            src="../../../../public/img/landing/gallery/goat-cubism.png"
+            alt="Cubism"
+            class="aspect-[4/3] w-full object-cover"
+          />
+        </div>
+        <div
+          class="w-[160px] rotate-[-1deg] overflow-hidden rounded-xl border-2 border-[#1A1A1A] shadow-[3px_3px_0px_0px_#1A1A1A]"
+        >
+          <img
+            src="../../../../public/img/landing/gallery/love-popart.png"
+            alt="Pop Art"
+            class="aspect-[4/3] w-full object-cover"
+          />
+        </div>
+        <div
+          class="w-[160px] rotate-[2deg] overflow-hidden rounded-xl border-2 border-[#1A1A1A] shadow-[3px_3px_0px_0px_#1A1A1A]"
+        >
+          <img
+            src="../../../../public/img/landing/gallery/raccoon-pixel.png"
+            alt="Pixel Art"
+            class="aspect-[4/3] w-full object-cover"
+          />
+        </div>
+        <div
+          class="w-[160px] rotate-[-1.5deg] overflow-hidden rounded-xl border-2 border-[#1A1A1A] shadow-[3px_3px_0px_0px_#1A1A1A]"
+        >
+          <img
+            src="../../../../public/img/landing/gallery/plants-watercolor.png"
+            alt="Watercolor"
+            class="aspect-[4/3] w-full object-cover"
+          />
+        </div>
       </div>
-      <div class="absolute top-10 right-16 w-16 h-16 rotate-[5deg] opacity-[0.05] overflow-hidden rounded-xl border-2 border-[#1A1A1A]">
-        <img src="../../../../public/img/landing/gallery/seagull-hokusai.png" alt="" class="w-full h-full object-cover" />
+
+      <!-- Logo bottom-left -->
+      <div class="absolute bottom-6 left-14 z-20">
+        <img
+          src="../../../../public/img/logo-with-bot.png"
+          alt="No Context Bot"
+          class="h-9"
+        />
+      </div>
+
+      <!-- Free badge bottom-right -->
+      <div class="absolute right-14 bottom-6 z-20">
+        <div
+          class="inline-flex items-center gap-2 rounded-full border-2 border-[#1A1A1A] bg-white px-4 py-2 shadow-[3px_3px_0px_0px_#1A1A1A]"
+        >
+          <span class="text-sm font-bold text-[#7C3AED]">Free to start</span>
+        </div>
       </div>
     </div>
-
-    <!-- Main headline -->
-    <div class="relative z-10 text-center">
-      <h1 class="font-display text-[56px] font-extrabold leading-[1.1] tracking-tight text-[#1A1A1A]">
-        Install
-        <span class="relative inline-block">
-          <span class="relative z-10">once.</span>
-          <span class="absolute inset-0 -skew-x-2 rounded-lg bg-[#EDE9FE]"></span>
-        </span>
-        Fun
-        <span class="relative inline-block">
-          <span class="relative z-10">forever.</span>
-          <span class="absolute inset-0 -skew-x-2 rounded-lg bg-[#EDE9FE]"></span>
-        </span>
-      </h1>
-      <p class="mt-4 text-xl text-[#4A4A4A]">No Context Bot does the rest.</p>
-    </div>
-
-    <!-- Row of art thumbnails -->
-    <div class="relative z-10 mt-10 flex items-center gap-4">
-      <div class="w-[160px] overflow-hidden rounded-xl border-2 border-[#1A1A1A] shadow-[3px_3px_0px_0px_#1A1A1A] rotate-[-2deg]">
-        <img src="../../../../public/img/landing/gallery/duck-ghibli.png" alt="Ghibli" class="w-full aspect-[4/3] object-cover" />
-      </div>
-      <div class="w-[160px] overflow-hidden rounded-xl border-2 border-[#1A1A1A] shadow-[3px_3px_0px_0px_#1A1A1A] rotate-[1deg]">
-        <img src="../../../../public/img/landing/gallery/goat-cubism.png" alt="Cubism" class="w-full aspect-[4/3] object-cover" />
-      </div>
-      <div class="w-[160px] overflow-hidden rounded-xl border-2 border-[#1A1A1A] shadow-[3px_3px_0px_0px_#1A1A1A] rotate-[-1deg]">
-        <img src="../../../../public/img/landing/gallery/love-popart.png" alt="Pop Art" class="w-full aspect-[4/3] object-cover" />
-      </div>
-      <div class="w-[160px] overflow-hidden rounded-xl border-2 border-[#1A1A1A] shadow-[3px_3px_0px_0px_#1A1A1A] rotate-[2deg]">
-        <img src="../../../../public/img/landing/gallery/raccoon-pixel.png" alt="Pixel Art" class="w-full aspect-[4/3] object-cover" />
-      </div>
-      <div class="w-[160px] overflow-hidden rounded-xl border-2 border-[#1A1A1A] shadow-[3px_3px_0px_0px_#1A1A1A] rotate-[-1.5deg]">
-        <img src="../../../../public/img/landing/gallery/plants-watercolor.png" alt="Watercolor" class="w-full aspect-[4/3] object-cover" />
-      </div>
-    </div>
-
-    <!-- Logo bottom-left -->
-    <div class="absolute bottom-6 left-14 z-20">
-      <img src="../../../../public/img/logo-with-bot.png" alt="No Context Bot" class="h-9" />
-    </div>
-
-    <!-- Free badge bottom-right -->
-    <div class="absolute bottom-6 right-14 z-20">
-      <div class="inline-flex items-center gap-2 rounded-full border-2 border-[#1A1A1A] bg-white px-4 py-2 shadow-[3px_3px_0px_0px_#1A1A1A]">
-        <span class="text-sm font-bold text-[#7C3AED]">Free to start</span>
-      </div>
-    </div>
-  </div>
-</body>
+  </body>
 </html>

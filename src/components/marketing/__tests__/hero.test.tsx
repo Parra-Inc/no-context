@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element, jsx-a11y/alt-text */
 import { render, screen } from "@testing-library/react";
 import { Hero } from "../hero";
 

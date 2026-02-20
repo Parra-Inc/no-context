@@ -42,6 +42,7 @@ export function Navbar() {
               Sign In
             </MarketingButton>
           </Link>
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
           <a href="/api/slack/install">
             <MarketingButton size="sm">Add to Slack</MarketingButton>
           </a>
@@ -73,6 +74,7 @@ export function Navbar() {
                 Sign In
               </MarketingButton>
             </Link>
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a href="/api/slack/install">
               <MarketingButton className="w-full">Add to Slack</MarketingButton>
             </a>

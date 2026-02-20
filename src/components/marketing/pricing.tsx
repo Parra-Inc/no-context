@@ -181,6 +181,7 @@ export function Pricing() {
                     </li>
                   ))}
                 </ul>
+                {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
                 <a
                   href="/api/slack/install"
                   className="mt-auto block cursor-pointer pt-8"

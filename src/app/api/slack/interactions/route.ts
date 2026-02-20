@@ -102,7 +102,6 @@ export async function POST(request: NextRequest) {
 // Handle style selection from the retry style picker
 // ---------------------------------------------------------------------------
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 async function handleStyleSelection(payload: any, action: any) {
   const quoteId = action.action_id.replace("style_select:", "");
   const selectedStyleName = action.selected_option?.value;

@@ -100,7 +100,9 @@ async function main() {
     }
     const relPath = relative(ASSETS_DIR, match).replace(/\.html$/, ".png");
     const outFile = resolve(OUTPUT_DIR, relPath);
-    try { unlinkSync(outFile); } catch {}
+    try {
+      unlinkSync(outFile);
+    } catch {}
     console.log(`Screenshotting: ${relative(ASSETS_DIR, match)}`);
     const browser = await puppeteer.launch();
     await screenshot(browser, match, outFile);

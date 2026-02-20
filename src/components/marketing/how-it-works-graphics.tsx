@@ -119,9 +119,11 @@ function SlackMessage({
   return (
     <div className="flex items-start gap-2 px-4 py-1.5">
       {avatar ? (
-        <img
+        <Image
           src={avatar}
           alt={name}
+          width={32}
+          height={32}
           className="h-8 w-8 shrink-0 rounded-lg object-cover"
         />
       ) : (
@@ -210,9 +212,11 @@ function SidebarPanel() {
       {/* Spacer + logged-in user */}
       <div className="mt-auto border-t border-white/10 px-3 py-2">
         <div className="flex items-center gap-1.5">
-          <img
+          <Image
             src="/images/landing/avatar/maya.jpg"
             alt="Maya H."
+            width={20}
+            height={20}
             className="h-5 w-5 shrink-0 rounded object-cover"
           />
           <span className="truncate text-[11px] font-medium text-white">

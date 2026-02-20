@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Support",
@@ -19,9 +20,9 @@ export default function SupportPage() {
           <h2 className="text-lg font-semibold text-[#1A1A1A]">Contact Us</h2>
           <p className="mt-2">
             Reach out through our{" "}
-            <a href="/contact" className="text-[#7C3AED] hover:underline">
+            <Link href="/contact" className="text-[#7C3AED] hover:underline">
               contact form
-            </a>{" "}
+            </Link>{" "}
             and we&apos;ll get back to you within 24 hours.
           </p>
         </div>
@@ -29,9 +30,9 @@ export default function SupportPage() {
           <h2 className="text-lg font-semibold text-[#1A1A1A]">FAQ</h2>
           <p className="mt-2">
             Check our{" "}
-            <a href="/#faq" className="text-[#7C3AED] hover:underline">
+            <Link href="/#faq" className="text-[#7C3AED] hover:underline">
               frequently asked questions
-            </a>{" "}
+            </Link>{" "}
             for quick answers.
           </p>
         </div>

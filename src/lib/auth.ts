@@ -43,7 +43,6 @@ export const authConfig: NextAuthConfig = {
           // Strip id_token — Slack's OIDC returns a broken nonce, and Auth.js
           // tries to validate it even with type "oauth". Removing it forces
           // Auth.js to use the userinfo endpoint instead.
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { id_token, ...rest } = data;
           return Response.json(rest);
         },

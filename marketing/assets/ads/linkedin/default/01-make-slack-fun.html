@@ -1,98 +1,160 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=1200, initial-scale=1" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'system-ui', 'sans-serif'],
-            display: ['Inter', 'system-ui', 'sans-serif'],
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1200, initial-scale=1" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "system-ui", "sans-serif"],
+              display: ["Inter", "system-ui", "sans-serif"],
+            },
           },
         },
-      },
-    }
-  </script>
-  <style>
-    body { margin: 0; width: 1200px; height: 628px; overflow: hidden; }
-  </style>
-</head>
-<body class="bg-[#fafaf8]">
-  <div class="relative w-[1200px] h-[628px] flex items-center overflow-hidden">
+      };
+    </script>
+    <style>
+      body {
+        margin: 0;
+        width: 1200px;
+        height: 628px;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body class="bg-[#fafaf8]">
+    <div
+      class="relative flex h-[628px] w-[1200px] items-center overflow-hidden"
+    >
+      <!-- Left side: headline + subtext -->
+      <div class="relative z-10 flex-1 pr-6 pl-14">
+        <div class="max-w-[460px]">
+          <h1
+            class="font-display text-[44px] leading-[1.1] font-extrabold tracking-tight text-[#1A1A1A]"
+          >
+            Make your Slack workspace
+            <span class="relative inline-block">
+              <span class="relative z-10">actually fun.</span>
+              <span
+                class="absolute inset-0 -skew-x-2 rounded-lg bg-[#EDE9FE]"
+              ></span>
+            </span>
+          </h1>
 
-    <!-- Left side: headline + subtext -->
-    <div class="relative z-10 flex-1 pl-14 pr-6">
-      <div class="max-w-[460px]">
-        <h1 class="font-display text-[44px] font-extrabold leading-[1.1] tracking-tight text-[#1A1A1A]">
-          Make your Slack workspace
-          <span class="relative inline-block">
-            <span class="relative z-10">actually fun.</span>
-            <span class="absolute inset-0 -skew-x-2 rounded-lg bg-[#EDE9FE]"></span>
-          </span>
-        </h1>
+          <p class="mt-5 text-lg leading-relaxed text-[#4A4A4A]">
+            Funny quotes go in.<br />
+            <span class="font-semibold text-[#1A1A1A]"
+              >AI paintings come out.</span
+            >
+          </p>
 
-        <p class="mt-5 text-lg leading-relaxed text-[#4A4A4A]">
-          Funny quotes go in.<br/>
-          <span class="font-semibold text-[#1A1A1A]">AI paintings come out.</span>
-        </p>
+          <div
+            class="mt-6 inline-flex items-center gap-2 rounded-full border-2 border-[#1A1A1A] bg-white px-4 py-2 shadow-[3px_3px_0px_0px_#1A1A1A]"
+          >
+            <span class="text-sm font-bold text-[#7C3AED]">Free to start</span>
+            <span class="text-sm text-[#4A4A4A]">· Zero setup</span>
+          </div>
+        </div>
 
-        <div class="mt-6 inline-flex items-center gap-2 rounded-full border-2 border-[#1A1A1A] bg-white px-4 py-2 shadow-[3px_3px_0px_0px_#1A1A1A]">
-          <span class="text-sm font-bold text-[#7C3AED]">Free to start</span>
-          <span class="text-sm text-[#4A4A4A]">· Zero setup</span>
+        <!-- Logo bottom-left -->
+        <div class="absolute bottom-8 left-14">
+          <img
+            src="../../../../public/img/logo-with-bot.png"
+            alt="No Context Bot"
+            class="h-10"
+          />
         </div>
       </div>
 
-      <!-- Logo bottom-left -->
-      <div class="absolute bottom-8 left-14">
-        <img src="../../../../public/img/logo-with-bot.png" alt="No Context Bot" class="h-10" />
+      <!-- Right side: 3 tilted gallery cards -->
+      <div
+        class="relative z-10 flex h-full w-[560px] flex-shrink-0 items-center justify-center"
+      >
+        <!-- Card 1: back-left -->
+        <div class="absolute top-[60px] right-[300px] w-[240px] rotate-[-8deg]">
+          <div
+            class="overflow-hidden rounded-xl border-2 border-[#1A1A1A] bg-white shadow-[4px_4px_0px_0px_#1A1A1A]"
+          >
+            <div
+              class="aspect-[4/3] overflow-hidden border-b-2 border-[#1A1A1A]"
+            >
+              <img
+                src="../../../../public/img/landing/gallery/plants-watercolor.png"
+                alt="Watercolor"
+                class="h-full w-full object-cover"
+              />
+            </div>
+            <div class="px-3 py-2">
+              <span
+                class="rounded-sm border border-[#7C3AED] bg-[#EDE9FE] px-2 py-0.5 text-[10px] font-bold text-[#7C3AED]"
+                >Watercolor</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: middle -->
+        <div
+          class="absolute top-[100px] right-[140px] z-10 w-[260px] rotate-[3deg]"
+        >
+          <div
+            class="overflow-hidden rounded-xl border-2 border-[#1A1A1A] bg-white shadow-[6px_6px_0px_0px_#1A1A1A]"
+          >
+            <div
+              class="aspect-[4/3] overflow-hidden border-b-2 border-[#1A1A1A]"
+            >
+              <img
+                src="../../../../public/img/landing/gallery/goat-cubism.png"
+                alt="Cubism"
+                class="h-full w-full object-cover"
+              />
+            </div>
+            <div class="flex items-center justify-between px-3 py-2">
+              <p class="truncate text-xs font-bold text-[#1A1A1A]">
+                "That's not a bug, that's a goat"
+              </p>
+              <span
+                class="ml-2 flex-shrink-0 rounded-sm border border-[#7C3AED] bg-[#EDE9FE] px-2 py-0.5 text-[10px] font-bold text-[#7C3AED]"
+                >Cubism</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: front-right -->
+        <div
+          class="absolute top-[180px] right-[20px] z-20 w-[230px] rotate-[10deg]"
+        >
+          <div
+            class="overflow-hidden rounded-xl border-2 border-[#1A1A1A] bg-white shadow-[4px_4px_0px_0px_#1A1A1A]"
+          >
+            <div
+              class="aspect-[4/3] overflow-hidden border-b-2 border-[#1A1A1A]"
+            >
+              <img
+                src="../../../../public/img/landing/gallery/duck-ghibli.png"
+                alt="Ghibli"
+                class="h-full w-full object-cover"
+              />
+            </div>
+            <div class="px-3 py-2">
+              <span
+                class="rounded-sm border border-[#7C3AED] bg-[#EDE9FE] px-2 py-0.5 text-[10px] font-bold text-[#7C3AED]"
+                >Ghibli</span
+              >
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-
-    <!-- Right side: 3 tilted gallery cards -->
-    <div class="relative z-10 flex-shrink-0 w-[560px] h-full flex items-center justify-center">
-      <!-- Card 1: back-left -->
-      <div class="absolute top-[60px] right-[300px] w-[240px] rotate-[-8deg]">
-        <div class="overflow-hidden rounded-xl border-2 border-[#1A1A1A] bg-white shadow-[4px_4px_0px_0px_#1A1A1A]">
-          <div class="aspect-[4/3] overflow-hidden border-b-2 border-[#1A1A1A]">
-            <img src="../../../../public/img/landing/gallery/plants-watercolor.png" alt="Watercolor" class="w-full h-full object-cover" />
-          </div>
-          <div class="px-3 py-2">
-            <span class="rounded-sm border border-[#7C3AED] bg-[#EDE9FE] px-2 py-0.5 text-[10px] font-bold text-[#7C3AED]">Watercolor</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Card 2: middle -->
-      <div class="absolute top-[100px] right-[140px] w-[260px] rotate-[3deg] z-10">
-        <div class="overflow-hidden rounded-xl border-2 border-[#1A1A1A] bg-white shadow-[6px_6px_0px_0px_#1A1A1A]">
-          <div class="aspect-[4/3] overflow-hidden border-b-2 border-[#1A1A1A]">
-            <img src="../../../../public/img/landing/gallery/goat-cubism.png" alt="Cubism" class="w-full h-full object-cover" />
-          </div>
-          <div class="px-3 py-2 flex items-center justify-between">
-            <p class="text-xs font-bold text-[#1A1A1A] truncate">"That's not a bug, that's a goat"</p>
-            <span class="rounded-sm border border-[#7C3AED] bg-[#EDE9FE] px-2 py-0.5 text-[10px] font-bold text-[#7C3AED] flex-shrink-0 ml-2">Cubism</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Card 3: front-right -->
-      <div class="absolute top-[180px] right-[20px] w-[230px] rotate-[10deg] z-20">
-        <div class="overflow-hidden rounded-xl border-2 border-[#1A1A1A] bg-white shadow-[4px_4px_0px_0px_#1A1A1A]">
-          <div class="aspect-[4/3] overflow-hidden border-b-2 border-[#1A1A1A]">
-            <img src="../../../../public/img/landing/gallery/duck-ghibli.png" alt="Ghibli" class="w-full h-full object-cover" />
-          </div>
-          <div class="px-3 py-2">
-            <span class="rounded-sm border border-[#7C3AED] bg-[#EDE9FE] px-2 py-0.5 text-[10px] font-bold text-[#7C3AED]">Ghibli</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</body>
+  </body>
 </html>
