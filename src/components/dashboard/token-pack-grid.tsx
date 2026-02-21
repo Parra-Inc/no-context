@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useWorkspace } from "@/components/workspace-context";
 
 const TOKEN_PACKS = [
   {
@@ -69,6 +70,7 @@ interface TokenPackGridProps {
 }
 
 export function TokenPackGrid({ bonusCredits }: TokenPackGridProps) {
+  const { workspaceId } = useWorkspace();
   const [loading, setLoading] = useState<string | null>(null);
 
   async function buyPack(packId: string) {
@@ -76,7 +78,10 @@ export function TokenPackGrid({ bonusCredits }: TokenPackGridProps) {
     try {
       const res = await fetch("/api/stripe/token-packs", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-Workspace-Id": workspaceId,
+        },
         body: JSON.stringify({ packId }),
       });
       if (!res.ok) {

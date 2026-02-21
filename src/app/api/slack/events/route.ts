@@ -277,9 +277,13 @@ async function processMessage(event: SlackEvent, teamId: string) {
     const slackClient = getSlackClient(workspace.slackBotToken);
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
     const resetDate = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-    const resetDateStr = resetDate.toLocaleDateString("en-US", {
+    const resetDateStr = resetDate.toLocaleString("en-US", {
       month: "long",
       day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      timeZoneName: "short",
     });
     const checkoutToken = await getOrCreateCheckoutToken(workspace.id);
     await postEphemeral(
@@ -637,6 +641,7 @@ async function processMentionInThread(event: SlackEvent, teamId: string) {
       slackClient,
       slackChannelId,
       threadTs,
+      event.ts!, // Pass the @mention message timestamp
       parentText,
       existingQuote,
       enabledStyles,
@@ -658,6 +663,7 @@ async function generateFromMention(
   slackClient: ReturnType<typeof getSlackClient>,
   slackChannelId: string,
   parentTs: string,
+  mentionTs: string,
   parentText: string,
   existingQuote: Awaited<ReturnType<typeof findQuoteWithGenerations>>,
   enabledStyles: DbStyle[],
@@ -685,9 +691,9 @@ async function generateFromMention(
     ? selectedStyle.prompt
     : undefined;
 
-  // Add processing reaction
+  // Add processing reaction to the @mention message
   try {
-    await addReaction(slackClient, slackChannelId, parentTs, "eyes");
+    await addReaction(slackClient, slackChannelId, mentionTs, "eyes");
   } catch (error) {
     if (isSlackTokenError(error)) {
       await markWorkspaceDisconnected(workspace.id);
